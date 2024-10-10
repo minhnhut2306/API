@@ -66,7 +66,35 @@ const register_App = async (email, name, password, phone) => {
         throw new Error('Đăng kí thất bại')
     }
 }
+
+// login
+
+const login_App = async (email, password) => {
+    try {
+        //lấy user trong db theo email
+        const user = await userModel.findOne({ email: email });
+        console.log("------------------------email:", user);
+        if (!user) {
+            throw new Error('Email không tồn tại')
+        } else {
+            //kiểm tra password
+            // const check = user.password.toString() === password.toString();
+            const check = bcrypt.compareSync(password, user.password);
+            if (check) {
+                //xóa field password trước khi trả về
+                delete user._doc.password;
+                console.log('Đăng nhập thành công:', user);
+                return user //hoặc trả về 1 object mới ở đây
+            }
+        }
+        return null;
+
+    } catch (error) {
+        console.log('Đăng nhập thất bại: ', error.message);
+        throw new Error('Đăng nhập thất bại');
+    }
+}
 module.exports = {
     register_App,
-    
+    login_App,
 }
