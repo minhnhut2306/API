@@ -8,6 +8,7 @@ router.get('/', function(req, res, next) {
 });
 
 // Register
+///////////////////////////////////////////////////////////////////////
 //  router.post('/register', (req, res, next) => {
 //   const { name, email, password,phone } = req.body;
 //   if (!name ||!email ||!password||!phone) {
@@ -28,4 +29,21 @@ router.post("/register", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+///////////////////////////////////////////////////////////////////
+// login
+
+router.post('/login', async (req, res, next) => {
+  try {
+      const { email, password } = req.body;
+      const result = await userController.login_App(email, password);
+      if (!result) {
+          throw new Error('Đăng nhập thất bại')
+      }
+      res.status(200).json({ status: true, data: result });
+  } catch (error) {
+      console.log('Login error: ', error.message);
+      res.status(500).json({ status: false, data: error.message });
+  }
+});
+
 module.exports = router;
