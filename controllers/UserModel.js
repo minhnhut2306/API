@@ -10,8 +10,8 @@ const UserSchema = new Schema({
     name: { type: String, required: true },
     phone:{type: String, required: true},
     address:{type: Array,  default: [ ]},
-    bio:{type: String, required:false}, // tiểu sử
-    gender:{type: String, required:true},
+    bio:{type: String,default: ''}, // tiểu sử
+    gender:{type: String, default: ''},
     birthday:{type: String, required:false}, 
 
     //lịch sử mua hàng
