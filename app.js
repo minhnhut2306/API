@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors')
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
@@ -27,7 +28,7 @@ mongoose.connect("mongodb://localhost:27017/DATN") // tên dự án
 .catch(() => console.log("Could not connect to MongoDB..."));
 
 app.use('/', indexRouter);
-
+app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
