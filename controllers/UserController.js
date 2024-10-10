@@ -3,7 +3,7 @@ const userModel = require('./UserModel');
 const bcrypt = require('bcryptjs');
 
 // đăng ký
-const register_App = async (email, name, password,phone) => {
+const register_App = async (email, name, password, phone) => {
     try {
         //check email exists in db - select * from users where email = email
         let user = await userModel.findOne({ email: email });//phải sử dụng let
@@ -18,15 +18,15 @@ const register_App = async (email, name, password,phone) => {
 
         //kiểm tra định dạng email, password
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
+        // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
         const phoneRegex = /^[0-9]+$/;
 
         if (!emailRegex.test(email)) {
             throw new Error('Email không đúng định dạng')
         }
-        if (!passwordRegex.test(password)) {
-            throw new Error('Password không đúng định dạng')
-        }
+        // if (!passwordRegex.test(password)) {
+        //     throw new Error('Password không đúng định dạng')
+        // }
         if (!phoneRegex.test(phone)) {
             throw new Error('Số điện thoại không đúng đ��nh dạng')
         }
