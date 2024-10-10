@@ -1,10 +1,10 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-const userController = require('../controllers/UserController');
+const userController = require("../controllers/UserController");
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get("/", function (req, res, next) {
+  res.send("respond with a resource");
 });
 
 // Register
@@ -22,7 +22,7 @@ router.get('/', function(req, res, next) {
 router.post("/register", async (req, res, next) => {
   try {
     const { email, password, name, phone } = req.body;
-    const result = await userController.register_App(email, password, name, phone);
+    const result = await userController.register(email, password, name, phone);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
     console.log("Register error:", error.message);
@@ -32,17 +32,21 @@ router.post("/register", async (req, res, next) => {
 ///////////////////////////////////////////////////////////////////
 // login
 
-router.post('/login', async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
   try {
-      const { email, password } = req.body;
-      const result = await userController.login_App(email, password);
-      if (!result) {
-          throw new Error('Đăng nhập thất bại')
-      }
-      res.status(200).json({ status: true, data: result });
+    const { email, password } = req.body;
+    const result = await userController.login(email, password);
+
+    if (result) {
+      return res.status(200).json({ status: true, data: result });
+    } else {
+      return res
+        .status(400)
+        .json({ status: false, data: "Email hoặc mật khẩu không đúng" });
+    }
   } catch (error) {
-      console.log('Login error: ', error.message);
-      res.status(500).json({ status: false, data: error.message });
+    console.log("Login error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
   }
 });
 
