@@ -80,6 +80,31 @@ const register = async (email, password, name, phone) => {
     if (user) {
       throw new Error("Email đã tồn tại");
     }
+    if (
+      email == "" ||
+      email == undefined ||
+      name == "" ||
+      name == undefined ||
+      password == "" ||
+      password == undefined ||
+      phone == ""
+    ) {
+      throw new Error("Email hoặc password hoặc name không hợp lệ!");
+    }
+    // kiểm tra định dạng email, password
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
+    const phoneRegex = /^[0-9]+$/;
+
+    if (!emailRegex.test(email)) {
+      throw new Error("Email không đúng định dạng");
+    }
+    // if (!passwordRegex.test(password)) {
+    //     throw new Error('Password không đúng định dạng')
+    // }
+    if (!phoneRegex.test(phone)) {
+      throw new Error("Số điện thoại không đúng định dạng");
+    }
     // mã hóa password
     const salt = bcrypt.genSaltSync(10);
     console.log(salt);
@@ -147,6 +172,7 @@ const login = async (email, password) => {
     throw new Error("Đăng nhập thất bại");
   }
 };
+
 module.exports = {
   register,
   login,
