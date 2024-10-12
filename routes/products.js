@@ -15,4 +15,29 @@ router.get('/getProducts_App', async (req, res) => {
 
 
 
+// lấy sp chi tiết theo id
+router.get('/getProductDetailById_App/:id', async(req, res, next) => {
+    try {
+        const { id } = req.params;
+        const product = await ProductController.getProductDetailById_App(id);
+        return res.status(200).json({ success : true, products: product});
+    } catch (error) {   
+        return res.status(500).json({ success : false, products: error.massage});
+    }
+});
+
+// Lấy top 10 sp bán chạy nhất trong app
+
+router.get('/getTopProductSell_App', async(req, res, next) => {
+      try {
+        const products = await ProductController.getTopProductSell_App(name,sold);
+        return res.status(200).json({ status: true, data: products });
+    } catch (error) {
+        return res.status(500).json({ status: false, data: error.message });
+    }
+});
+
+
+
+
 module.exports = router;

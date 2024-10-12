@@ -9,15 +9,15 @@ const ProductSchema = new Schema({
     price: {type: Number, require: true, default: 0},
     quantity: {type: Number, default: 0},
     images: {type: Array, default: []},
-    description: {type: String, default: ''},
-    category: {type: Object, default: {}},
-    uom:{type:String,default:{}},
-    supplier:{type: String,default: ''},
-    fiber:{type: String,default: ''},
-    origin:{type: String,default: ''},
+    description: {type: String, default: ''}, //mô tả
+    category: {type: Object, default: {}}, //danh mục
+    uom:{type:String,default:{}}, //đơn vị đo
+    supplier:{type: String,default: ''}, //nhà cung cấp
+    fiber:{type: String,default: ''}, //chất sơ
+    origin:{type: String,default: ''}, //xuất xứ
     preserve:{type: String,default: ''},
-    Uses:{type: String,default: ''},
-    discount:{type: String},
+    Uses:{type: String,default: ''}, //công dụng
+    discount:{type: String}, //giảm giá
     createAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now},
 })

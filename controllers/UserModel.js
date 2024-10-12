@@ -13,6 +13,7 @@ const UserSchema = new Schema({
     bio:{type: String,default: ''}, // tiểu sử
     gender:{type: String, default: ''},
     birthday:{type: String, required:false}, 
+    sold: { type: Number, required: true }, // số lượng bán
 
     //lịch sử mua hàng
     
