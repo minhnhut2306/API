@@ -49,6 +49,25 @@ const getTopProductSell_App = async () => {
       throw new Error("Lấy sp lỗi");
     }
   };
-  
- 
-module.exports = {getProduct_App, getProductDetailById_App, getTopProductSell_App }
+   
+//   _________________search___________________
+const findProducts_App = async (key) => {
+    try {
+        let query = {};
+
+        query = {
+            ...query,
+            name: { $regex: key, $options: 'i' }
+        }
+
+        const products = await ProductModel
+            .find(query,'name,price,images,uom')
+        // .sort({ name: -1 });
+        return products;
+
+    } catch (error) {
+        console.log('findProduct error: ', error.message);
+        throw new Error('Tìm kiếm sản phẩm không thành công');
+    }
+}
+module.exports = {getProduct_App, getProductDetailById_App, getTopProductSell_App,findProducts_App }
