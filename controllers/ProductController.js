@@ -93,5 +93,26 @@ const findProductsByKey_App = async (key) => {
         console.log('getProducts error: ', error.message);
         throw new Error('Lấy danh sách sản phẩm lỗi');
     }
-}
-module.exports = {getProduct_App, getProductDetailById_App, getTopProductSell_Web,findProductsByKey_App }
+} ;
+
+// xóa sản phẩm 
+// Xóa sp theo id
+const deleteProduct = async (id) => {
+   
+    try {
+      // tìm sản phẩm theo id
+   
+      const productInDB = await ProductModel.findById(id);
+    
+      if (!productInDB) {
+        throw new Error("Sản phẩm không tồn tại");
+      }
+      //Xóa sp
+      await ProductModel.deleteOne({ _id: id });
+      return true;
+    } catch (error) {
+      console.log("deleteProduct: ", error);
+      throw new Error("Xóa sp lỗi");
+    }
+  };
+module.exports = {getProduct_App, getProductDetailById_App, getTopProductSell_Web,findProductsByKey_App, deleteProduct }
