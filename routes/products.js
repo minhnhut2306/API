@@ -54,5 +54,16 @@ router.get('/search', async (req, res, next) => {
     }
 })
 
+// xóa sp theo id
+router.delete('/:id/delete', async (req, res, next ) => {
+    try {
+        const { id } = req.params;
+        const products = await ProductController.deleteProduct(id);
+        return res.status(200).json({ success : true, data: products});
+    } catch (error) {   
+        return res.status(500).json({ success : false, data: error.massage});
+    }
+});
+
 
 module.exports = router;
