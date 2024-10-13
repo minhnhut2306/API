@@ -20,6 +20,7 @@ const ProductSchema = new Schema({
     discount:{type: String}, //giảm giá
     createAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now},
+    sold : {type: Number, require: true},
 })
 
 //tiếng anh, số ít, chữ thường, không dấu, không cách

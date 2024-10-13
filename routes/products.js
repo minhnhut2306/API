@@ -28,10 +28,10 @@ router.get('/getProductDetailById_App/:id', async(req, res, next) => {
 
 // Lấy top 10 sp bán chạy nhất trong app
 
-router.get('/getTopProductSell_', async (req, res, next) => {
+router.get('/getTopProductSell', async (req, res, next) => {
     try {
       
-       const products = await ProductController.getTopProductSell_App();
+       const products = await ProductController.getTopProductSell_Web();
        return res.status(200).json({ status: true, data: products });
     } catch (error) {
        return res.status(500).json({ status: false, data: error.message });
@@ -45,7 +45,7 @@ router.get('/search', async (req, res, next) => {
     try {
         const { key } = req.query;
         // console.log('dfshdjbvhd', key);
-        const products = await ProductController.findProducts_App(key);
+        const products = await ProductController.findProductsByKey_App(key);
         console.log(products);
         return res.status(200).json({ status: true, data: products });
     } catch (error) {
