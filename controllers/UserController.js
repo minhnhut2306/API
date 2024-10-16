@@ -173,7 +173,19 @@ const login = async (email, password) => {
   }
 };
 
+//lấy người dùng mới tạo
+const getNewUsers = async() =>{
+  try {
+    const user = userModel.find().sort({createdAt: - 1}).limit(10)
+    return user;
+  } catch (error) {
+    console.log("Lấy danh sách người dùng thất bại", error.message);
+    throw new Error("Lấy danh sách người dùng thất bại");
+  }
+}
+
 module.exports = {
   register,
   login,
+  getNewUsers
 };

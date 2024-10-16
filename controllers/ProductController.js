@@ -5,7 +5,7 @@ const ProductModel = require('./ProductModel');
 
 //Lấy danh sách sản phẩm (HOME)
 
-const getProduct_App = async () => {
+const getProduct = async () => {
     try {
         let query = {};
         query = {
@@ -115,4 +115,4 @@ const deleteProduct = async (id) => {
       throw new Error("Xóa sp lỗi");
     }
   };
-module.exports = {getProduct_App, getProductDetailById_App, getTopProductSell_Web,findProductsByKey_App, deleteProduct }
+module.exports = {getProduct, getProductDetailById_App, getTopProductSell_Web,findProductsByKey_App, deleteProduct }
