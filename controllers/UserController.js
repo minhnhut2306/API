@@ -2,6 +2,7 @@ const { model } = require("mongoose");
 const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
 
+
 // đăng ký
 // const register_App = async (email, name, password, phone) => {
 //   try {
@@ -94,7 +95,7 @@ const register = async (email, password, name, phone) => {
     // kiểm tra định dạng email, password
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     // const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
-    const phoneRegex = /^[0-9]+$/;
+    const phoneRegex = /^[0-9]{10,11}$/;
 
     if (!emailRegex.test(email)) {
       throw new Error("Email không đúng định dạng");
