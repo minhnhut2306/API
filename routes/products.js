@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const validation = require('../middlewares/Validation');
 const ProductController = require('../controllers/ProductController');
 
 // ____________________________Lấy sp home_______________________
@@ -12,6 +13,7 @@ router.get('/getProducts_App', async (req, res) => {
         return res.status(500).json({ status: false, data: error.message });
     }
 });
+// =================================================================================================================
 
 
 
@@ -25,6 +27,7 @@ router.get('/getProductDetailById_App/:id', async(req, res, next) => {
         return res.status(500).json({ success : false, products: error.massage});
     }
 });
+// =================================================================================================================
 
 // Lấy top 10 sp bán chạy nhất trong app
 
@@ -37,7 +40,8 @@ router.get('/getTopProductSell', async (req, res, next) => {
        return res.status(500).json({ status: false, data: error.message });
     }
  });
- 
+ // =================================================================================================================
+
 //  __________________________________searech____________________________________--
 //http://localhost:6677/products/search?key=coca
 // Tìm kiến sản phẩm theo từ khóa (SEARCH)
@@ -53,6 +57,26 @@ router.get('/search', async (req, res, next) => {
         return res.status(500).json({ status: false, data: error.message });
     }
 })
+// =================================================================================================================
+// thêm sản phẩm
 
+
+
+
+
+
+router.post('/addSP', [validation.validateProduct], async (req, res, next) => {
+    try {
+        const { name, price, quantity, images, description,  } = req.body;
+        const product = await ProductController.addProduct(name, price, quantity, images, description, );
+        return res.status(200).json({ status: true, data: product });
+    } catch (error) {
+        return res.status(500).json({ status: false, data: error.message });
+    }
+})
+
+
+
+//
 
 module.exports = router;
