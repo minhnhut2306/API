@@ -21,6 +21,7 @@ const getProduct_App = async () => {
 }
 
 //Lấy chi tiết sản phẩm
+// =================================================================================================================
 
 const getProductDetailById_App = async (id) => {
     try {
@@ -34,6 +35,7 @@ const getProductDetailById_App = async (id) => {
         throw new Error('Lấy danh sách sản phẩm lỗi');
     }
 }
+// =================================================================================================================
 
 // thống kê top 10 sp bán chạy nhiều nhất 
 const getTopProductSell_Web = async () => {
@@ -49,6 +51,8 @@ const getTopProductSell_Web = async () => {
       throw new Error("Lấy sp lỗi");
     }
   };
+  // =================================================================================================================
+
    
   
 //   _________________search___________________
@@ -94,4 +98,34 @@ const findProductsByKey_App = async (key) => {
         throw new Error('Lấy danh sách sản phẩm lỗi');
     }
 }
-module.exports = {getProduct_App, getProductDetailById_App, getTopProductSell_Web,findProductsByKey_App }
+// =================================================================================================================
+const addProduct = async (name, price, quantity, images, description) => {
+    try {
+        // Kiểm tra xem tất cả các trường cần thiết có được cung cấp hay không
+        if (!name || !price || !quantity || !images || !description) {
+            throw new Error('Vui lòng cung cấp đầy đủ thông tin sản phẩm');
+        }
+
+        // Tạo đối tượng sản phẩm
+        const product = {
+            name,
+            price,
+            quantity,
+            images,
+            description,
+        };
+
+        // Tạo một sản phẩm mới từ đối tượng product
+        const newProduct = new ProductModel(product);
+        
+        // Lưu sản phẩm vào cơ sở dữ liệu
+        const result = await newProduct.save();
+        
+        return result; // Trả về sản phẩm mới đã được lưu
+    } catch (error) {
+        console.error('addProduct error: ', error.message);
+        throw new Error('Thêm sản phẩm thất bại: ' + error.message); // Ném lại lỗi để có thể xử lý ở nơi khác
+    }
+};
+
+module.exports = {getProduct_App, getProductDetailById_App, getTopProductSell_Web,findProductsByKey_App,addProduct }
