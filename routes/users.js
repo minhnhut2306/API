@@ -3,8 +3,14 @@ var router = express.Router();
 const userController = require("../controllers/UserController");
 
 /* GET users listing. */
-router.get("/", function (req, res, next) {
-  res.send("respond with a resource");
+router.get("/get-NewUsers", async (req, res, next) => {
+     try {
+        const result = await userController.getNewUsers();
+        return res.status(200).json({ status: true, data: result });
+     } catch (error) {
+      console.log("Get NewUsers error:", error.message);
+      return res.status(500).json({ status: false, data: error.message });
+     }
 });
 
 // Register

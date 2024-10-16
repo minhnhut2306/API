@@ -11,6 +11,7 @@ require('./controllers/UserModel');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var productsRouter = require('./routes/products');
+var adminsRouter = require('./routes/admins');
 var app = express();
 
 // view engine setup
@@ -32,6 +33,7 @@ mongoose.connect("mongodb://localhost:27017/DATN") // tên dự án
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/products', productsRouter);
+app.use('/admins', adminsRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
