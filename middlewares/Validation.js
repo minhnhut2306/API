@@ -1,119 +1,143 @@
 const { Types } = require('mongoose');
 
-//kiểm tra lỗi cho cả 1 sp, sử dụng ở thêm và sửa sản phẩm
+// Kiểm tra lỗi cho cả 1 sp, sử dụng ở thêm và sửa sản phẩm
 const validateProduct = async (req, res, next) => {
     try {
-        const { name, price, quantity, images, category, description } = req.body;
+        const { name, price, quantity, images, category, description, uom } = req.body;
+
+        // Kiểm tra tên sản phẩm
         if (!name.trim() || !isNaN(name)) {
-            throw new Error('Name is invalid')
+            throw new Error('Name is invalid');
         }
+
+        // Kiểm tra giá sản phẩm
         if (!price || isNaN(price) || price <= 0) {
-            throw new Error('Price is invalid')
+            throw new Error('Price is invalid');
         }
+
+        // Kiểm tra số lượng sản phẩm
         if (!quantity || isNaN(quantity) || quantity <= 0) {
-            throw new Error('Quantity is invalid')
+            throw new Error('Quantity is invalid');
         }
+
+        // Kiểm tra hình ảnh sản phẩm
         if (!images || !Array.isArray(images) || images.length === 0) {
-            throw new Error('Images is invalid')
+            throw new Error('Images is invalid');
         }
+
+        // Kiểm tra danh mục sản phẩm
         if (!category) {
-            throw new Error('Category is invalid')
+            throw new Error('Category is invalid');
         }
+
+        // Kiểm tra mô tả sản phẩm
         if (!description || !isNaN(description)) {
-            throw new Error('Category is invalid')
+            throw new Error('Description is invalid');
         }
-        // nếu mọi thứ ok thì chuyển sang middleware tiếp theo
+
+        // Kiểm tra UOM
+        if (!uom || typeof uom !== 'string' || !uom.trim()) {
+            throw new Error('UOM is invalid');
+        }
+        
+        // Optionally: Check if UOM has valid values (e.g., 'kg', 'liter', 'pcs', etc.)
+        const validUOMs = ['kg', 'pcs', 'm', 'cm']; // Add your valid UOMs here
+        if (!validUOMs.includes(uom)) {
+            throw new Error('UOM must be one of the following: ' + validUOMs.join(', '));
+        }
+
+        // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
         next();
     } catch (error) {
         console.log('Validate product error', error);
-        return res.status(500).json({ status: false, data: error.message });
+        return res.status(400).json({ status: false, data: error.message });
     }
-}
+};
 
-//kiểm tra lỗi cho get sp
+// Kiểm tra lỗi cho get sp
 const validateLimitPage = async (req, res, next) => {
     try {
         const { limit, page } = req.query;
         if (!limit || isNaN(limit) || limit <= 0) {
-            throw new Error('Limit is invalid')
+            throw new Error('Limit is invalid');
         }
         if (!page || isNaN(page) || page <= 0) {
-            throw new Error('Page is invalid')
+            throw new Error('Page is invalid');
         }
-        // nếu mọi thứ ok thì chuyển sang middleware tiếp theo
+        // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
         next();
     } catch (error) {
         console.log('Validate limit and page error', error);
-        return res.status(500).json({ status: false, data: error.message });
+        return res.status(400).json({ status: false, data: error.message });
     }
-}
-//kiểm tra lỗi cho get sp
+};
+
+// Kiểm tra lỗi cho get sp
 const validateMinMax = async (req, res, next) => {
     try {
         const { min, max } = req.query;
-        if (!min || isNaN(min) || min <= 0) {
-            throw new Error('Min is invalid')
+        if (!min || isNaN(min) || min < 0) { // Changed to min < 0 to allow zero
+            throw new Error('Min is invalid');
         }
         if (!max || isNaN(max) || max <= 0) {
-            throw new Error('Max is invalid')
+            throw new Error('Max is invalid');
         }
-        // nếu mọi thứ ok thì chuyển sang middleware tiếp theo
+        // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
         next();
     } catch (error) {
         console.log('Validate min and max error', error);
-        return res.status(500).json({ status: false, data: error.message });
+        return res.status(400).json({ status: false, data: error.message });
     }
-}
+};
 
-//kiểm tra username
+// Kiểm tra username
 const validateUserName = async (req, res, next) => {
     try {
         const { name } = req.body;
         if (!name.trim() || !isNaN(name)) {
-            throw new Error('Username is invalid')
+            throw new Error('Username is invalid');
         }
-        // nếu mọi thứ ok thì chuyển sang middleware tiếp theo
+        // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
         next();
     } catch (error) {
         console.log('Validate username error: ', error.message);
-        return res.status(500).json({ status: false, data: error.message });
+        return res.status(400).json({ status: false, data: error.message });
     }
-}
+};
 
-
-//kiểm tra email
+// Kiểm tra email
 const validateEmail = async (req, res, next) => {
     try {
         const { email } = req.body;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email.trim() || !emailRegex.test(email)) {
-            throw new Error('Email is invalid')
+            throw new Error('Email is invalid');
         }
-        // nếu mọi thứ ok thì chuyển sang middleware tiếp theo
+        // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
         next();
     } catch (error) {
         console.log('Validate email error: ', error.message);
-        return res.status(500).json({ status: false, data: error.message });
+        return res.status(400).json({ status: false, data: error.message });
     }
-}
-//kiểm tra password
+};
+
+// Kiểm tra password
 const validatePassword = async (req, res, next) => {
     try {
         const { password } = req.body;
-        //password có ít nhất 8 chữ số, chữ viết hoa, số, kí tự đặc biệt
+        // Password có ít nhất 8 chữ số, chữ viết hoa, số, ký tự đặc biệt
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
 
         if (!password.trim() || !passwordRegex.test(password)) {
-            throw new Error('Password is invalid')
+            throw new Error('Password is invalid');
         }
-        // nếu mọi thứ ok thì chuyển sang middleware tiếp theo
+        // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
         next();
     } catch (error) {
         console.log('Validate password error: ', error.message);
-        return res.status(500).json({ status: false, data: error.message });
+        return res.status(400).json({ status: false, data: error.message });
     }
-}
-
+};
 
 module.exports = {
     validateProduct,
@@ -122,4 +146,4 @@ module.exports = {
     validateEmail,
     validatePassword,
     validateMinMax,
-}
+};
