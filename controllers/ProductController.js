@@ -124,10 +124,10 @@ const deleteProduct = async (id) => {
 // =======
 // }
 // =================================================================================================================
-const addProduct = async (name, price, quantity, images, description) => {
+const addProduct = async (name, price, quantity, images,category, description,uom,supplier,fiber,origin,preserve,uses) => {
     try {
         // Kiểm tra xem tất cả các trường cần thiết có được cung cấp hay không
-        if (!name || !price || !quantity || !images || !description) {
+        if (!name || !price || !quantity || !images || !description||!category ||!uom ||!supplier ||!fiber||!origin||!preserve||!uses) {
             throw new Error('Vui lòng cung cấp đầy đủ thông tin sản phẩm');
         }
 
@@ -138,6 +138,13 @@ const addProduct = async (name, price, quantity, images, description) => {
             quantity,
             images,
             description,
+            category,
+            uom,
+            supplier,
+            fiber,
+            origin,
+            preserve,
+            uses,
         };
 
         // Tạo một sản phẩm mới từ đối tượng product
@@ -154,7 +161,7 @@ const addProduct = async (name, price, quantity, images, description) => {
 };
 
 // sửa 
-const updateProduct = async (id, name, price, quantity, images, description, category) => {
+const updateProduct = async (id, name, price, quantity, images, description, category,uom) => {
     try {
         // tìm sản phẩm theo id 
         console.log(id)
@@ -182,6 +189,7 @@ const updateProduct = async (id, name, price, quantity, images, description, cat
         udtProduct.images = images || udtProduct.images;
         udtProduct.description = description || udtProduct.description;
         udtProduct.category = category || udtProduct.category;
+        udtProduct.uom=uom || udtProduct.uom;
         udtProduct.updateProduct=Date.now;
 
         await udtProduct.save();

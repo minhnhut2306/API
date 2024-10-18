@@ -1,9 +1,8 @@
 const { Types } = require('mongoose');
-
 // Kiểm tra lỗi cho cả 1 sp, sử dụng ở thêm và sửa sản phẩm
 const validateProduct = async (req, res, next) => {
     try {
-        const { name, price, quantity, images, category, description, uom } = req.body;
+        const { name, price, quantity, images, category, description, uom, fiber, origin, preserve, uses } = req.body;
 
         // Kiểm tra tên sản phẩm
         if (!name.trim() || !isNaN(name)) {
@@ -22,7 +21,7 @@ const validateProduct = async (req, res, next) => {
 
         // Kiểm tra hình ảnh sản phẩm
         if (!images || !Array.isArray(images) || images.length === 0) {
-            throw new Error('Images is invalid');
+            throw new Error('Images are invalid');
         }
 
         // Kiểm tra danh mục sản phẩm
@@ -39,11 +38,25 @@ const validateProduct = async (req, res, next) => {
         if (!uom || typeof uom !== 'string' || !uom.trim()) {
             throw new Error('UOM is invalid');
         }
-        
-        // Optionally: Check if UOM has valid values (e.g., 'kg', 'liter', 'pcs', etc.)
-        const validUOMs = ['kg', 'pcs', 'm', 'cm']; // Add your valid UOMs here
-        if (!validUOMs.includes(uom)) {
-            throw new Error('UOM must be one of the following: ' + validUOMs.join(', '));
+
+        // Kiểm tra fiber (chất liệu sợi)
+        if (!fiber || typeof fiber !== 'string' || !fiber.trim()) {
+            throw new Error('Fiber is invalid');
+        }
+
+        // Kiểm tra origin (xuất xứ)
+        if (!origin || typeof origin !== 'string' || !origin.trim()) {
+            throw new Error('Origin is invalid');
+        }
+
+        // Kiểm tra preserve (bảo quản)
+        if (!preserve || typeof preserve !== 'string' || !preserve.trim()) {
+            throw new Error('Preserve information is invalid');
+        }
+
+        // Kiểm tra uses (công dụng)
+        if (!uses || typeof uses !== 'string' || !uses.trim()) {
+            throw new Error('Uses information is invalid');
         }
 
         // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo

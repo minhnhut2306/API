@@ -78,8 +78,8 @@ router.delete('/:id/delete', async (req, res, next ) => {
 
 router.post('/addSP', [validation.validateProduct], async (req, res, next) => {
     try {
-        const { name, price, quantity, images, description, category } = req.body;
-        const product = await ProductController.addProduct(name, price, quantity, images, description, category);
+        const { name, price, quantity, category , images ,supplier,uom,fiber,origin,preserve,uses,description } = req.body;
+        const product = await ProductController.addProduct(name, price, quantity, images, description, category,uom,fiber,origin,preserve,uses,supplier);
         return res.status(200).json({ status: true, data: product });
     } catch (error) {
         return res.status(500).json({ status: false, data: error.message });
@@ -98,7 +98,7 @@ router.put('/:id/update', [validation.validateProduct], async (req, res, next) =
     try {
         const { id } = req.params;
         const { name, price, quantity, images, description, category } = req.body;
-        console.log('---------->' + req.body + "   " + category)
+        // console.log('---------->' + req.body + "   " + category)
         const product = await ProductController.updateProduct(id, name, price, quantity, images, description, category);
         return res.status(200).json({ status: true, data: product });
     } catch (error) {
