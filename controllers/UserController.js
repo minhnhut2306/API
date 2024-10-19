@@ -2,7 +2,6 @@ const { model } = require("mongoose");
 const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
 
-
 // đăng ký
 // const register_App = async (email, name, password, phone) => {
 //   try {
@@ -74,6 +73,7 @@ const bcrypt = require("bcryptjs");
 //     throw new Error("Đăng kí thất bại");
 //   }
 // };
+
 const register = async (email, password, name, phone) => {
   try {
     //check email
@@ -119,6 +119,12 @@ const register = async (email, password, name, phone) => {
     });
     //save name
     const result = await user.save();
+
+    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString(); // Mã gồm 4 chữ số
+    const message = `Mã xác thực của bạn là: ${verificationCode}`;
+
+    // Gửi SMS
+    await sendSMS(phone, message);
     // gửi email xác thực tk
     // setTimeout(async() => {
     //     const data = {
