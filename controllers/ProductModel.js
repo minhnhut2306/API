@@ -15,7 +15,7 @@ const ProductSchema = new Schema({
     supplier:{type: String,default: ''}, //nhà cung cấp
     fiber:{type: String,default: ''}, //chất sơ
     origin:{type: String,default: ''}, //xuất xứ
-    preserve:{type: String,default: ''},
+    preserve:{type: Object,default: {}},
     uses:{type: String,default: ''}, //công dụng
     discount:{type: String}, //giảm giá
     createAt: {type: Date, default: Date.now},
