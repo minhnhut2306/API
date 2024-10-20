@@ -11,7 +11,11 @@ const ProductSchema = new Schema({
     images: {type: Array, default: []},
     description: {type: String, default: ''}, //mô tả
     category: {type: Object, default: {}}, //danh mục
+<<<<<<< HEAD
     uom:{type:String,default:''}, //đơn vị đo
+=======
+    oum:{type:String,default:" "}, //đơn vị đo
+>>>>>>> main
     supplier:{type: String,default: ''}, //nhà cung cấp
     fiber:{type: String,default: ''}, //chất sơ
     origin:{type: String,default: ''}, //xuất xứ
