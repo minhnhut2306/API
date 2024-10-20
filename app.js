@@ -11,6 +11,7 @@ require('./controllers/UserModel');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var productsRouter = require('./routes/products');
+var cartsRouter = require('./routes/carts')
 var app = express();
 
 // view engine setup
@@ -30,8 +31,12 @@ mongoose.connect("mongodb://localhost:27017/DATN") // tên dự án
 .catch(() => console.log("Could not connect to MongoDB..."));
 
 app.use('/', indexRouter);
+//http://localhost:6767/users
 app.use('/users', usersRouter);
+//http://localhost:6767/products
 app.use('/products', productsRouter);
+//http://localhost:6767/carts
+app.use('/carts', cartsRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
