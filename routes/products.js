@@ -42,7 +42,7 @@ router.get('/getTopProductSell', async (req, res, next) => {
  });
  // =================================================================================================================
 
-//  __________________________________searech____________________________________--
+//  __________________________________searech____________________________________
 //http://localhost:6677/products/search?key=coca
 // Tìm kiến sản phẩm theo từ khóa (SEARCH)
 router.get('/search', async (req, res, next) => {
@@ -78,13 +78,8 @@ router.delete('/:id/delete', async (req, res, next ) => {
 
 router.post('/addSP', [validation.validateProduct], async (req, res, next) => {
     try {
-<<<<<<< HEAD
         const { name, price, quantity, category , images ,supplier,uom,fiber,origin,preserve,uses,description } = req.body;
         const product = await ProductController.addProduct(name, price, quantity, images, description, category,uom,fiber,origin,preserve,uses,supplier);
-=======
-        const { name, price, quantity, category , images ,supplier,oum,fiber,origin,preserve,uses,description } = req.body;
-        const product = await ProductController.addProduct(name, price, quantity, images, description, category,oum,fiber,origin,preserve,uses,supplier);
->>>>>>> main
         return res.status(200).json({ status: true, data: product });
     } catch (error) {
         return res.status(500).json({ status: false, data: error.message });
@@ -102,39 +97,14 @@ router.post('/addSP', [validation.validateProduct], async (req, res, next) => {
 router.put('/:id/update', [validation.validateProduct], async (req, res, next) => {
     try {
         const { id } = req.params;
-<<<<<<< HEAD
         const { name, price, quantity, images, description, category } = req.body;
         // console.log('---------->' + req.body + "   " + category)
         const product = await ProductController.updateProduct(id, name, price, quantity, images, description, category);
-=======
-        const { name, price, quantity, images, description, category, oum, supplier, fiber, origin, preserve, Uses, discount} = req.body;
-        // console.log('---------->' + req.body + "   " + category)
-        const product = await ProductController.updateProduct(id, name, price, quantity, images, description, category, oum, supplier, fiber, origin, preserve, Uses, discount);
->>>>>>> main
         return res.status(200).json({ status: true, data: product });
     } catch (error) {
         return res.status(500).json({ status: false, data: error.message });
     }
 })
 
-<<<<<<< HEAD
-// theem cart
-
-=======
-// id,
-// name,
-// price,
-// quantity,
-// images,
-// description,
-// category,
-// oum,
-// supplier,
-// fiber,
-// origin,
-// preserve,
-// Uses,
-// discount
->>>>>>> main
 
 module.exports = router;
