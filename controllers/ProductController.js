@@ -1,5 +1,7 @@
 const { isValidObjectId } = require("mongoose");
 const ProductModel = require("./ProductModel");
+const CategoryModel = require("./CategoryModel");
+const PreserveModel = require("./PreserveModel");
 
 //________________________________________APP_______________________________________
 
@@ -123,92 +125,95 @@ const deleteProduct = async (id) => {
 // =======
 // }
 // =================================================================================================================
-<<<<<<< HEAD
-const addProduct = async (name, price, quantity, images,category, description,uom,supplier,fiber,origin,preserve,uses) => {
-    try {
-        // Kiểm tra xem tất cả các trường cần thiết có được cung cấp hay không
-        if (!name || !price || !quantity || !images || !description||!category ||!uom ||!supplier ||!fiber||!origin||!preserve||!uses) {
-=======
-const addProduct = async (name, price, quantity, images,category, description,oum,supplier,fiber,origin,preserve,uses) => {
-    try {
-        // Kiểm tra xem tất cả các trường cần thiết có được cung cấp hay không
-        if (!name || !price || !quantity || !images || !description||!category ||!oum ||!supplier ||!fiber||!origin||!preserve||!uses) {
->>>>>>> main
-            throw new Error('Vui lòng cung cấp đầy đủ thông tin sản phẩm');
-        }
 
-        // Tạo đối tượng sản phẩm
-        const product = {
-            name,
-            price,
-            quantity,
-            images,
-            description,
-            category,
-<<<<<<< HEAD
-            uom,
-=======
-            oum,
->>>>>>> main
-            supplier,
-            fiber,
-            origin,
-            preserve,
-            uses,
-        };
-
-        // Tạo một sản phẩm mới từ đối tượng product
-        const newProduct = new ProductModel(product);
-
-        // Lưu sản phẩm vào cơ sở dữ liệu
-        const result = await newProduct.save();
-
-        return result; // Trả về sản phẩm mới đã được lưu
-    } catch (error) {
-        console.error('addProduct error: ', error.message);
-        throw new Error('Thêm sản phẩm thất bại: ' + error.message); // Ném lại lỗi để có thể xử lý ở nơi khác
+const addProduct = async (
+  name,
+  category,
+  quantity,
+  origin,
+  price,
+  fiber,
+  oum,
+  preserve,
+  supplier,
+  uses,
+  images,
+  description  
+) => {
+  try {
+    // Kiểm tra xem tất cả các trường cần thiết có được cung cấp hay không
+    if (
+      !name ||
+      !category ||
+      !quantity ||
+      !origin ||
+      !price ||
+      !fiber ||
+      !oum ||
+      !preserve ||
+      !supplier ||
+      !uses ||
+      !images||
+      !description
+    ) {
+      throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm");
     }
+    
+
+    // lấy category theo id
+    const categoryInDB = await CategoryModel.findById(category);
+    if (!categoryInDB) {
+      throw new Error("Danh mục không tồn tại");
+    }
+    // tạo object category
+    category = {
+      category_id: categoryInDB._id,
+      category_name: categoryInDB.name,
+    };
+    
+
+    // lấy loại hàng theo id
+    const preserveInDB = await PreserveModel.findById(preserve);
+    console.log(preserveInDB);
+    if (!preserveInDB) {
+      throw new Error("Loại hàng không tồn tại");
+    }
+    // tạo object category
+    preserve = {
+      preserve_id: preserveInDB._id,
+      preserve_name: preserveInDB.name,
+    };
+    
+    // Tạo đối tượng sản phẩm
+    const product = {
+      name,
+      category,
+      quantity,
+      origin,
+      price,
+      fiber,
+      oum,
+      preserve,
+      supplier,
+      uses,
+      images,
+      description  
+    };
+
+    // Tạo một sản phẩm mới từ đối tượng product
+    const newProduct = new ProductModel(product);
+
+    // Lưu sản phẩm vào cơ sở dữ liệu
+    const result = await newProduct.save();
+    
+
+    return result; // Trả về sản phẩm mới đã được lưu
+  } catch (error) {
+    console.error("addProduct error: ", error.message);
+    throw new Error("Thêm sản phẩm thất bại: " + error.message); // Ném lại lỗi để có thể xử lý ở nơi khác
+  }
 };
 
-<<<<<<< HEAD
-// sửa 
-const updateProduct = async (id, name, price, quantity, images, description, category,uom) => {
-    try {
-        // tìm sản phẩm theo id 
-        console.log(id)
-        const udtProduct = await ProductModel.findById(id);
-        if (!udtProduct) {
-            throw new Error("Sản phẩm không tồn tại");
-
-        }
-        if (!category) {
-            throw new Error("Vui lòng chọn danh mục");
-        }
-        // lấy category theo id 
-        const udtcCategory = await CategoryModel.findById(category);
-        if (!udtcCategory) {
-            throw new Error("Danh mục không tồn tại");
-        }
-        // tạo object category
-        category = {
-            category_id: udtcCategory._id,
-            category_name: udtcCategory.name
-        }
-        udtProduct.name = name || udtcCategory.name;
-        udtProduct.price = price || udtProduct.price;
-        udtProduct.quantity = quantity || udtProduct.quantity;
-        udtProduct.images = images || udtProduct.images;
-        udtProduct.description = description || udtProduct.description;
-        udtProduct.category = category || udtProduct.category;
-        udtProduct.uom=uom || udtProduct.uom;
-        udtProduct.updateProduct=Date.now;
-
-        await udtProduct.save();
-        return true;
-    } catch {
-        console.log('updateProduct error: ', error.message);
-        throw new Error('Cập nhập sản phẩm lỗi');
-=======
 // sửa
 const updateProduct = async (
   id,
@@ -232,7 +237,6 @@ const updateProduct = async (
     const udtProduct = await ProductModel.findById(id);
     if (!udtProduct) {
       throw new Error("Sản phẩm không tồn tại");
->>>>>>> main
     }
     if (!category) {
       throw new Error("Vui lòng chọn danh mục");

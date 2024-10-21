@@ -2,11 +2,9 @@ const { Types } = require('mongoose');
 // Kiểm tra lỗi cho cả 1 sp, sử dụng ở thêm và sửa sản phẩm
 const validateProduct = async (req, res, next) => {
     try {
-<<<<<<< HEAD
-        const { name, price, quantity, images, category, description, uom, fiber, origin, preserve, uses } = req.body;
-=======
+
+
         const { name, price, quantity, images, category, description, oum, fiber, origin, preserve, uses } = req.body;
->>>>>>> main
 
         // Kiểm tra tên sản phẩm
         if (!name.trim() || !isNaN(name)) {
@@ -54,7 +52,7 @@ const validateProduct = async (req, res, next) => {
         }
 
         // Kiểm tra preserve (bảo quản)
-        if (!preserve || typeof preserve !== 'string' || !preserve.trim()) {
+        if (!preserve) {
             throw new Error('Preserve information is invalid');
         }
 
