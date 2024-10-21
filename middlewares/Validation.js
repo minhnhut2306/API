@@ -6,6 +6,7 @@ const validateProduct = async (req, res, next) => {
 
         const { name, price, quantity, images, category, description, oum, fiber, origin, preserve, uses } = req.body;
 
+
         // Kiểm tra tên sản phẩm
         if (!name.trim() || !isNaN(name)) {
             throw new Error('Name is invalid');
