@@ -123,10 +123,17 @@ const deleteProduct = async (id) => {
 // =======
 // }
 // =================================================================================================================
+<<<<<<< HEAD
+const addProduct = async (name, price, quantity, images,category, description,uom,supplier,fiber,origin,preserve,uses) => {
+    try {
+        // Kiểm tra xem tất cả các trường cần thiết có được cung cấp hay không
+        if (!name || !price || !quantity || !images || !description||!category ||!uom ||!supplier ||!fiber||!origin||!preserve||!uses) {
+=======
 const addProduct = async (name, price, quantity, images,category, description,oum,supplier,fiber,origin,preserve,uses) => {
     try {
         // Kiểm tra xem tất cả các trường cần thiết có được cung cấp hay không
         if (!name || !price || !quantity || !images || !description||!category ||!oum ||!supplier ||!fiber||!origin||!preserve||!uses) {
+>>>>>>> main
             throw new Error('Vui lòng cung cấp đầy đủ thông tin sản phẩm');
         }
 
@@ -138,7 +145,11 @@ const addProduct = async (name, price, quantity, images,category, description,ou
             images,
             description,
             category,
+<<<<<<< HEAD
+            uom,
+=======
             oum,
+>>>>>>> main
             supplier,
             fiber,
             origin,
@@ -159,6 +170,45 @@ const addProduct = async (name, price, quantity, images,category, description,ou
     }
 };
 
+<<<<<<< HEAD
+// sửa 
+const updateProduct = async (id, name, price, quantity, images, description, category,uom) => {
+    try {
+        // tìm sản phẩm theo id 
+        console.log(id)
+        const udtProduct = await ProductModel.findById(id);
+        if (!udtProduct) {
+            throw new Error("Sản phẩm không tồn tại");
+
+        }
+        if (!category) {
+            throw new Error("Vui lòng chọn danh mục");
+        }
+        // lấy category theo id 
+        const udtcCategory = await CategoryModel.findById(category);
+        if (!udtcCategory) {
+            throw new Error("Danh mục không tồn tại");
+        }
+        // tạo object category
+        category = {
+            category_id: udtcCategory._id,
+            category_name: udtcCategory.name
+        }
+        udtProduct.name = name || udtcCategory.name;
+        udtProduct.price = price || udtProduct.price;
+        udtProduct.quantity = quantity || udtProduct.quantity;
+        udtProduct.images = images || udtProduct.images;
+        udtProduct.description = description || udtProduct.description;
+        udtProduct.category = category || udtProduct.category;
+        udtProduct.uom=uom || udtProduct.uom;
+        udtProduct.updateProduct=Date.now;
+
+        await udtProduct.save();
+        return true;
+    } catch {
+        console.log('updateProduct error: ', error.message);
+        throw new Error('Cập nhập sản phẩm lỗi');
+=======
 // sửa
 const updateProduct = async (
   id,
@@ -182,6 +232,7 @@ const updateProduct = async (
     const udtProduct = await ProductModel.findById(id);
     if (!udtProduct) {
       throw new Error("Sản phẩm không tồn tại");
+>>>>>>> main
     }
     if (!category) {
       throw new Error("Vui lòng chọn danh mục");
