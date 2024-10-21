@@ -82,7 +82,11 @@ const addCart = async (user, products, address) => {
       for (let index = 0; index < products.length; index++) {
         const item = products[index];
         const product = await ProductModel.findById(item._id);
+<<<<<<< HEAD
         let newItem = {
+=======
+let newItem = {
+>>>>>>> origin/Branch_Dat
           _id: item._id,
           name: product.name,
           quantity: item.quantity,
@@ -114,4 +118,8 @@ const addCart = async (user, products, address) => {
 
 module.exports = {
   addCart,
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> origin/Branch_Dat
