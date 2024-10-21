@@ -1,12 +1,12 @@
 var express = require('express');
 var router = express.Router();
-//http://localhost:6767/carts
+//http://localhost:6677/carts
 const CartController = require('../controllers/CartController');
 
 router.post('/addCart_App', async (req, res, next) => {
     try {
-        const { user, products } = req.body;
-        const result = await CartController.addCart(user, products);
+        const { user, products, address } = req.body;
+        const result = await CartController.addCart(user, products, address);
         return res.status(200).json({ status: true, data: result });
     } catch (error) {
         console.log(error.message);
