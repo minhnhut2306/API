@@ -15,7 +15,7 @@ var cartsRouter = require("./routes/carts");
 var adminsRouter = require("./routes/admins");
 var categoriesRouter = require("./routes/categories");
 var preservesRouter = require("./routes/preserves");
-
+var addressesRouter = require("./routes/addresses");
 var app = express();
 
 // view engine setup
@@ -45,6 +45,7 @@ app.use("/carts", cartsRouter);
 app.use("/admins", adminsRouter);
 app.use("/categories", categoriesRouter);
 app.use("/preserves", preservesRouter);
+app.use("/addresses", addressesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
