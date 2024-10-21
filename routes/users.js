@@ -4,13 +4,24 @@ const userController = require("../controllers/UserController");
 
 /* GET users listing. */
 router.get("/get-NewUsers", async (req, res, next) => {
-     try {
-        const result = await userController.getNewUsers();
-        return res.status(200).json({ status: true, data: result });
-     } catch (error) {
-      console.log("Get NewUsers error:", error.message);
-      return res.status(500).json({ status: false, data: error.message });
-     }
+  try {
+    const result = await userController.getNewUsers();
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log("Get NewUsers error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
+
+/* GET users listing. */
+router.get("/get-OdlUsers", async (req, res, next) => {
+  try {
+    const result = await userController.getOldUsers();
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log("Get NewUsers error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
 });
 
 // Register
@@ -37,18 +48,18 @@ router.post("/register", async (req, res, next) => {
 });
 
 // SMS
-const sendSMS = async (to, message) => {
-  try {
-    const messageResponse = await client.messages.create({
-      body: message,
-      from: TWILIO_PHONE_NUMBER, // Số điện thoại Twilio của bạn
-      to: to, // Số điện thoại người dùng đăng ký
-    });
-    console.log(`SMS sent: ${messageResponse.sid}`);
-  } catch (error) {
-    console.error('Error sending SMS:', error.message);
-  }
-};
+// const sendSMS = async (to, message) => {
+//   try {
+//     const messageResponse = await client.messages.create({
+//       body: message,
+//       from: TWILIO_PHONE_NUMBER, // Số điện thoại Twilio của bạn
+//       to: to, // Số điện thoại người dùng đăng ký
+//     });
+//     console.log(`SMS sent: ${messageResponse.sid}`);
+//   } catch (error) {
+//     console.error("Error sending SMS:", error.message);
+//   }
+// };
 
 ///////////////////////////////////////////////////////////////////
 // login

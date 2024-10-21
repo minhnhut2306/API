@@ -1,6 +1,7 @@
 const { model } = require("mongoose");
 const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
+const { sendSMS } = require("../routes/users");
 
 // đăng ký
 // const register_App = async (email, name, password, phone) => {
@@ -123,6 +124,19 @@ const register = async (email, password, name, phone) => {
     const verificationCode = Math.floor(1000 + Math.random() * 9000).toString(); // Mã gồm 4 chữ số
     const message = `Mã xác thực của bạn là: ${verificationCode}`;
 
+    const sendSMS = async (to, message) => {
+      try {
+        const messageResponse = await client.messages.create({
+          body: message,
+          from: TWILIO_PHONE_NUMBER, // Số điện thoại Twilio của bạn
+          to: to, // Số điện thoại người dùng đăng ký
+        });
+        console.log(`SMS sent: ${messageResponse.sid}`);
+      } catch (error) {
+        console.error("Error sending SMS:", error.message);
+      }
+    };
+
     // Gửi SMS
     await sendSMS(phone, message);
     // gửi email xác thực tk
@@ -181,18 +195,35 @@ const login = async (email, password) => {
 };
 
 //lấy người dùng mới tạo
-const getNewUsers = async() =>{
+const getNewUsers = async () => {
   try {
-    const user = userModel.find().sort({createdAt: - 1}).limit(10)
+    const user = userModel.find().sort({ createdAt: -1 }).limit(10);
     return user;
   } catch (error) {
     console.log("Lấy danh sách người dùng thất bại", error.message);
     throw new Error("Lấy danh sách người dùng thất bại");
   }
-}
+};
+
+//Lấy người dùng tạo trên 3 tháng
+const getOldUsers = async () => {
+  try {
+    const ThreeMonthsAgo = new Date();
+    ThreeMonthsAgo.setMonth(ThreeMonthsAgo.getMonth()-3);
+
+    const user = userModel.find({
+      createdAt: {$lt: ThreeMonthsAgo}
+    })
+    return user;
+  } catch (error) {
+    console.log("Lấy danh sách người dùng thất bại", error.message);
+    throw new Error("Lấy danh sách người dùng thất bại");
+  }
+};
 
 module.exports = {
   register,
   login,
-  getNewUsers
+  getNewUsers,
+  getOldUsers
 };
