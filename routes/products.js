@@ -116,16 +116,35 @@ router.put(
     try {
       const { id } = req.params;
 
-      const { name, price, quantity, images, description, category } = req.body;
+      const {
+        name,
+        category,
+        quantity,
+        origin,
+        price,
+        fiber,
+        oum,
+        preserve,
+        supplier,
+        uses,
+        images,
+        description,
+      } = req.body;
       // console.log('---------->' + req.body + "   " + category)
       const product = await ProductController.updateProduct(
         id,
         name,
-        price,
+        category,
         quantity,
+        origin,
+        price,
+        fiber,
+        oum,
+        preserve,
+        supplier,
+        uses,
         images,
-        description,
-        category
+        description
       );
 
       return res.status(200).json({ status: true, data: product });
