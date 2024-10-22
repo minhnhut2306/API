@@ -15,10 +15,10 @@ router.post('/addCart_App', async (req, res, next) => {
 });
 
 // cập nhật trạng thái đơn hàng 
-router.post('/:id/update',async(rep,res,next)=>{
+router.post('/:id/update',async(req,res,next)=>{
     try {
-        const{id} =rep.params;
-        const{status} = res.body;
+        const{id} =req.params;
+        const{status} = req.body;
         const result = await CartController.updateCarts(id,status);
         return res.status(200).json({ status: true, data: result });
 
