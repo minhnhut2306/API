@@ -111,7 +111,33 @@ const addCart = async (user, products, address) => {
     throw new Error("Add to cart failed");
   }
 };
+// cập nhật trangj thái đơn hàng 
+const updateCarts = async (id, status) => {
+  try {
+    const cart = await CartModel.findById(id);
+    if (!cart) {
+      throw new error("Không tìm thấy giỏ hàng ");
+
+    }
+    if (status < cart.status ||
+      (status == AppConstants.CART_STATUS.HOAN_THANH &&
+        (cart.status == AppConstants.CART_STATUS.XAC_NHAN ||
+          cart.status == AppConstants.CART_STATUS.DANG_GIAO ||
+          cart.status == AppConstants.CART_STATUS.HUY)) ||
+      status > 4) {
+      throw new Error("Trạng thái đơn hàng không hợp lệ");
+    }
+    cart.status = status;
+    let result = await cart.save();
+    return result;
+  } catch (error) {
+      console.log(error);
+      throw new Error("Cập nhật trạng thái đơn hàng thất bại");
+      
+  }
+}
 
 module.exports = {
   addCart,
+  updateCarts
 };
