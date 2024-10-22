@@ -45,9 +45,9 @@ const addCart = async (user, products, address) => {
       total += product.price * item.quantity;
     }
     const addressInDB = await AddressModel.findById(address);
- 
-    console.log(address)
-    
+
+    console.log(address);
+
     if (!addressInDB) {
       throw new Error("address not found");
     }
@@ -82,7 +82,7 @@ const addCart = async (user, products, address) => {
       for (let index = 0; index < products.length; index++) {
         const item = products[index];
         const product = await ProductModel.findById(item._id);
-let newItem = {
+        let newItem = {
           _id: item._id,
           name: product.name,
           quantity: item.quantity,
