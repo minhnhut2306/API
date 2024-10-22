@@ -15,6 +15,7 @@ var cartsRouter = require("./routes/carts");
 var adminsRouter = require("./routes/admins");
 var categoriesRouter = require("./routes/categories");
 var preservesRouter = require("./routes/preserves");
+var saleRouter = require("./routes/sale")
 
 var addressesRouter = require("./routes/addresses");
 
@@ -49,7 +50,7 @@ app.use("/admins", adminsRouter);
 app.use("/categories", categoriesRouter);
 app.use("/preserves", preservesRouter);
 app.use("/addresses", addressesRouter);
-
+app.use("/sale", saleRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
