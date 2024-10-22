@@ -38,12 +38,12 @@ mongoose
   .catch(() => console.log("Could not connect to MongoDB..."));
 
 app.use("/", indexRouter);
-//http://localhost:6767/users
+//http://localhost:6677/users
 app.use("/users", usersRouter);
-//http://localhost:6767/products
+//http://localhost:6677/products
 
 app.use("/products", productsRouter);
-//http://localhost:6767/carts
+//http://localhost:6677/carts
 app.use("/carts", cartsRouter);
 app.use("/admins", adminsRouter);
 app.use("/categories", categoriesRouter);
