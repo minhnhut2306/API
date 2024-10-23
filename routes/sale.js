@@ -96,10 +96,6 @@ router.put("/:id/updateSale", async (req, res, next) => {
 
 // cập nhật trạng thái đơn hàng
 
-var express = require('express');
-var router = express.Router();
-//http://localhost:6677/carts
-const SaleController = require('../controllers/SaleController');
 
 router.post('/addSale', async (req, res, next) => {
     try {
