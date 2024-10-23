@@ -1,7 +1,6 @@
 const { model } = require("mongoose");
 const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
-const { sendSMS } = require("../routes/users");
 
 // đăng ký
 // const register_App = async (email, name, password, phone) => {

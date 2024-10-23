@@ -6,18 +6,11 @@ var logger = require("morgan");
 const cors = require("cors");
 //require mongoose
 const mongoose = require("mongoose");
-require("./controllers/UserModel");
+require("dotenv").config();
+const routes = require("./routes/routes")
 
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var productsRouter = require("./routes/products");
-var cartsRouter = require("./routes/carts");
-var adminsRouter = require("./routes/admins");
-var categoriesRouter = require("./routes/categories");
-var preservesRouter = require("./routes/preserves");
-var saleRouter = require("./routes/sale")
 
-var addressesRouter = require("./routes/addresses");
+
 
 var app = express();
 
@@ -32,25 +25,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors()); //cho phép gọi api từ các domain khác nhau
 
+app.use("/", routes);
 // kết nối mongo
 mongoose
-  .connect("mongodb://localhost:27017/DATN") // tên dự án
-  .then(() => console.log("Connected to MongoDB..."))
-  .catch(() => console.log("Could not connect to MongoDB..."));
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB...", process.env.MONGODB_URI))
+  .catch((err) => console.error("Could not connect to MongoDB...", err));
 
-app.use("/", indexRouter);
-//http://localhost:6677/users
-app.use("/users", usersRouter);
-//http://localhost:6677/products
 
-app.use("/products", productsRouter);
-//http://localhost:6677/carts
-app.use("/carts", cartsRouter);
-app.use("/admins", adminsRouter);
-app.use("/categories", categoriesRouter);
-app.use("/preserves", preservesRouter);
-app.use("/addresses", addressesRouter);
-app.use("/sale", saleRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
