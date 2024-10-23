@@ -7,10 +7,7 @@ const cors = require("cors");
 //require mongoose
 const mongoose = require("mongoose");
 require("dotenv").config();
-const routes = require("./routes/routes")
-
-
-
+const routes = require("./routes/routes");
 
 var app = express();
 
@@ -23,17 +20,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors()); //cho phép gọi api từ các domain khác nhau
+app.use(cors()); // cho phép gọi api từ các domain khác nhau
 
 app.use("/", routes);
+
 // kết nối mongo
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB...", process.env.MONGODB_URI))
   .catch((err) => console.error("Could not connect to MongoDB...", err));
-
-
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -49,6 +44,12 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render("error");
+});
+
+// Khởi động server lắng nghe trên cổng 3000
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 module.exports = app;
