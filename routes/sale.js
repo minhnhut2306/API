@@ -96,7 +96,6 @@ router.put("/:id/updateSale", async (req, res, next) => {
 
 // cập nhật trạng thái đơn hàng
 
-
 router.post('/addSale', async (req, res, next) => {
     try {
         const {date,title,discountAmount,discountPercent,minOrderValue,expirationDate,isExpired} = req.body;
