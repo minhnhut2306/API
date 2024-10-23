@@ -66,6 +66,7 @@ router.delete("/:id/deleteSale", async (req, res, next) => {
 router.put("/:id/updateSale", async (req, res, next) => {
   try {
     const { id } = req.params;
+  
     const {
       date,
       title,
