@@ -8,9 +8,10 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const routes = require("./routes/routes");
+const swaggerSetup = require("./routes/swagger");
 
 var app = express();
-
+swaggerSetup(app);
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
