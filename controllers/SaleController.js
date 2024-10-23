@@ -83,6 +83,7 @@ const addSale = async (
 };
 
 const updateSale = async (
+  id,
   date,
   title,
   discountAmount,
@@ -94,6 +95,7 @@ const updateSale = async (
   try {
   
     const saleInDB = await SaleModel.findById(id);
+    console.log(id);
 
     if (!saleInDB) {
       throw new Error("Khôngtìm thấy khuyến mãi");
