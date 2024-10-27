@@ -210,6 +210,20 @@ const updateProduct = async (
   }
 };
 
+const getProductsByCategory = async (id) => {
+  try {
+      console.log('---------------id: ', id);
+      let query = {};
+      query = { ...query, 
+      };
+      console.log(query);
+      const products = await ProductModel.find(query);
+      return products;
+  } catch (error) {
+      console.log('findProduct error: ', error.message);
+      throw new Error('Tìm kiếm sản phẩm không thành công');
+  }
+}
 module.exports = {
   getProduct,
   getProductDetailById_App,
@@ -218,4 +232,5 @@ module.exports = {
   deleteProduct,
   addProduct,
   updateProduct,
+  getProductsByCategory
 };

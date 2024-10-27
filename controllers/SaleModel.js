@@ -17,7 +17,7 @@ const SaleSchema = new mongoose.Schema({
     // Giá trị đơn hàng tối thiểu
     minOrderValue: { type: Number, default: 0 },
     // Thời gian hết hạn khuyến mãi
-    expirationDate: { type: Date, default: Date.now },
+    expirationDate: { type: Date, required: true},
     // Xác định khuyến mãi hết hạn
     isExpired: { type: Boolean, default: true },
 });
