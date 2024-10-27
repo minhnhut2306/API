@@ -1,4 +1,4 @@
-const { isValidObjectId } = require("mongoose");
+const { isValidObjectId , Types} = require("mongoose");
 const ProductModel = require("./ProductModel");
 const CategoryModel = require("./CategoryModel");
 const PreserveModel = require("./PreserveModel");
@@ -196,7 +196,7 @@ const updateProduct = async (
     udtProduct.origin = origin || udtProduct.origin;
     udtProduct.fiber = fiber || udtProduct.fiber;
     udtProduct.uses = uses || udtProduct.uses;
-    
+
 
     // Set the updated date (corrected)
     udtProduct.updateProduct = Date.now();
@@ -209,6 +209,22 @@ const updateProduct = async (
     throw new Error(`Cập nhập sản phẩm lỗi: ${error.message}`);
   }
 };
+// lọc sản phẩm theo danh mục
+const getProductsByCategory = async (id) => {
+  try {
+      console.log('---------------id: ', id);
+      let query = {};
+       query = {
+        'category.category_id': new Types.ObjectId(id) // Sửa thành ObjectId
+    };
+      console.log(query);
+      const products = await ProductModel.find(query);
+      return products;
+  } catch (error) {
+      console.log('findProduct error: ', error.message);
+      throw new Error('Tìm kiếm sản phẩm không thành công');
+  }
+}
 
 module.exports = {
   getProduct,
@@ -218,4 +234,5 @@ module.exports = {
   deleteProduct,
   addProduct,
   updateProduct,
+  getProductsByCategory,
 };
