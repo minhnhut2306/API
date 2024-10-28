@@ -135,9 +135,53 @@ const updateCarts = async (id, status) => {
       throw new Error("Cập nhật trạng thái đơn hàng thất bại");
       
   }
-}
+};
+const QuanLyHangHoa = async () => {
+  try {
+    // let product = {};
+    const productInDB = await CartModel.find(product);
+
+    if (!productInDB) {
+      throw new Error("Sản phẩm không tồn tại");
+
+    }
+    let user = {};
+    const userInDB = await UserModel.find(user).select('email');
+
+    if (!userInDB) {
+      throw new Error("Sản phẩm không tồn tại");
+    }
+    // return productInDB.map(product => ({
+    //   email: product.user.email, 
+    //   product: product.product,
+    //   category: product.category,
+    //   unitPrice: product.unitPrice,
+    //   deliveryMethod: product.deliveryMethod,
+    //   orderStatus: product.orderStatus,
+    //   totalProductPrice: product.totalProductPrice,
+    //   totalPayment: product.totalPayment
+    // }));
+    const body = {
+      email: userInDB.email,
+      product: productInDB.product,
+      category: productInDB.category,
+      unitPrice: productInDB.unitPrice,
+      deliveryMethod: productInDB.deliveryMethod,
+      orderStatus: productInDB.orderStatus,
+      totalProductPrice: productInDB.totalProductPrice,
+      totalPayment: productInDB.totalPayment
+    }
+
+    return body;
+  } catch (error) {
+    console.log("getProducts error: ", error.message);
+    throw new Error("Lấy danh sách sản phẩm lỗi");
+  }
+};
+
 
 module.exports = {
   addCart,
-  updateCarts
+  updateCarts,
+  QuanLyHangHoa
 };
