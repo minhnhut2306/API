@@ -34,7 +34,7 @@ router.post('/addAddress', async (req, res, next) => {
         } = req.body;
 
         // Giả sử AddressController được sử dụng để thêm địa chỉ mới
-        const result = await AddressController.addAddress({
+        const result = await AddressController.addAddress(
 
             houseNumber,
             alley,
@@ -43,7 +43,7 @@ router.post('/addAddress', async (req, res, next) => {
             city,
             country,
 
-        });
+        );
 
         return res.status(200).json({ status: true, data: result });
     } catch (error) {

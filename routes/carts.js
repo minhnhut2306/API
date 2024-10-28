@@ -29,7 +29,16 @@ router.post('/:id/update',async(req,res,next)=>{
         
         
     }
-})
+});
+router.get('/QuanLiHangHoa', async (req, res) => {
+    try {
+      const result = await CartController.QuanLyHangHoa();
+      return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ status: false, data: error.message });
+  }
+  });
 
 
 module.exports = router;

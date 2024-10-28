@@ -37,7 +37,7 @@ const addAddress = async (
             country,
 
         };
-        console.log(addressData);
+    
 
         const newAddress = new AddressModel(addressData);
         console.log(newAddress);
