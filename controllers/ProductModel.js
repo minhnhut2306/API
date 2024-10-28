@@ -21,6 +21,13 @@ const ProductSchema = new Schema({
     createAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now},
     sold : {type: Number, require: true},
+    email: { type: String, required: true },
+    product: { type: String, required: true },
+    unitPrice: { type: String, required: true },
+    deliveryMethod: { type: String, required: true },
+    orderStatus: { type: String, required: true },
+    totalProductPrice: { type: String, required: true },
+    totalPayment: { type: String, required: true }
 })
 
 //tiếng anh, số ít, chữ thường, không dấu, không cách
