@@ -67,18 +67,6 @@ router.delete("/:id/delete", async (req, res, next) => {
     return res.status(500).json({ success: false, data: error.massage });
   }
 });
-router.get('/filter/:id', async (req, res, next) => {
-  try {
-      const { id } = req.params;
-      console.log('..............id: ', id);
-      const products = await ProductController.getProductsByCategory(id);
-      console.log('..............product: ', products);
-      return res.status(200).json({ status: true, data: products })
-  } catch (error) {
-      console.log('Lấy danh sách sản phẩm thất bại');
-      return res.status(500).json({ status: false, data: error.message });
-  }
-})
 
 router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
   try {
@@ -88,7 +76,7 @@ router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
       quantity,
       origin,
       price,
-      fiber,
+fiber,
       oum,
       preserve,
       supplier,
@@ -165,14 +153,9 @@ router.put(
     }
   }
 );
-// lọc sản phẩm theo danh mục
-// * method: get
-//  * url: https://api-h89c.onrender.com/products/category/65f019c6fc13ae796db297f3
-//  * response: danh sách sản phẩm theo danh mục  
-//  */
-router.get('/filter/:id', async (req, res, next) => {
+router.get('category/:id/GetProduct', async (req, res, next) => {
   try {
-      const { id } = req.params;
+      const { id } = req.query;
       console.log('..............id: ', id);
       const products = await ProductController.getProductsByCategory(id);
       console.log('..............product: ', products);
@@ -181,7 +164,7 @@ router.get('/filter/:id', async (req, res, next) => {
       console.log('Lấy danh sách sản phẩm thất bại');
       return res.status(500).json({ status: false, data: error.message });
   }
-})
+});
 
 
 // id,
