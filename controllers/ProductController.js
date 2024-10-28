@@ -229,7 +229,6 @@ const getProductsByCategory = async (id) => {
 
 
 
-
 module.exports = {
   getProduct,
   getProductDetailById_App,
@@ -238,8 +237,6 @@ module.exports = {
   deleteProduct,
   addProduct,
   updateProduct,
-
-  getProductsByCategory
-
+  getProductsByCategory,
 
 };
