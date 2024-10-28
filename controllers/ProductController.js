@@ -2,7 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const ProductModel = require("./ProductModel");
 const CategoryModel = require("./CategoryModel");
 const PreserveModel = require("./PreserveModel");
-
+const UserModel = require("./UserModel");
 //________________________________________APP_______________________________________
 
 // Lấy danh sách sản phẩm (HOME)
@@ -196,7 +196,7 @@ const updateProduct = async (
     udtProduct.origin = origin || udtProduct.origin;
     udtProduct.fiber = fiber || udtProduct.fiber;
     udtProduct.uses = uses || udtProduct.uses;
-    
+
 
     // Set the updated date (corrected)
     udtProduct.updateProduct = Date.now();
@@ -209,21 +209,27 @@ const updateProduct = async (
     throw new Error(`Cập nhập sản phẩm lỗi: ${error.message}`);
   }
 };
-
 const getProductsByCategory = async (id) => {
   try {
-      console.log('---------------id: ', id);
-      let query = {};
-      query = { ...query, 
-      };
-      console.log(query);
-      const products = await ProductModel.find(query);
-      return products;
+    console.log('---------------id: ', id);
+    let query = {};
+    query = {
+      ...query, 'category.category_id': new Types.ObjectId(id)
+    };
+    console.log(query);
+    const products = await ProductModel.find(query);
+    return products;
   } catch (error) {
-      console.log('findProduct error: ', error.message);
-      throw new Error('Tìm kiếm sản phẩm không thành công');
+    console.log('findProduct error: ', error.message);
+    throw new Error('Tìm kiếm sản phẩm không thành công');
   }
 }
+
+// quản lí hàng hóa
+
+
+
+
 module.exports = {
   getProduct,
   getProductDetailById_App,
@@ -232,5 +238,8 @@ module.exports = {
   deleteProduct,
   addProduct,
   updateProduct,
+
   getProductsByCategory
+
+
 };
