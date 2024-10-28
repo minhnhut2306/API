@@ -1,7 +1,8 @@
-const { isValidObjectId } = require("mongoose");
+const { isValidObjectId, Types } = require("mongoose");
 const ProductModel = require("./ProductModel");
 const CategoryModel = require("./CategoryModel");
 const PreserveModel = require("./PreserveModel");
+
 
 //________________________________________APP_______________________________________
 
@@ -108,6 +109,17 @@ const addProduct = async (
     ) {
       throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm");
     }
+       // lấy category theo id
+       const categoryInDB = await CategoryModel.findById(category);
+       if (!categoryInDB) {
+         throw new Error("Danh mục không tồn tại");
+       }
+       // tạo object category
+       category = {
+         category_id: categoryInDB._id,
+         category_name: categoryInDB.name,
+       };
+    
 
     const product = {
       name,
@@ -214,8 +226,9 @@ const getProductsByCategory = async (id) => {
   try {
       console.log('---------------id: ', id);
       let query = {};
-      query = { ...query, 
-      };
+       query = {
+        'category.category_id': new Types.ObjectId(id) // Sửa thành ObjectId
+    };
       console.log(query);
       const products = await ProductModel.find(query);
       return products;
