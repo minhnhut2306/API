@@ -3,12 +3,12 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const AppConstants = require("../helpers/AppConstants");
 const UserModel = require("./UserModel");
 const ProductModel = require("./ProductModel");
-const AddressModel = require("./AddressModel");
+// const AddressModel = require("./AddressModel");
 
 //________________________________________APP_______________________________________
 
 //thêm cart
-const addCart = async (user, products, address) => {
+const addCart = async (user, products) => {
   try {
     // user: user id của người mua
     // products: mảng id của sản phẩm và số lượng mua
@@ -44,26 +44,26 @@ const addCart = async (user, products, address) => {
       productsInCart.push(productItem);
       total += product.price * item.quantity;
     }
-    const addressInDB = await AddressModel.findById(address);
+    // const addressInDB = await AddressModel.findById(address);
 
-    console.log(address);
+    // console.log(address);
 
-    if (!addressInDB) {
-      throw new Error("address not found");
-    }
+    // if (!addressInDB) {
+    //   throw new Error("address not found");
+    // }
     // tạo giỏ hàng mới
     const cart = new CartModel({
       user: { _id: userInDB._id, name: userInDB.name },
       products: productsInCart,
-      address: {
-        _id: addressInDB._id,
-        houseNumber: addressInDB.houseNumber,
-        alley: addressInDB.alley,
-        quarter: addressInDB.quarter,
-        district: addressInDB.district,
-        city: addressInDB.city,
-        country: addressInDB.country,
-      },
+      // address: {
+      //   _id: addressInDB._id,
+      //   houseNumber: addressInDB.houseNumber,
+      //   alley: addressInDB.alley,
+      //   quarter: addressInDB.quarter,
+      //   district: addressInDB.district,
+      //   city: addressInDB.city,
+      //   country: addressInDB.country,
+      // },
       total,
     });
     const result = await cart.save();
