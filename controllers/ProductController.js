@@ -243,6 +243,5 @@ module.exports = {
   deleteProduct,
   addProduct,
   updateProduct,
-
   getProductsByCategory,
 };
