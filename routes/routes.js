@@ -12,6 +12,7 @@ var preservesRouter = require("./preserves");
 var saleRouter = require("./sale");
 var addressesRouter = require("./addresses");
 var notificationRouter = require("./notification");
+var oderRouter = require("./oder");
 
 
 router.use("/users", usersRouter);
@@ -24,6 +25,7 @@ router.use("/preserves", preservesRouter);
 router.use("/addresses", addressesRouter);
 router.use("/sale", saleRouter);
 router.use("/notification",notificationRouter );
+router.use("/oder", oderRouter);
 
 
 module.exports = router;
