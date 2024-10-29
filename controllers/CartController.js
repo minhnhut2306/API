@@ -136,48 +136,43 @@ const updateCarts = async (id, status) => {
       
   }
 };
-const QuanLyHangHoa = async () => {
+const QuanLyHangHoa = async (productQuery, userQuery) => {
   try {
-    // let product = {};
-    const productInDB = await CartModel.find(product);
+    // Fetch product based on productQuery (e.g., by product ID or another unique identifier)
+    const productInDB = await CartModel.findOne(productQuery).select(['name', 'category', 'price', 'deliveryMethod', 'orderStatus', 'totalProductPrice', 'totalPayment']);
 
     if (!productInDB) {
-      throw new Error("Sản phẩm không tồn tại");
-
+      console.error("Error: Sản phẩm không tồn tại");
+      return { error: "Sản phẩm không tồn tại" };
     }
-    let user = {};
-    const userInDB = await UserModel.find(user).select('email');
+
+    // Fetch user based on userQuery (assuming userId is associated with the product in the database)
+    const userInDB = await UserModel.findOne(userQuery).select('email');
 
     if (!userInDB) {
-      throw new Error("Sản phẩm không tồn tại");
+      console.error("Error: Người dùng không tồn tại");
+      return { error: "Người dùng không tồn tại" };
     }
-    // return productInDB.map(product => ({
-    //   email: product.user.email, 
-    //   product: product.product,
-    //   category: product.category,
-    //   unitPrice: product.unitPrice,
-    //   deliveryMethod: product.deliveryMethod,
-    //   orderStatus: product.orderStatus,
-    //   totalProductPrice: product.totalProductPrice,
-    //   totalPayment: product.totalPayment
-    // }));
+
+    // Construct response body with product and user information
     const body = {
       email: userInDB.email,
-      product: productInDB.product,
+      name: productInDB.name,
       category: productInDB.category,
-      unitPrice: productInDB.unitPrice,
-      deliveryMethod: productInDB.deliveryMethod,
-      orderStatus: productInDB.orderStatus,
-      totalProductPrice: productInDB.totalProductPrice,
-      totalPayment: productInDB.totalPayment
-    }
+      price: productInDB.price,
+      deliveryMethod: productInDB.deliveryMethod || "N/A",
+      orderStatus: productInDB.orderStatus || "N/A",
+      totalProductPrice: productInDB.totalProductPrice || 0,
+      totalPayment: productInDB.totalPayment || 0
+    };
 
     return body;
   } catch (error) {
-    console.log("getProducts error: ", error.message);
-    throw new Error("Lấy danh sách sản phẩm lỗi");
+    console.error("Lấy danh sách sản phẩm lỗi: ", error.message);
+    return { error: "Lấy danh sách sản phẩm lỗi" };
   }
 };
+
 
 
 module.exports = {
