@@ -10,6 +10,7 @@ require("dotenv").config();
 const routes = require("./routes/routes");
 const swaggerSetup = require("./routes/swagger");
 
+
 var app = express();
 swaggerSetup(app);
 // view engine setup
@@ -35,7 +36,7 @@ mongoose
 app.use(function (req, res, next) {
   next(createError(404));
 });
-
+app.use('/api', routes);
 // error handler
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
