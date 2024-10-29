@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const notiController = require('../controllers/NotiControllers');
+const NotiControllers = require('../controllers/NotiControllers')
+const { AddNoti, checkUserValidity } = require('../controllers/NotiControllers');
 
 // lấy thông báo 
 
@@ -13,18 +15,24 @@ const notiController = require('../controllers/NotiControllers');
 //         return res.status(500).json({ status: false, data: error.massage});
 //     }
 // });
-router.post('/add_notification', async (req, res, next) => {
-    try {
-        const { product, sale } = req.body;
-        const result = await NotificationController.addNotification(product, sale);
-        return res.status(200).json({ status: true, data: result });
 
+router.post('/add_notification', async (req, res) => {
+    const { userId, promotionMessage } = req.body;
+
+    try {
+        await checkUserValidity(userId);
+        const notification = await AddNoti(userId, promotionMessage);
+        return res.status(201).json({
+            message: 'Thông báo khuyến mãi đã được tạo thành công!',
+            notification,
+        });
     } catch (error) {
-        console.log(error.message);
-        return res.status(500).json({ status: false, data: error.message });
+        console.error('Có lỗi xảy ra:', error);
+        return res.status(400).json({
+            message: error.message,
+        });
     }
 });
-
 // Endpoint tạo thông báo cho đơn hàng
 router.post('/notifications/order', async (req, res) => {
     try {
