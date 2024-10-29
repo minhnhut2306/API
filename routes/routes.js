@@ -11,7 +11,7 @@ var categoriesRouter = require("./categories");
 var preservesRouter = require("./preserves");
 var saleRouter = require("./sale");
 var addressesRouter = require("./addresses");
-var notificationRouter = require("./notification");
+var notificationRouter = require("./notifications");
 
 
 router.use("/users", usersRouter);
@@ -23,7 +23,8 @@ router.use("/categories", categoriesRouter);
 router.use("/preserves", preservesRouter);
 router.use("/addresses", addressesRouter);
 router.use("/sale", saleRouter);
-router.use("/notification",notificationRouter );
+router.use("/notifications",notificationRouter );
+
 
 
 module.exports = router;

@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-// const AppConstants = require('../helpers/AppConstants');
+const AppConstants = require('../helpers/AppConstants');
 
 const OderSchema = new Schema({
     // { id, name }
