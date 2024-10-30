@@ -1,11 +1,7 @@
 const { model } = require("mongoose");
 const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
-<<<<<<< HEAD
 const { SendEmail } = require('../controllers/SendEmail');
-=======
->>>>>>> main
-
 
 
 // const register = async (email, password, name, phone) => {
