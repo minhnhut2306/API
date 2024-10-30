@@ -6,20 +6,13 @@ var logger = require("morgan");
 const cors = require("cors");
 //require mongoose
 const mongoose = require("mongoose");
-require("./controllers/UserModel");
+require("dotenv").config();
+const routes = require("./routes/routes");
+const swaggerSetup = require("./routes/swagger");
 
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var productsRouter = require("./routes/products");
-var cartsRouter = require("./routes/carts");
-var adminsRouter = require("./routes/admins");
-var categoriesRouter = require("./routes/categories");
-var preservesRouter = require("./routes/preserves");
-
-var addressesRouter = require("./routes/addresses");
 
 var app = express();
-
+swaggerSetup(app);
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
@@ -29,33 +22,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use(cors()); //cho phép gọi api từ các domain khác nhau
+app.use(cors()); // cho phép gọi api từ các domain khác nhau
+
+app.use("/", routes);
 
 // kết nối mongo
 mongoose
-  .connect("mongodb://localhost:27017/DATN") // tên dự án
-  .then(() => console.log("Connected to MongoDB..."))
-  .catch(() => console.log("Could not connect to MongoDB..."));
-
-app.use("/", indexRouter);
-//http://localhost:6677/users
-app.use("/users", usersRouter);
-//http://localhost:6677/products
-
-app.use("/products", productsRouter);
-//http://localhost:6677/carts
-app.use("/carts", cartsRouter);
-app.use("/admins", adminsRouter);
-app.use("/categories", categoriesRouter);
-app.use("/preserves", preservesRouter);
-app.use("/addresses", addressesRouter);
-
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB...", process.env.MONGODB_URI))
+  .catch((err) => console.error("Could not connect to MongoDB...", err));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
-
+app.use('/api', routes);
 // error handler
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
@@ -65,6 +46,12 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render("error");
+});
+
+// Khởi động server lắng nghe trên cổng 3000
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 module.exports = app;

@@ -2,7 +2,42 @@ var express = require("express");
 var router = express.Router();
 const userController = require("../controllers/UserController");
 
-/* GET users listing. */
+/* GET 
+
+users listing. */
+// tự làm
+/**
+ * @swagger
+ * /users/register:
+ *   post:
+ *     summary: Đăng ký tài khoản
+ *     description: Đăng ký tài khoản người dùng mới
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullname: 
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               phone:
+ *                 type: string
+ *                 example: "0123456789"
+ *               password:
+ *                 type: string
+ *                 example: "your_password"
+ *     responses:
+ *       200:
+ *         description: Đăng ký thành công
+ *       500:
+ *         description: Lỗi máy chủ
+ */
+
 router.get("/get-NewUsers", async (req, res, next) => {
   try {
     const result = await userController.getNewUsers();

@@ -5,12 +5,12 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
 const AddressSchema = new Schema({
-    houseNumber: { type: String, required: true }, // required (dữ liệu cần truyền vô)
-    alley: { type: String, required: true }, // hẻm
-    quarter: { type: String, required: true}, // khu phố
-    district: {type: String, required: true},
-    city: {type: String, required: true},
-    country: {type: String, required: true},
+    houseNumber: { type: String, required: true },
+    alley: { type: String, required: true },
+    quarter: { type: String, required: true },
+    district: { type: String, required: true },
+    city: { type: String, required: true },
+    country: { type: String, required: true },
     // ngày giờ tạo
     createdAt: { type: Date, default: Date.now },
     // ngày giờ cập nhật

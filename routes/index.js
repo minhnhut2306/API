@@ -33,20 +33,23 @@ const router = express.Router();
 
 // method: GET
 // url: http://localhost:3000/
-router.get('/', function (req, res, next) {
-  const sinhVien = {
-    name: 'Nguyen Van A',
-    age: 20,
-    address: 'Ha Noi'
-  }
-  const monHoc = ['Toan', 'Ly', 'Hoa', 'Anh van']
-  const result = {
-    sinhVien: sinhVien,
-    monHoc: monHoc
-  }
-  return res.status(200).json(result);
+// router.get('/', function (req, res, next) {
+//   const sinhVien = {
+//     name: 'Nguyen Van A',
+//     age: 20,
+//     address: 'Ha Noi'
+//   }
+//   const monHoc = ['Toan', 'Ly', 'Hoa', 'Anh van']
+//   const result = {
+//     sinhVien: sinhVien,
+//     monHoc: monHoc
+//   }
+//   return res.status(200).json(result);
+// });
+
+
+router.get('/', function(req, res, next) {
+  res.render('index', { title: 'Express' });
 });
-
-
 
 module.exports = router;

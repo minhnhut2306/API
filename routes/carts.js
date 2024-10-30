@@ -5,8 +5,8 @@ const CartController = require('../controllers/CartController');
 
 router.post('/addCart_App', async (req, res, next) => {
     try {
-        const { user, products, address } = req.body;
-        const result = await CartController.addCart(user, products, address);
+        const { user, products } = req.body;
+        const result = await CartController.addCart(user, products);
         return res.status(200).json({ status: true, data: result });
     } catch (error) {
         console.log(error.message);
@@ -15,10 +15,10 @@ router.post('/addCart_App', async (req, res, next) => {
 });
 
 // cập nhật trạng thái đơn hàng 
-router.post('/:id/update',async(rep,res,next)=>{
+router.post('/:id/update',async(req,res,next)=>{
     try {
-        const{id} =rep.params;
-        const{status} = res.body;
+        const{id} =req.params;
+        const{status} = req.body;
         const result = await CartController.updateCarts(id,status);
         return res.status(200).json({ status: true, data: result });
 
@@ -29,5 +29,16 @@ router.post('/:id/update',async(rep,res,next)=>{
         
         
     }
-})
+});
+router.get('/QuanLiHangHoa', async (req, res) => {
+    try {
+      const result = await CartController.QuanLyHangHoa();
+      return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ status: false, data: error.message });
+  }
+  });
+
+
 module.exports = router;
