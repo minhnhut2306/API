@@ -12,6 +12,7 @@ var saleRouter = require("./sale");
 var addressesRouter = require("./addresses");
 var notificationRouter = require("./notifications");
 var oderRouter = require("./oder");
+var commentRouter = require("./comment");
 
 router.use("/users", usersRouter);
 router.use("/", indexRouter);
@@ -24,5 +25,6 @@ router.use("/addresses", addressesRouter);
 router.use("/sale", saleRouter);
 router.use("/oder", oderRouter);
 router.use("/notifications", notificationRouter);
+router.use("/comment", commentRouter);
 
 module.exports = router;
