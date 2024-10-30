@@ -68,6 +68,22 @@ router.delete("/:id/delete", async (req, res, next) => {
   }
 });
 
+
+
+router.get('/filter/:id', async (req, res, next) => {
+  try {
+      const { id } = req.params;
+      console.log('..............id: ', id);
+const products = await ProductController.getProductsByCategory(id);
+      console.log('..............product: ', products);
+      return res.status(200).json({ status: true, data: products })
+  } catch (error) {
+      console.log('Lấy danh sách sản phẩm thất bại');
+      return res.status(500).json({ status: false, data: error.message });
+  }
+})
+
+
 router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
   try {
     const {
@@ -153,18 +169,18 @@ router.put(
     }
   }
 );
-router.get('category/:id/GetProduct', async (req, res, next) => {
-  try {
-      const { id } = req.query;
-      console.log('..............id: ', id);
-      const products = await ProductController.getProductsByCategory(id);
-      console.log('..............product: ', products);
-      return res.status(200).json({ status: true, data: products })
-  } catch (error) {
-      console.log('Lấy danh sách sản phẩm thất bại');
-      return res.status(500).json({ status: false, data: error.message });
-  }
-});
+// router.get('category/:id/GetProduct', async (req, res, next) => {
+//   try {
+//       const { id } = req.query;
+//       console.log('..............id: ', id);
+//       const products = await ProductController.getProductsByCategory(id);
+//       console.log('..............product: ', products);
+//       return res.status(200).json({ status: true, data: products })
+//   } catch (error) {
+//       console.log('Lấy danh sách sản phẩm thất bại');
+//       return res.status(500).json({ status: false, data: error.message });
+//   }
+// });
 
 
 // id,
