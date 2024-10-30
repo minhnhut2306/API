@@ -1,7 +1,9 @@
 const OrderModel = require("./OderModel");
 const CartModel = require("./CartModel");
+const UserModel = require("./UserModel");
+const ProductModel = require("./ProductModel");
 const AddressModel = require("./AddressModel");
-const {CART_STATUS } = require("../helpers/AppConstants");
+const { CART_STATUS } = require("../helpers/AppConstants");
 //________________________________________APP_______________________________________
 
 const getAllOrder = async () => {
@@ -67,7 +69,10 @@ const addOrder = async (cart, address, ship, sale) => {
     let totalDiscount = 0;
     if (Array.isArray(sale)) {
       totalDiscount = sale.reduce((sum, item) => {
-        if (typeof item.discountAmount === "number" && item.discountAmount > 0) {
+        if (
+          typeof item.discountAmount === "number" &&
+          item.discountAmount > 0
+        ) {
           // Giảm giá theo số tiền cố định
           return sum + item.discountAmount;
         } else if (
@@ -109,36 +114,26 @@ const addOrder = async (cart, address, ship, sale) => {
     });
     const result = await order.save();
 
-    // Cập nhật tồn kho và lịch sử mua hàng
-    // for (let index = 0; index < cartInOder.length; index++) {
-    //     const item = cartInOder[index];
-    //     const product = await Ca.findById(item._id);
-    //     if (product) {
-    //         product.quantity -= item.quantity;
-    //         await product.save();
-    //     }
-    // }
+    // Cập nhật lịch sử mua hàng của người dùng
+    const userInDB = await UserModel.findById(cartInDB.user);
+    if (userInDB) {
+      for (let item of cartInOder) {
+        const product = await ProductModel.findById(item._id);
+        if (product) {
+          let newItem = {
+            _id: item._id,
+            name: product.name,
+            quantity: item.quantity,
+            status: result.status,
+            images: product.images,
+            date: Date.now(),
+          };
+          userInDB.carts.push(newItem);
+        }
+      }
 
-    // // Cập nhật thông tin người dùng
-    // for (let index = 0; index < cartInOder.length; index++) {
-    //     const item = cartInOder[index];
-    //     const product = await ProductModel.findById(item._id);
-    //     if (product) {
-    //         let newItem = {
-    //             _id: item._id,
-    //             name: product.name,
-    //             quantity: item.quantity,
-    //             status: result.status,
-    //             images: product.images,
-    //             date: Date.now(),
-    //         };
-    //         userInDB.carts.push(newItem);
-    //     }
-    // }
-    //     userInDB.carts.push(newItem);
-
-    //   await userInDB.save();
-
+      await userInDB.save();
+    }
     return result;
   } catch (error) {
     console.log(error);
@@ -152,28 +147,28 @@ const updateOrder = async (id, status) => {
     const order = await OrderModel.findById(id);
     if (!order) {
       throw new error("Không tìm thấy đơn hàng ");
-
     }
-    if (status < order.status ||
+    if (
+      status < order.status ||
       (status == CART_STATUS.HOAN_THANH &&
         (order.status == CART_STATUS.XAC_NHAN ||
           order.status == CART_STATUS.DANG_GIAO ||
           order.status == CART_STATUS.HUY)) ||
-      status > 4) {
+      status > 4
+    ) {
       throw new Error("Trạng thái đơn hàng không hợp lệ");
     }
     order.status = status;
     let result = await order.save();
     return result;
   } catch (error) {
-      console.log(error);
-      throw new Error("Cập nhật trạng thái đơn hàng thất bại");
-      
+    console.log(error);
+    throw new Error("Cập nhật trạng thái đơn hàng thất bại");
   }
 };
 
 module.exports = {
   getAllOrder,
   addOrder,
-  updateOrder
+  updateOrder,
 };
