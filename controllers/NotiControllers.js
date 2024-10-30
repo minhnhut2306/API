@@ -60,13 +60,16 @@ const AddNoti = async (user, promotionMessage) => {
 
 
 // Lấy tất cả thông báo của người dùng
-exports.getUserNotifications = async (req, res) => {
+const getNoti = async () => {
     try {
-        const notifications = await Notification.find({ 'user._id': req.params.user }); // Sử dụng user._id để truy vấn
-        res.status(200).json({ success: true, notifications });
+        const notifications = await Notification.find(); // Sử dụng user._id để truy vấn
+        if(!notifications){
+            throw new Error('Thông báo không tồn tại.');
+        }
+        return notifications;
     } catch (error) {
         console.error('Lỗi khong lấy được thông báo', error);
-        res.status(500).json({ success: false, message: 'Không kết nối được' });
+        throw new Error('Thông tồn tại.');
     }
 };
 const checkUserValidity = async (userId) => {
@@ -83,5 +86,6 @@ const checkUserValidity = async (userId) => {
 };
 module.exports = {
     AddNoti,
+    getNoti,
     checkUserValidity
 };
