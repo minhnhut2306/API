@@ -1,7 +1,8 @@
-const { isValidObjectId } = require("mongoose");
+const { isValidObjectId, Types } = require("mongoose");
 const ProductModel = require("./ProductModel");
 const CategoryModel = require("./CategoryModel");
 const PreserveModel = require("./PreserveModel");
+
 const UserModel = require("./UserModel");
 //________________________________________APP_______________________________________
 
@@ -108,6 +109,16 @@ const addProduct = async (
     ) {
       throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm");
     }
+    // lấy category theo id
+    const categoryInDB = await CategoryModel.findById(category);
+    if (!categoryInDB) {
+      throw new Error("Danh mục không tồn tại");
+    }
+    // tạo object category
+    category = {
+category_id: categoryInDB._id,
+      category_name: categoryInDB.name,
+    };
 
     const product = {
       name,
@@ -121,7 +132,7 @@ const addProduct = async (
       supplier,
       uses,
       images,
-      description
+      description,
     };
     const newProduct = new ProductModel(product);
     const result = await newProduct.save();
@@ -162,14 +173,12 @@ const updateProduct = async (
     const udtcCategory = await CategoryModel.findById(category);
     // Assign the category object, assuming you're storing the category details
     if (!udtcCategory) {
-
       throw new Error("Danh mục không tồn tại");
     }
     udtProduct.category = {
       category_id: udtcCategory._id,
-      category_name: udtcCategory.name
+      category_name: udtcCategory.name,
     };
-
 
     if (preserve) {
       const udtcpreserve = await PreserveModel.findById(preserve);
@@ -180,9 +189,8 @@ const updateProduct = async (
       // Assign the category object, assuming you're storing the category details
       udtProduct.preserve = {
         _id: udtcpreserve._id,
-        preserve_name: udtcpreserve.name
+        preserve_name: udtcpreserve.name,
       };
-
     }
 
     // Update the product fields if provided
@@ -197,7 +205,6 @@ const updateProduct = async (
     udtProduct.fiber = fiber || udtProduct.fiber;
     udtProduct.uses = uses || udtProduct.uses;
 
-
     // Set the updated date (corrected)
     udtProduct.updateProduct = Date.now();
 
@@ -211,21 +218,23 @@ const updateProduct = async (
 };
 const getProductsByCategory = async (id) => {
   try {
-    console.log('---------------id: ', id);
+    console.log("---------------id: ", id);
     let query = {};
     query = {
-      ...query, 'category.category_id': new Types.ObjectId(id)
+      ...query,
+      "category.category_id": new Types.ObjectId(id),
     };
     console.log(query);
-    const products = await ProductModel.find(query);
+const products = await ProductModel.find(query);
     return products;
   } catch (error) {
-    console.log('findProduct error: ', error.message);
-    throw new Error('Tìm kiếm sản phẩm không thành công');
+    console.log("findProduct error: ", error.message);
+    throw new Error("Tìm kiếm sản phẩm không thành công");
   }
-}
+};
 
 // quản lí hàng hóa
+
 
 
 
@@ -238,5 +247,4 @@ module.exports = {
   addProduct,
   updateProduct,
   getProductsByCategory,
-
-};
+}
