@@ -39,6 +39,16 @@ router.get('/QuanLiHangHoa', async (req, res) => {
       return res.status(500).json({ status: false, data: error.message });
   }
   });
+// 
+  router.get('/getAllCarts', async (req, res) => {
+    try {
+        const result = await CartController.getAllCart();
+        return res.status(200).json({ status: true, data: result });
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({ status: false, data: error.message });
+    }
+});
 
 
 module.exports = router;
