@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const notiController = require('../controllers/NotiControllers');
 const NotiControllers = require('../controllers/NotiControllers')
-const { AddNoti, checkUserValidity } = require('../controllers/NotiControllers');
+const { AddNoti, checkUserValidity,checkOrderValidity,createOrderNotification} = require('../controllers/NotiControllers');
 
 // lấy thông báo 
 
@@ -16,6 +16,7 @@ const { AddNoti, checkUserValidity } = require('../controllers/NotiControllers')
 //     }
 // });
 
+ // Endpoint tạo thông báo cho khuyến mãi
 router.post('/add_notification', async (req, res) => {
     const { userId, promotionMessage } = req.body;
 
@@ -34,29 +35,35 @@ router.post('/add_notification', async (req, res) => {
     }
 });
 // Endpoint tạo thông báo cho đơn hàng
-router.post('/notifications/order', async (req, res) => {
+router.post('/orderNotification', async (req, res) => {
     try {
-        await notiController.createOrderNotification(req.body.orderId);
-        res.status(200).json({ success: true, message: 'Thông báo về đơn hàng thành công ' });
+        const { userId, oderId, promotionMessage } = req.body;
+        await checkUserValidity(userId);
+        await checkOrderValidity(oderId);
+
+        const notiController = await createOrderNotification(userId, oderId,promotionMessage);
+        return res.status(201).json({
+            message: 'Thông báo đơn hàng được tạo thành công!',
+            notiController})
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// Endpoint tạo thông báo cho khuyến mãi
-router.post('/notifications/promotion', async (req, res) => {
-    try {
-        await notiController.createPromotionNotification(req.body.userId, req.body.message);
-        res.status(200).json({ success: true, message: 'Thông báo về chương trình khuyến mãi được tạo thành công' });
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
+ // Endpoint tạo thông báo cho khuyến mãi
+// router.post('/promotion', async (req, res) => {
+//     try {
+//         await notiController.createPromotionNotification(req.body.userId, req.body.message);
+//         res.status(200).json({ success: true, message: 'Thông báo về chương trình khuyến mãi được tạo thành công' });
+//     } catch (error) {
+//         console.log(error.message);
+//         res.status(500).json({ success: false, message: error.message });
+//     }
+// });
 
 // Endpoint lấy tất cả thông báo của người dùng
-router.get('/notifications/:userId', async (req, res) => {
+router.get('/:userId', async (req, res) => {
     try {
         await notiController.getUserNotifications(req, res);
     } catch (error) {
