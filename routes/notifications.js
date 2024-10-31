@@ -2,8 +2,22 @@ var express = require('express');
 var router = express.Router();
 const notiController = require('../controllers/NotiControllers');
 const NotiControllers = require('../controllers/NotiControllers')
-const { AddNoti, checkUserValidity,checkOrderValidity,createOrderNotification} = require('../controllers/NotiControllers');
+const { AddNoti, checkUserValidity,checkOrderValidity,createOrderNotification,deletedNotification} = require('../controllers/NotiControllers');
 
+router.delete('/:notificationId', async (req, res) => {
+    const { notificationId } = req.params; // Retrieve notificationId from req.params
+
+    try {
+        const result = await notiController.deleteNotification(req, res);
+        return res.status(200).json({
+            message: 'Thông báo đã được xóa thành công!',
+            deletedNotification: result,
+        });
+    } catch (error) {
+        console.log('Error deleting notification:', error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 // lấy thông báo 
 
 router.get('/', async (req, res, next )=> {

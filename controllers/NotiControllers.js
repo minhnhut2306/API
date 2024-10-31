@@ -3,6 +3,20 @@ const Notification = require("./notiModel"); // Import notiModel
 const Order = require("./OderModel"); // Giả sử bạn đã có model cho đơn hàng
 const User = require("../controllers/UserModel");
 
+const deleteNotification = async (req, res) => {
+  try {
+      const { notificationId } = req.params;
+      const result = await Notification.findByIdAndDelete(notificationId);
+      if (!result) {
+          throw new Error('Notification not found');
+      }
+      return result; // Ensure this returns to the router
+  } catch (error) {
+      throw new Error('Error deleting notification: ' + error.message);
+  }
+};
+
+
 // Tạo thông báo cho đơn hàng thành công
 const createOrderNotification = async (userId,oderId ,promotionMessage) => {
   // // Kiểm tra các tham số
@@ -140,5 +154,6 @@ module.exports = {
   checkUserValidity,
   getUserNotifications,
   createOrderNotification,
-  checkOrderValidity
+  checkOrderValidity,
+  deleteNotification
 };
