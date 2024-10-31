@@ -13,7 +13,7 @@ status: {type: Number, default: AppConstants.CART_STATUS.XAC_NHAN},
 //gho chú
 note: { type: String, default: ''},
 //hình thức vận chuyển
-ship: {type: Number, default: AppConstants.Shipping_method, require: true },
+ship: {type: Number, default: AppConstants.Shipping_method.GIAO_CHAM, require: true },
 //Địa chỉ
 address: {type: Object, require: true},
 //khuyến mãi

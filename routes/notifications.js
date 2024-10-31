@@ -6,15 +6,15 @@ const { AddNoti, checkUserValidity,checkOrderValidity,createOrderNotification} =
 
 // lấy thông báo 
 
-// router.get('/', async (req, res, next )=> {
-//     try {
-//         const categories = await NotificationController.getCategories();
-//         return res.status(200).json({ status: true, data: categories});
-//     } catch (error) {
-//         console.log('Get categories error: ', error.massage);
-//         return res.status(500).json({ status: false, data: error.massage});
-//     }
-// });
+router.get('/', async (req, res, next )=> {
+    try {
+        const categories = await NotiControllers .getNoti();
+        return res.status(200).json({ status: true, data: categories});
+    } catch (error) {
+        console.log('Get categories error: ', error.massage);
+        return res.status(500).json({ status: false, data: error.massage});
+    }
+});
 
  // Endpoint tạo thông báo cho khuyến mãi
 router.post('/add_notification', async (req, res) => {

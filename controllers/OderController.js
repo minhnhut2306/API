@@ -1,15 +1,16 @@
 const OrderModel = require("./OderModel");
 const CartModel = require("./CartModel");
 const AddressModel = require("./AddressModel");
+const {CART_STATUS } = require("../helpers/AppConstants");
 //________________________________________APP_______________________________________
 
-const getCategories = async () => {
+const getAllOrder = async () => {
   try {
-    const categoryInDB = await CategoryModel.find();
-    return categoryInDB;
+    const orderInDB = await OrderModel.find();
+    return orderInDB;
   } catch (error) {
-    console.log("getCategories error: ", error.massage);
-    throw new Error("Lấy ds danh mục lỗi");
+    console.log("getAllOrder error: ", error.massage);
+    throw new Error("Lấy ds đơn hàng lỗi");
   }
 };
 
@@ -52,23 +53,7 @@ const addOrder = async (cart, address, ship, sale) => {
     }
     // Tính tổng số tiền giảm giá từ mảng sale
     // Tính tổng số tiền giảm giá từ mảng sale
-   
-    let totalDiscount = 0;
-        if (Array.isArray(sale)) {
-            totalDiscount = sale.reduce((sum, item) => {
-                return (typeof item.amount === "number" && item.amount > 0) ? sum + item.amount : sum;
-            }, 0);
-        } else {
-            throw new Error("Sale phải là một mảng");
-        }
-
-    let totalOrder = total - totalDiscount; // Use total instead of totalOrder here
-
-    if (totalOrder < 0) {
-      totalOrder = 0; // Đảm bảo tổng tiền không bị âm
-    }
-
-    // Tính phí vận chuyển dựa trên giá trị của `ship`
+    let totalOrder = total;
     let shippingFee = 0;
     if (ship === 1) {
       shippingFee = 8000;
@@ -78,6 +63,34 @@ const addOrder = async (cart, address, ship, sale) => {
       shippingFee = 20000;
     }
     totalOrder += shippingFee; // Thêm phí vận chuyển vào tổng tiền
+
+    let totalDiscount = 0;
+    if (Array.isArray(sale)) {
+      totalDiscount = sale.reduce((sum, item) => {
+        if (typeof item.discountAmount === "number" && item.discountAmount > 0) {
+          // Giảm giá theo số tiền cố định
+          return sum + item.discountAmount;
+        } else if (
+          typeof item.discountPercent === "number" &&
+          item.discountPercent > 0 &&
+          item.discountPercent <= 100
+        ) {
+          // Giảm giá theo % (tối đa là 100%)
+          return sum + (totalOrder * item.discountPercent) / 100;
+        } else {
+          return sum;
+        }
+      }, 0);
+      // Đảm bảo tổng giảm giá không vượt quá totalOrder
+      totalOrder -= totalDiscount;
+      if (totalOrder < 0) {
+        totalOrder = 0;
+      }
+    } // Đảm bảo tổng tiền không bị âm
+    else {
+      throw new Error("Sale phải là một mảng");
+    }
+    // Tính phí vận chuyển dựa trên giá trị của `ship`
 
     const order = new OrderModel({
       cart: cartInOder,
@@ -93,7 +106,6 @@ const addOrder = async (cart, address, ship, sale) => {
       },
       sale,
       totalOrder,
-
     });
     const result = await order.save();
 
@@ -124,9 +136,8 @@ const addOrder = async (cart, address, ship, sale) => {
     //     }
     // }
     //     userInDB.carts.push(newItem);
-      
+
     //   await userInDB.save();
-   
 
     return result;
   } catch (error) {
@@ -135,7 +146,34 @@ const addOrder = async (cart, address, ship, sale) => {
   }
 };
 
+//update trạng thái đơn hàng
+const updateOrder = async (id, status) => {
+  try {
+    const order = await OrderModel.findById(id);
+    if (!order) {
+      throw new error("Không tìm thấy đơn hàng ");
+
+    }
+    if (status < order.status ||
+      (status == CART_STATUS.HOAN_THANH &&
+        (order.status == CART_STATUS.XAC_NHAN ||
+          order.status == CART_STATUS.DANG_GIAO ||
+          order.status == CART_STATUS.HUY)) ||
+      status > 4) {
+      throw new Error("Trạng thái đơn hàng không hợp lệ");
+    }
+    order.status = status;
+    let result = await order.save();
+    return result;
+  } catch (error) {
+      console.log(error);
+      throw new Error("Cập nhật trạng thái đơn hàng thất bại");
+      
+  }
+};
+
 module.exports = {
-  getCategories,
+  getAllOrder,
   addOrder,
+  updateOrder
 };
