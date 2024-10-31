@@ -190,10 +190,33 @@ const getOldUsers = async () => {
     throw new Error("Lấy danh sách người dùng thất bại");
   }
 };
+const deleteAccount = async (emailOrPhone) => {
+  try {
+    const result = await userModel.findOneAndDelete({
+      $or: [{ email: emailOrPhone }, { phone: emailOrPhone }]
+    });
+
+    if (!result) {
+      return { message: "Tài khoản không tồn tại" };
+    }
+
+    console.log("Xóa tài khoản thành công:", result);
+    return { message: "Tài khoản đã được xóa thành công" };
+  } catch (error) {
+    console.error("Xóa tài khoản thất bại:", error.message);
+    throw new Error("Xóa tài khoản thất bại: " + error.message);
+  }
+};
+
+
+
+
+
 
 module.exports = {
   register,
   login,
   getNewUsers,
-  getOldUsers
+  getOldUsers,
+  deleteAccount,
 };

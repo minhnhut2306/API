@@ -22,6 +22,7 @@ const options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
+
 module.exports = (app) => {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
         swaggerOptions: {
@@ -30,3 +31,31 @@ module.exports = (app) => {
         }
     }));
 };
+
+
+/**
+ * @swagger
+ * /users/delete-account:
+ *   delete:
+ *     summary: Xóa tài khoản người dùng
+ *     description: Xóa tài khoản dựa trên email hoặc số điện thoại
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               emailOrPhone:
+ *                 type: string
+ *                 example: "user@example.com"
+ *     responses:
+ *       200:
+ *         description: Tài khoản đã được xóa thành công
+ *       400:
+ *         description: Thiếu thông tin cần thiết
+ *       500:
+ *         description: Lỗi máy chủ
+ */
+
