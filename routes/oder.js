@@ -13,6 +13,17 @@ router.get("/getAllOrder", async (req, res, next) => {
   }
 });
 
+router.get("/:id/getOrderById", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await OderController.getOrderQById(id);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
+
 /**
  * lấy ds tất cả danh mục
  * method: get

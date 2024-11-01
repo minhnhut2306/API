@@ -2,6 +2,8 @@ const OrderModel = require("./OderModel");
 const CartModel = require("./CartModel");
 const AddressModel = require("./AddressModel");
 const {CART_STATUS } = require("../helpers/AppConstants");
+const { isValidObjectId, Types } = require("mongoose");
+
 //________________________________________APP_______________________________________
 
 const getAllOrder = async () => {
@@ -11,6 +13,24 @@ const getAllOrder = async () => {
   } catch (error) {
     console.log("getAllOrder error: ", error.massage);
     throw new Error("Lấy ds đơn hàng lỗi");
+  }
+};
+
+const   getOrderQById = async (id) => {
+  try {
+    if(!id){
+      throw new Error("Vui lòng nhập id người dùng");
+    }
+    let query = {};
+    query = {
+      ...query,
+      "user._id": new Types.ObjectId(id),
+    };
+    const orderInDB = await OrderModel.find(query)
+    return orderInDB;
+  } catch (error) {
+    console.log("getOrderQById error: ", error.message);
+    throw new Error("Lấy sản phẩm theo id người dùng không thành công");
   }
 };
 
@@ -175,5 +195,6 @@ const updateOrder = async (id, status) => {
 module.exports = {
   getAllOrder,
   addOrder,
-  updateOrder
+  updateOrder,
+  getOrderQById,
 };
