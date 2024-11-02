@@ -14,6 +14,7 @@ var notificationRouter = require("./notifications");
 var oderRouter = require("./oder");
 var commentRouter = require("./comment");
 var profileRouter = require("./profile");
+var imagesRouter = require("./images");
 
 router.use("/users", usersRouter);
 router.use("/", indexRouter);
@@ -28,5 +29,6 @@ router.use("/oder", oderRouter);
 router.use("/notifications", notificationRouter);
 router.use("/comment", commentRouter);
 router.use("/profile", profileRouter);
+router.use("/images", imagesRouter);
 
 module.exports = router;
