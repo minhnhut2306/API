@@ -46,7 +46,6 @@ const getTopProductSell_Web = async () => {
 };
 
 // Tìm sản phẩm theo từ khóa
-// Tìm sản phẩm theo từ khóa
 const findProductsByKey_App = async (key) => {
   try {
     let query = {
@@ -257,9 +256,9 @@ module.exports = {
   getProduct,
   getProductDetailById_App,
   getTopProductSell_Web,
-  findProductsByKey_App,
+  findProductsByKey_App, 
   deleteProduct,
   addProduct,
   updateProduct,
   getProductsByCategory,
-}
+};
