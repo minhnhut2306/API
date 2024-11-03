@@ -10,7 +10,7 @@ const UserModel = require("./UserModel");
 const getProduct = async () => {
   try {
     let query = {};
-    const products = await ProductModel.find(query);
+    const products = await ProductModel.find(query).sort({ createAt: -1});
     return products;
   } catch (error) {
     console.log("getProducts error: ", error.message);
@@ -108,6 +108,12 @@ const addProduct = async (
       !description
     ) {
       throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm");
+    }
+    if(quantity<=0){
+      throw new Error("Số lượng không được nhập dưới 1");
+    }
+    if(quantity<=0){
+      throw new Error("Giá tiền không được âm");
     }
     // lấy category theo id
     const categoryInDB = await CategoryModel.findById(category);
