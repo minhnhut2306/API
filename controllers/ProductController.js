@@ -10,7 +10,9 @@ const UserModel = require("./UserModel");
 const getProduct = async () => {
   try {
     let query = {};
-    const products = await ProductModel.find(query);
+
+    const products = await ProductModel.find(query).sort({ createAt: -1 });
+
     return products;
   } catch (error) {
     console.log("getProducts error: ", error.message);
@@ -49,13 +51,28 @@ const getTopProductSell_Web = async () => {
 const findProductsByKey_App = async (key) => {
   try {
     let query = {
-      name: { $regex: key, $options: "i" }, // Tìm kiếm tên sản phẩm theo từ khóa (không phân biệt hoa thường)
+      $or: [
+        { name: { $regex: key, $options: "i" } },
+        { oum: { $regex: key, $options: "i" } }, // Giả sử không cần tìm theo hình ảnh
+      ],
     };
 
+    // Lấy danh sách sản phẩm với tất cả các trường cần thiết
     const products = await ProductModel.find(query).select(
-      "name price image uom"
+      "name price images oum"
     );
-    return products;
+
+    // Thêm giá trị mặc định cho image và oum
+    const productsWithDefaults = products.map((product) => ({
+      ...product._doc,
+      image:
+        product.images && product.images.length > 0
+          ? product.images[0]
+          : "default_image_url", // Lấy hình ảnh đầu tiên hoặc sử dụng hình ảnh mặc định
+      oum: product.oum || "Không có trọng lượng", // giá trị mặc định cho oum
+    }));
+
+    return productsWithDefaults;
   } catch (error) {
     console.log("getProducts error: ", error.message);
     throw new Error("Lấy danh sách sản phẩm lỗi");
@@ -97,27 +114,41 @@ const addProduct = async (
       !name ||
       !category ||
       !quantity ||
-      !origin ||
       !price ||
-      !fiber ||
       !oum ||
       !preserve ||
-      !supplier ||
-      !uses ||
-      !images ||
-      !description
+      !images
     ) {
       throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm");
     }
+
+    if (quantity <= 0) {
+      throw new Error("Số lượng không được nhập dưới 1");
+    }
+    if (price < 0) {
+      throw new Error("Giá tiền không được âm");
+    }
+
     // lấy category theo id
     const categoryInDB = await CategoryModel.findById(category);
     if (!categoryInDB) {
       throw new Error("Danh mục không tồn tại");
     }
+
+    const preserveInDB = await PreserveModel.findById(preserve);
+    if (!categoryInDB) {
+      throw new Error("oại hàng không tồn tại");
+    }
+
     // tạo object category
     category = {
       category_id: categoryInDB._id,
       category_name: categoryInDB.name,
+    };
+
+    preserve = {
+      preserve_id: preserveInDB._id,
+      preserve_name: preserveInDB.name,
     };
 
     const product = {
@@ -170,6 +201,11 @@ const updateProduct = async (
     if (!category) {
       throw new Error("Danh mục không tồn tại");
     }
+
+    if (!preserve) {
+      throw new Error("Loại hàng không tồn tại");
+    }
+
     const udtcCategory = await CategoryModel.findById(category);
     // Assign the category object, assuming you're storing the category details
     if (!udtcCategory) {
@@ -180,18 +216,15 @@ const updateProduct = async (
       category_name: udtcCategory.name,
     };
 
-    if (preserve) {
-      const udtcpreserve = await PreserveModel.findById(preserve);
-      if (!udtcpreserve) {
-        throw new Error("Danh mục không tồn tại");
-      }
-
-      // Assign the category object, assuming you're storing the category details
-      udtProduct.preserve = {
-        _id: udtcpreserve._id,
-        preserve_name: udtcpreserve.name,
-      };
+    const udtcPreserve = await PreserveModel.findById(preserve);
+    if (!udtcPreserve) {
+      throw new Error("oại hàng không tồn tại");
     }
+    // Assign the category object, assuming you're storing the category details
+    udtProduct.preserve = {
+      preserve_id: udtcPreserve._id,
+      preserve_name: udtcPreserve.name,
+    };
 
     // Update the product fields if provided
     udtProduct.name = name || udtProduct.name;
@@ -235,9 +268,6 @@ const getProductsByCategory = async (id) => {
 
 // quản lí hàng hóa
 
-
-
-
 module.exports = {
   getProduct,
   getProductDetailById_App,
@@ -247,4 +277,4 @@ module.exports = {
   addProduct,
   updateProduct,
   getProductsByCategory,
-}
+};
