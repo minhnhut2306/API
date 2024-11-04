@@ -36,12 +36,10 @@ const addCart = async (user, products) => {
         throw new Error("Product out of stock");
       }
       const productItem = {
-
         _id: product._id,
         name: product.name,
         price: product.price,
         quantity: item.quantity,
-        images: product.images
       };
       productsInCart.push(productItem);
       total += product.price * item.quantity;
@@ -89,7 +87,7 @@ const addCart = async (user, products) => {
           name: product.name,
           quantity: item.quantity,
           status: result.status,
-          images: product.images || [],
+          images: product.images,
           date: Date.now(),
         };
         userInDB.carts.push(newItem);

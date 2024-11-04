@@ -22,6 +22,6 @@ sale: {type: Array, default: []},
 date: {type: Date, default: Date.now},
 //tổng thanh toán
 totalOrder: {type: Number, default: 0},
-images: { type: Array, default: [],  require: false, },
+
 });
 module.exports = mongoose.models.oder || mongoose.model('oder',OderSchema);

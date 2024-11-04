@@ -41,35 +41,35 @@ const validateProduct = async (req, res, next) => {
       throw new Error("Category is invalid");
     }
 
-    // // Kiểm tra mô tả sản phẩm
-    // if (!description || !isNaN(description)) {
-    //   throw new Error("Description is invalid");
-    // }
+    // Kiểm tra mô tả sản phẩm
+    if (!description || !isNaN(description)) {
+      throw new Error("Description is invalid");
+    }
 
     // Kiểm tra UOM
     if (!oum || typeof oum !== "string" || !oum.trim()) {
       throw new Error("OUM is invalid");
     }
 
-    // // Kiểm tra fiber (chất liệu sợi)
-    // if (!fiber || typeof fiber !== "string" || !fiber.trim()) {
-    //   throw new Error("Fiber is invalid");
-    // }
+    // Kiểm tra fiber (chất liệu sợi)
+    if (!fiber || typeof fiber !== "string" || !fiber.trim()) {
+      throw new Error("Fiber is invalid");
+    }
 
-    // // Kiểm tra origin (xuất xứ)
-    // if (!origin || typeof origin !== "string" || !origin.trim()) {
-    //   throw new Error("Origin is invalid");
-    // }
+    // Kiểm tra origin (xuất xứ)
+    if (!origin || typeof origin !== "string" || !origin.trim()) {
+      throw new Error("Origin is invalid");
+    }
 
     // Kiểm tra preserve (bảo quản)
     if (!preserve) {
       throw new Error("Preserve information is invalid");
     }
 
-    // // Kiểm tra uses (công dụng)
-    // if (!uses || typeof uses !== "string" || !uses.trim()) {
-    //   throw new Error("Uses information is invalid");
-    // }
+    // Kiểm tra uses (công dụng)
+    if (!uses || typeof uses !== "string" || !uses.trim()) {
+      throw new Error("Uses information is invalid");
+    }
 
     // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
     next();
