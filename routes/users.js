@@ -118,6 +118,7 @@ router.post("/login", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+//http://localhost:6677/users/delete-account
 router.delete("/delete-account", async (req, res) => {
   try {
     const { emailOrPhone } = req.body;

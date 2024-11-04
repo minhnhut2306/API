@@ -10,7 +10,7 @@ const UserModel = require("./UserModel");
 const getProduct = async () => {
   try {
     let query = {};
-    const products = await ProductModel.find(query);
+    const products = await ProductModel.find(query).sort({ createAt: -1});
     return products;
   } catch (error) {
     console.log("getProducts error: ", error.message);
@@ -49,18 +49,32 @@ const getTopProductSell_Web = async () => {
 const findProductsByKey_App = async (key) => {
   try {
     let query = {
-      name: { $regex: key, $options: "i" }, // Tìm kiếm tên sản phẩm theo từ khóa (không phân biệt hoa thường)
+      $or: [
+        { name: { $regex: key, $options: "i" } },
+        { oum: { $regex: key, $options: "i" } } // Giả sử không cần tìm theo hình ảnh
+      ]
     };
 
-    const products = await ProductModel.find(query).select(
-      "name price image uom"
-    );
-    return products;
+    // Lấy danh sách sản phẩm với tất cả các trường cần thiết
+    const products = await ProductModel.find(query).select("name price images oum");
+    
+    // Thêm giá trị mặc định cho image và oum
+    const productsWithDefaults = products.map(product => ({
+      ...product._doc,
+      image: (product.images && product.images.length > 0) ? product.images[0] : 'default_image_url', // Lấy hình ảnh đầu tiên hoặc sử dụng hình ảnh mặc định
+      oum: product.oum || 'Không có trọng lượng'   // giá trị mặc định cho oum
+    }));
+
+    return productsWithDefaults;
   } catch (error) {
     console.log("getProducts error: ", error.message);
     throw new Error("Lấy danh sách sản phẩm lỗi");
   }
 };
+
+
+
+
 
 // Xóa sản phẩm theo id
 const deleteProduct = async (id) => {
@@ -108,6 +122,12 @@ const addProduct = async (
       !description
     ) {
       throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm");
+    }
+    if(quantity<=0){
+      throw new Error("Số lượng không được nhập dưới 1");
+    }
+    if(quantity<=0){
+      throw new Error("Giá tiền không được âm");
     }
     // lấy category theo id
     const categoryInDB = await CategoryModel.findById(category);
@@ -242,7 +262,7 @@ module.exports = {
   getProduct,
   getProductDetailById_App,
   getTopProductSell_Web,
-  findProductsByKey_App,
+  findProductsByKey_App, 
   deleteProduct,
   addProduct,
   updateProduct,
