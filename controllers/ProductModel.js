@@ -7,16 +7,16 @@ const ObjectId = Schema.ObjectId;
 const ProductSchema = new Schema({
   name: { type: String, require: true },
   price: { type: Number, require: true, default: 0 },
-  quantity: { type: Number, default: 0 },
-  images: { type: Array, default: [] },
-  description: { type: String, default: "" }, //mô tả
+  quantity: { type: Number, default: 0,  require: true },
+  images: { type: Array, default: [],  require: false, },
+  description: { type: String, default: "", require: false }, //mô tả
   category: { type: Object, default: {} }, //danh mục
-  oum: { type: String, default: " " }, //đơn vị đo
-  supplier: { type: String, default: "" }, //nhà cung cấp
-  fiber: { type: String, default: "" }, //chất sơ
-  origin: { type: String, default: "" }, //xuất xứ
+  oum: { type: String, default: " ", require: false }, //đơn vị đo
+  supplier: { type: String, default: "", require: false }, //nhà cung cấp
+  fiber: { type: String, default: "", require: false }, //chất sơ
+  origin: { type: String, default: "", require: false }, //xuất xứ
   preserve: { type: Object, default: {} },
-  uses: { type: String, default: "" }, //công dụng
+  uses: { type: String, default: "", require: false }, //công dụng
   discount: { type: String }, //giảm giá
   createAt: { type: Date, default: Date.now },
   updateAt: { type: Date, default: Date.now },
