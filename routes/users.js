@@ -116,5 +116,26 @@ router.post("/login", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+router.get("/:id/getProfileApp", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await userController.getProfile(id);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log("Get NewUsers error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 
+router.put("/:id/updateProfile", async (req, res, next) => {
+try {
+  const { id } = req.params;
+  const{ name, birthday, bio, gender } = req.body
+  const result = await userController.updateProfile(id, name, birthday, bio, gender);
+  return res.status(200).json({ status: true, data: result });
+} catch (error) {
+  console.log("UpdateProfile error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+}
+});
 module.exports = router;
