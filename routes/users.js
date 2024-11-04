@@ -1,6 +1,8 @@
 var express = require("express");
 var router = express.Router();
-const userController = require("../controllers/UserController");
+const userController = require("../controllers/UserController")
+const {deleteAccount } = require("../controllers/UserController");
+
 
 /* GET 
 
@@ -116,13 +118,18 @@ router.post("/login", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
-router.get("/:id/getProfileApp", async (req, res, next) => {
+//http://localhost:6677/users/delete-account
+router.delete("/delete-account", async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await userController.getProfile(id);
+    const { emailOrPhone } = req.body;
+    if (!emailOrPhone) {
+      return res.status(400).json({ status: false, data: "Email hoặc số điện thoại là bắt buộc" });
+    }
+
+    const result = await userController.deleteAccount(emailOrPhone);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
-    console.log("Get NewUsers error:", error.message);
+    console.log("Delete account error:", error.message);
     return res.status(500).json({ status: false, data: error.message });
   }
 });

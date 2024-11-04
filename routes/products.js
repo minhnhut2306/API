@@ -74,7 +74,7 @@ router.get('/filter/:id', async (req, res, next) => {
   try {
       const { id } = req.params;
       console.log('..............id: ', id);
-      const products = await ProductController.getProductsByCategory(id);
+const products = await ProductController.getProductsByCategory(id);
       console.log('..............product: ', products);
       return res.status(200).json({ status: true, data: products })
   } catch (error) {
