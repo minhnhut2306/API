@@ -3,7 +3,7 @@ var router = express.Router();
 const notiController = require('../controllers/NotiControllers');
 const NotiControllers = require('../controllers/NotiControllers')
 const { AddNoti, checkUserValidity,checkOrderValidity,createOrderNotification,deletedNotification} = require('../controllers/NotiControllers');
-//http://localhost:6677/notifications/6721f17f923e416414dbd895
+
 router.delete('/:notificationId', async (req, res) => {
     const { notificationId } = req.params; // Retrieve notificationId from req.params
 
@@ -19,6 +19,7 @@ router.delete('/:notificationId', async (req, res) => {
     }
 });
 // lấy thông báo 
+
 router.get('/', async (req, res, next )=> {
     try {
         const categories = await NotiControllers .getNoti();
@@ -28,7 +29,7 @@ router.get('/', async (req, res, next )=> {
         return res.status(500).json({ status: false, data: error.massage});
     }
 });
-//http://localhost:6677/notifications/add_notification
+
  // Endpoint tạo thông báo cho khuyến mãi
 router.post('/add_notification', async (req, res) => {
     const { userId, promotionMessage } = req.body;
@@ -47,7 +48,6 @@ router.post('/add_notification', async (req, res) => {
         });
     }
 });
-//http://localhost:6677/notifications/orderNotification
 // Endpoint tạo thông báo cho đơn hàng
 router.post('/orderNotification', async (req, res) => {
     try {
@@ -77,7 +77,6 @@ router.post('/orderNotification', async (req, res) => {
 // });
 
 // Endpoint lấy tất cả thông báo của người dùng
-//http://localhost:6677/notifications/671b544f7e165147f9d6cd6e
 router.get('/:userId', async (req, res) => {
     try {
         await notiController.getUserNotifications(req, res);
