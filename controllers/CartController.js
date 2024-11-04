@@ -173,10 +173,23 @@ const QuanLyHangHoa = async (productQuery, userQuery) => {
   }
 };
 
+const getAllCart = async () => {
+  try {
+      const carts = await CartModel.find();
+      if(!carts){
+        throw new Error("Không giỏ hàng");
+      }
+      return carts
+  } catch (error) {
+      console.error("Lỗi khi lấy danh sách giỏ hàng:", error); // In chi tiết lỗi ra console
+      throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
+  }
+};
 
 
 module.exports = {
   addCart,
   updateCarts,
-  QuanLyHangHoa
+  QuanLyHangHoa,
+  getAllCart
 };

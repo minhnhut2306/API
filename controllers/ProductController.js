@@ -10,9 +10,7 @@ const UserModel = require("./UserModel");
 const getProduct = async () => {
   try {
     let query = {};
-
     const products = await ProductModel.find(query).sort({ createAt: -1 });
-
     return products;
   } catch (error) {
     console.log("getProducts error: ", error.message);
@@ -53,6 +51,7 @@ const findProductsByKey_App = async (key) => {
     let query = {
       $or: [
         { name: { $regex: key, $options: "i" } },
+
         { oum: { $regex: key, $options: "i" } }, // Giả sử không cần tìm theo hình ảnh
       ],
     };
