@@ -2,14 +2,13 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
-  user: {
-    user: { type: Object, require: true },
-  },
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "product",
-    required: true,
-  },
+  user: { type: Object, require: true },
+
+  // productId: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "product",
+  //   required: true,
+  // },
   rating: {
     type: Number,
     required: true,
