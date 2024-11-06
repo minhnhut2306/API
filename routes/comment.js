@@ -32,5 +32,27 @@ const CommentController = require("../controllers/CommentController");
 // });
 
 
+<<<<<<< HEAD
+=======
+router.get("/", async (req, res, next) => {
+  try {
+    const preserves = await PreserveController.getPreserves();
+    return res.status(200).json({ status: true, data: preserves });
+  } catch (error) {
+    console.log("Get categories error: ", error.massage);
+    return res.status(500).json({ status: false, data: error.massage });
+  }
+});
+router.get('/products/:id/comments', async (req, res) => {
+ const { productId } = req.params; 
+  try {
+    const comments = await CommentController.getAllComment(productId);
+    res.status(200).json(comments); 
+  } catch (error) {
+    res.status(500).json({ message: error.message }); 
+  }
+});
+
+>>>>>>> main
 
 module.exports = router;
