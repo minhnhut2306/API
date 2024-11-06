@@ -32,8 +32,7 @@ const CommentController = require("../controllers/CommentController");
 // });
 
 
-<<<<<<< HEAD
-=======
+
 router.get("/", async (req, res, next) => {
   try {
     const preserves = await PreserveController.getPreserves();
@@ -53,6 +52,6 @@ router.get('/products/:id/comments', async (req, res) => {
   }
 });
 
->>>>>>> main
+
 
 module.exports = router;
