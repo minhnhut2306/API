@@ -3,6 +3,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
+const CommentSchema = require("./CommentModel");
 
 const ProductSchema = new Schema({
   name: { type: String, require: true },
@@ -21,6 +22,7 @@ const ProductSchema = new Schema({
   createAt: { type: Date, default: Date.now },
   updateAt: { type: Date, default: Date.now },
   sold: { type: Number, require: true },
+  comments: [CommentSchema] 
 });
 
 //tiếng anh, số ít, chữ thường, không dấu, không cách
