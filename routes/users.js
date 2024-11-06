@@ -145,4 +145,15 @@ try {
     return res.status(500).json({ status: false, data: error.message });
 }
 });
+
+router.get("/:id/getProfileApp", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await userController.getProfile(id);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log("Get NewUsers error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 module.exports = router;
