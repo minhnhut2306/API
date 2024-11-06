@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const validation = require("../middlewares/Validation");
 const ProductController = require("../controllers/ProductController");
+const CommentController = require("../controllers/CommentController");
 
 // ____________________________Lấy sp home_______________________
 // http://localhost:6677/products/getProducts_App
@@ -68,21 +69,18 @@ router.delete("/:id/delete", async (req, res, next) => {
   }
 });
 
-
-
-router.get('/filter/:id', async (req, res, next) => {
+router.get("/filter/:id", async (req, res, next) => {
   try {
-      const { id } = req.params;
-      console.log('..............id: ', id);
-      const products = await ProductController.getProductsByCategory(id);
-      console.log('..............product: ', products);
-      return res.status(200).json({ status: true, data: products })
+    const { id } = req.params;
+    console.log("..............id: ", id);
+    const products = await ProductController.getProductsByCategory(id);
+    console.log("..............product: ", products);
+    return res.status(200).json({ status: true, data: products });
   } catch (error) {
-      console.log('Lấy danh sách sản phẩm thất bại');
-      return res.status(500).json({ status: false, data: error.message });
+    console.log("Lấy danh sách sản phẩm thất bại");
+    return res.status(500).json({ status: false, data: error.message });
   }
-})
-
+});
 
 router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
   try {
@@ -92,7 +90,7 @@ router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
       quantity,
       origin,
       price,
-fiber,
+      fiber,
       oum,
       preserve,
       supplier,
@@ -182,7 +180,6 @@ router.put(
 //   }
 // });
 
-
 // id,
 // name,
 // price,
@@ -197,5 +194,27 @@ router.put(
 // preserve,
 // Uses,
 // discount
+router.post("/:productId/commentProduct", async (req, res, next) => {
+  try {
+    const { productId } = req.params;
+    const { user, rating, comment, images, videos, displayName } = req.body;
+    
+    const comments = await ProductController.commentProduct(
+      productId,
+      user,
+      rating,
+      comment,
+      images,
+      videos,
+      displayName
+    );
+
+    return res.status(200).json({ status: true, data: comments });
+  } catch (error) {
+    console.error("Thêm bình luận error:", error.message); // Sửa thành error.message
+    return res.status(500).json({ status: false, data: error.message }); // Sửa thành error.message
+  }
+});
+
 
 module.exports = router;

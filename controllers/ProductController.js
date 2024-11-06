@@ -265,6 +265,51 @@ const getProductsByCategory = async (id) => {
   }
 };
 
+const commentProduct = async (
+  productId,
+  user,
+  rating,
+  comment,
+  images,
+  videos,
+  displayName
+) => {
+  try {
+    console.log("1");
+    const productInDB = await ProductModel.findById(productId);
+    if (!productInDB) {
+      throw new Error("Sản phẩm không tồn tại");
+    }
+
+    const userInDB = await UserModel.findById(user);
+    if (!userInDB) {
+      throw new Error("Người dùng không tồn tại");
+    }
+
+    const newComment = {
+      user: {
+        _id: user._id,
+        name: user.name, 
+      },
+      rating,
+      comment,
+      images,
+      videos,
+      displayName,
+    };
+
+    productInDB.comments.push(newComment);
+    
+    await productInDB.save();
+    return productInDB;
+  } catch (error) {
+    console.error("addComment error:", error); 
+    throw error; 
+  }
+};
+
+
+
 // quản lí hàng hóa
 
 module.exports = {
@@ -276,4 +321,5 @@ module.exports = {
   addProduct,
   updateProduct,
   getProductsByCategory,
-};
+  commentProduct,
+}
