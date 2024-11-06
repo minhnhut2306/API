@@ -3,7 +3,12 @@ const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
   user: {
-    user: {type: Object, require: true},
+    user: { type: Object, require: true },
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "product",
+    required: true,
   },
   rating: {
     type: Number,
@@ -17,18 +22,18 @@ const CommentSchema = new Schema({
   },
   images: [
     {
-      type: String, 
+      type: String, // URL hoặc đường dẫn đến ảnh
       required: false,
     },
   ],
   videos: [
     {
-      type: String, 
+      type: String,
       required: false,
     },
   ],
   displayName: {
-    type: Boolean, 
+    type: Boolean,
     default: true,
   },
   createdAt: {

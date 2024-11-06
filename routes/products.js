@@ -71,11 +71,19 @@ router.delete("/:id/delete", async (req, res, next) => {
 
 router.get("/filter/:id", async (req, res, next) => {
   try {
+<<<<<<< HEAD
     const { id } = req.params;
     console.log("..............id: ", id);
     const products = await ProductController.getProductsByCategory(id);
     console.log("..............product: ", products);
     return res.status(200).json({ status: true, data: products });
+=======
+      const { id } = req.params;
+      console.log('..............id: ', id);
+const products = await ProductController.getProductsByCategory(id);
+      console.log('..............product: ', products);
+      return res.status(200).json({ status: true, data: products })
+>>>>>>> main
   } catch (error) {
     console.log("Lấy danh sách sản phẩm thất bại");
     return res.status(500).json({ status: false, data: error.message });
