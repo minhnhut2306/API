@@ -12,6 +12,7 @@ const addCart = async (user, products) => {
   try {
     // user: user id của người mua
     // products: mảng id của sản phẩm và số lượng mua
+    console.log(products)
     const userInDB = await UserModel.findById(user);
     if (!userInDB) {
       throw new Error("User not found");
@@ -27,7 +28,7 @@ const addCart = async (user, products) => {
     for (let index = 0; index < products.length; index++) {
       //thầy dùng mảng để chắc chắn tất cả các sp đều được duyệt qua
       const item = products[index];
-      const product = await ProductModel.findById(item._id);
+      const product = await ProductModel.findById(item.id);
       if (!product) {
         throw new Error("Product not found");
       }
@@ -36,12 +37,10 @@ const addCart = async (user, products) => {
         throw new Error("Product out of stock");
       }
       const productItem = {
-
-        _id: product._id,
+        id: product.id,
         name: product.name,
         price: product.price,
         quantity: item.quantity,
-        images: product.images
       };
       productsInCart.push(productItem);
       total += product.price * item.quantity;
@@ -74,7 +73,7 @@ const addCart = async (user, products) => {
       // chạy ngầm cập nhật số lượng tồn kho của sản phẩm
       for (let index = 0; index < products.length; index++) {
         const item = products[index];
-        const product = await ProductModel.findById(item._id);
+        const product = await ProductModel.findById(item.id);
         product.quantity -= item.quantity;
         await product.save();
       }
@@ -83,13 +82,13 @@ const addCart = async (user, products) => {
       //....sửa lại để đáp ứng giao diện history
       for (let index = 0; index < products.length; index++) {
         const item = products[index];
-        const product = await ProductModel.findById(item._id);
+        const product = await ProductModel.findById(item.id);
         let newItem = {
-          _id: item._id,
+          _id: item.id,
           name: product.name,
           quantity: item.quantity,
           status: result.status,
-          images: product.images || [],
+          images: product.images,
           date: Date.now(),
         };
         userInDB.carts.push(newItem);
