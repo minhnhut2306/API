@@ -29,5 +29,15 @@ router.get("/", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.massage });
   }
 });
+router.get('/products/:id/comments', async (req, res) => {
+ const { productId } = req.params; 
+  try {
+    const comments = await CommentController.getAllComment(productId);
+    res.status(200).json(comments); 
+  } catch (error) {
+    res.status(500).json({ message: error.message }); 
+  }
+});
+
 
 module.exports = router;
