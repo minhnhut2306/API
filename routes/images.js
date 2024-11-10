@@ -4,16 +4,17 @@ const multer = require('multer');
 const imagesController = require('../controllers/ImagesController');
 const router = express.Router();
 
-// Cấu hình Multer để lưu video
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/');
+        cb(null, 'uploads/'); // Ensure this directory exists
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
+
 const upload = multer({ storage: storage });
+
 
 // Route để upload ảnh
 router.post('/upload', upload.single('image'), imagesController.uploadImage);
@@ -31,6 +32,9 @@ router.get('/user/:userId/videos', imagesController.getUserVideos);
 
 // Route để xóa ảnh
 router.delete('/:id', imagesController.deleteImage);
+
+router.delete('/video/:id', imagesController.deleteVideo);
+
 
 // Route để lấy danh sách ảnh và video của người dùng
 // http://localhost:6677/images/media/6718f858985669198ff27cd2
