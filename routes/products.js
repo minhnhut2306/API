@@ -22,7 +22,7 @@ router.get("/getProductDetailById_App/:id", async (req, res, next) => {
     const product = await ProductController.getProductDetailById_App(id);
     return res.status(200).json({ success: true, products: product });
   } catch (error) {
-    return res.status(500).json({ success: false, products: error.massage });
+    return res.status(500).json({ success: false, products: error.msesage });
   }
 });
 // =================================================================================================================
