@@ -5,28 +5,23 @@ const Schema = mongoose.Schema;
 const CommentSchema = new Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "product",
-    required: true,
+    ref: "product",required: true,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
-    required: true,
+    ref: "user",required: true,
   },
   rating: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 5,
+    type: Number,required: true,
+    min: 1,max: 5,
   },
   comment: {
-    type: String,
-    required: false,
+    type: String,required: false,
   },
   images: [
     {
       type: String, // URL hoặc đường dẫn đến ảnh
-      required: false,
+required: false,
     },
   ],
   videos: [

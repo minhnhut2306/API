@@ -1,8 +1,6 @@
 const { model } = require("mongoose");
 const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
-const { SendEmail } = require('../controllers/SendEmail');
-
 
 // const register = async (email, password, name, phone) => {
 //   try {
@@ -179,10 +177,10 @@ const getNewUsers = async () => {
 const getOldUsers = async () => {
   try {
     const ThreeMonthsAgo = new Date();
-    ThreeMonthsAgo.setMonth(ThreeMonthsAgo.getMonth()-3);
+    ThreeMonthsAgo.setMonth(ThreeMonthsAgo.getMonth() - 3);
 
     const user = userModel.find({
-      createdAt: {$lt: ThreeMonthsAgo}
+      createdAt: { $lt: ThreeMonthsAgo }
     })
     return user;
   } catch (error) {
@@ -190,6 +188,21 @@ const getOldUsers = async () => {
     throw new Error("Lấy danh sách người dùng thất bại");
   }
 };
+
+const getProfile = async (id) => {
+  try {
+    const user = await userModel.findById(id).select('name email phone birthday bio gender')
+    if (!user) {
+      throw new Error("Không tim thấy user")
+    }
+    return user;
+  } catch (error) {
+    console.log("Lấy thông tin người dùng thất bại", error.message);
+    throw new Error("Lấy thông tin người dùng thất bại");
+  }
+}
+
+
 const deleteAccount = async (emailOrPhone) => {
   try {
     const result = await userModel.findOneAndDelete({
@@ -221,10 +234,35 @@ const Profile = async (user, images) => {
 
 
 
+const updateProfile = async (id, name, birthday, bio, gender) => {
+  try {
+    const userUD = await userModel.findById(id)
+
+    if (!userUD) {
+      throw new Error("Không tìm thấy user")
+
+    }
+
+    userUD.name = name || userUD.name;
+    userUD.birthday = birthday || userUD.birthday;
+    userUD.bio = bio || userUD.bio;
+    userUD.gender = gender || userUD.gender;
+
+    await userUD.save();
+
+    return userUD;
+  } catch (error) {
+    console.log("Cập nhật thông tin người dùng thất bại", error.message);
+    throw new Error("Cập nhật thông tin người dùng thất bại");
+  }
+}
 module.exports = {
   register,
   login,
   getNewUsers,
   getOldUsers,
+  getProfile,
+  updateProfile,
   deleteAccount,
+
 };
