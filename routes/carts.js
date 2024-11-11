@@ -51,5 +51,24 @@ router.get('/QuanLiHangHoa', async (req, res) => {
     }
 });
 
+router.delete("/:id/deleteCart"), async(req, res) =>{
+    try {
+        const { id } = req.params;
+        const cart = await CartController.deleteCart(id);
+        return res.status(200).json({ success: true, data: cart });
+      } catch (error) {
+        return res.status(500).json({ success: false, data: error.massage });
+      }
+    };
+// lấy cart
+    router.get("/getCarts", async (req, res, next) => {
+        try {
+          const cart = await CartController.getCarts();
+          return res.status(200).json({ status: true, data: cart });
+        } catch (error) {
+          console.log("Get carts error: ", error.massage);
+          return res.status(500).json({ status: false, data: error.massage });
+        }
+      });
 
 module.exports = router;
