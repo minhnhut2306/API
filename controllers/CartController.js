@@ -29,14 +29,13 @@ const addCart = async (user, products) => {
       const item = products[index];
       const product = await ProductModel.findById(item._id);
       if (!product) {
-        throw new Error("Product not found");
+        throw new Error("Không tìm thấy sp");
       }
-      // nếu số lượng lớn hơn số lượng tồn kho
+
       if (item.quantity > product.quantity) {
-        throw new Error("Product out of stock");
+        throw new Error("Vượt quá số lượng trong kho");
       }
       const productItem = {
-
         _id: product._id,
         name: product.name,
         price: product.price,

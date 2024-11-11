@@ -35,7 +35,7 @@ const getProductDetailById_App = async (id) => {
 // Thống kê top 10 sp bán chạy nhiều nhất
 const getTopProductSell_Web = async () => {
   try {
-    const products = await ProductModel.find({}, "name quantity")
+    const products = await ProductModel.find({}, "name sold")
       .sort({ sold: -1 })
       .limit(10);
     return products;
@@ -287,6 +287,7 @@ const commentProduct = async (
     }
 
     const newComment = {
+      productId,
       user: { _id: userInDB._id, name: userInDB.name },
       rating,
       comment,
