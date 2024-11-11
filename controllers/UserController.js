@@ -208,8 +208,16 @@ const deleteAccount = async (emailOrPhone) => {
   }
 };
 
-
-
+const Profile = async (user, images) => {
+  try {
+    const userInDB= await userModel.findById(user);
+    if(!userInDB){
+      throw new error("không tìm thấy user");
+    }
+  } catch (error) {
+    
+  }
+}
 
 
 
