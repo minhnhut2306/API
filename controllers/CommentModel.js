@@ -4,11 +4,11 @@ const Schema = mongoose.Schema;
 const CommentSchema = new Schema({
   user: { type: Object, require: true },
 
-  // productId: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "product",
-  //   required: true,
-  // },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "product",
+    required: true,
+  },
   rating: {
     type: Number,
     required: true,

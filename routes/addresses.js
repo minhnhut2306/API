@@ -21,10 +21,11 @@ router.get("/", async (req, res, next) => {
 
 router.post("/addAddress", async (req, res, next) => {
   try {
-    const { houseNumber, alley, quarter, district, city, country } = req.body;
+    const {user, houseNumber, alley, quarter, district, city, country } = req.body;
 
     // Giả sử AddressController được sử dụng để thêm địa chỉ mới
     const result = await AddressController.addAddress(
+      user,
       houseNumber,
       alley,
       quarter,
