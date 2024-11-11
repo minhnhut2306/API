@@ -70,42 +70,7 @@ const addCart = async (user, products) => {
     });
     const result = await cart.save();
 
-    setTimeout(async () => {
-      // chạy ngầm cập nhật số lượng tồn kho của sản phẩm
-      for (let index = 0; index < products.length; index++) {
-        const item = products[index];
-        const product = await ProductModel.findById(item._id);
-        product.quantity -= item.quantity;
-        await product.save();
-      }
-      // cập nhật lịch sử mua hàng của người dùng
-
-      //....sửa lại để đáp ứng giao diện history
-      for (let index = 0; index < products.length; index++) {
-        const item = products[index];
-        const product = await ProductModel.findById(item._id);
-        let newItem = {
-          _id: item._id,
-          name: product.name,
-          quantity: item.quantity,
-          status: result.status,
-          images: product.images || [],
-          date: Date.now(),
-        };
-        userInDB.carts.push(newItem);
-      }
-      // let item = {
-      //     _id: result._id,
-      //     date: result.date,
-      //     total: result.total,
-      //     status: result.status,
-      //     //....Thêm 2 thuộc tính để hiển thị lấy cart từ user hiển thị lên history
-      //     quantity: result.quantity,
-      //     name: result.name
-      // };
-      // userInDB.carts.push(item);
-      await userInDB.save();
-    }, 0);
+  
 
     return result;
   } catch (error) {
