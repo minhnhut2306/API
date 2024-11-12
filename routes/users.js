@@ -84,23 +84,6 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
-// SMS
-// const sendSMS = async (to, message) => {
-//   try {
-//     const messageResponse = await client.messages.create({
-//       body: message,
-//       from: TWILIO_PHONE_NUMBER, // Số điện thoại Twilio của bạn
-//       to: to, // Số điện thoại người dùng đăng ký
-//     });
-//     console.log(`SMS sent: ${messageResponse.sid}`);
-//   } catch (error) {
-//     console.error("Error sending SMS:", error.message);
-//   }
-// };
-
-///////////////////////////////////////////////////////////////////
-// login
-
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
