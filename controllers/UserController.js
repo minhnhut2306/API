@@ -111,10 +111,10 @@ const register = async (email, password, name, phone) => {
     // Lưu người dùng
     const result = await user.save();
 
-    // Tạo mã xác nhận và gửi email
-    const verificationCode = Math.random().toString(36).substr(2, 8);
-    const subTitle = 'Xác nhận đăng ký tài khoản';
-    await sendEmail(email, verificationCode, subTitle, name); // Gửi email
+    // // Tạo mã xác nhận và gửi email
+    // const verificationCode = Math.random().toString(36).substr(2, 8);
+    // const subTitle = 'Xác nhận đăng ký tài khoản';
+    // await sendEmail(email, verificationCode, subTitle, name); // Gửi email
 
     return result;
   } catch (error) {
