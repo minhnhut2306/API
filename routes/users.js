@@ -134,6 +134,7 @@ router.delete("/delete-account", async (req, res) => {
   }
 });
 
+
 router.put("/:id/updateProfile", async (req, res, next) => {
 try {
   const { id } = req.params;
@@ -155,4 +156,5 @@ router.get("/:id/getProfileApp", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+
 module.exports = router;

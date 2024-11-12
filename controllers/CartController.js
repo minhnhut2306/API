@@ -30,14 +30,16 @@ const addCart = async (user, products) => {
       const item = products[index];
       const product = await ProductModel.findById(item.id);
       if (!product) {
-        throw new Error("Product not found");
+        throw new Error("Không tìm thấy sp");
       }
-      // nếu số lượng lớn hơn số lượng tồn kho
+
       if (item.quantity > product.quantity) {
-        throw new Error("Product out of stock");
+        throw new Error("Vượt quá số lượng trong kho");
       }
       const productItem = {
-        id: product.id,
+
+        _id: product._id,
+
         name: product.name,
         price: product.price,
         quantity: item.quantity,
@@ -69,42 +71,9 @@ const addCart = async (user, products) => {
     });
     const result = await cart.save();
 
-    setTimeout(async () => {
-      // chạy ngầm cập nhật số lượng tồn kho của sản phẩm
-      for (let index = 0; index < products.length; index++) {
-        const item = products[index];
-        const product = await ProductModel.findById(item.id);
-        product.quantity -= item.quantity;
-        await product.save();
-      }
-      // cập nhật lịch sử mua hàng của người dùng
 
-      //....sửa lại để đáp ứng giao diện history
-      for (let index = 0; index < products.length; index++) {
-        const item = products[index];
-        const product = await ProductModel.findById(item.id);
-        let newItem = {
-          _id: item.id,
-          name: product.name,
-          quantity: item.quantity,
-          status: result.status,
-          images: product.images,
-          date: Date.now(),
-        };
-        userInDB.carts.push(newItem);
-      }
-      // let item = {
-      //     _id: result._id,
-      //     date: result.date,
-      //     total: result.total,
-      //     status: result.status,
-      //     //....Thêm 2 thuộc tính để hiển thị lấy cart từ user hiển thị lên history
-      //     quantity: result.quantity,
-      //     name: result.name
-      // };
-      // userInDB.carts.push(item);
-      await userInDB.save();
-    }, 0);
+  
+
 
     return result;
   } catch (error) {
@@ -188,9 +157,36 @@ const getAllCart = async () => {
 };
 
 
+const deleteCart = async (id) =>{
+try {
+  const cartInDB = await CartModel.findById(id);
+  if(!cartInDB){
+    throw new Error('Cart không tồn tại');
+  }
+  await CartModel.deleteOne({ _id: id });
+  return true;
+} catch (error) {
+  console.error("Lỗi khi lấy giỏ hàng:", error); // In chi tiết lỗi ra console
+      throw new Error("Xóa Cart thất bại.");
+}
+};
+// lấy cart
+const getCarts = async () => {
+  try {
+    let query = {};
+    const Carts = await ProductModel.find(query).sort({ createAt: -1 });
+    return Carts;
+  } catch (error) {
+    console.log("getCarts error: ", error.message);
+    throw new Error("Lấy danh sách carts lỗi");
+  }
+};
+
 module.exports = {
   addCart,
   updateCarts,
   QuanLyHangHoa,
-  getAllCart
+  getAllCart,
+  deleteCart,
+  getCarts
 };
