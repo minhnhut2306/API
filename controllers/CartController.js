@@ -10,70 +10,50 @@ const ProductModel = require("./ProductModel");
 //thêm cart
 const addCart = async (user, products) => {
   try {
-    // user: user id của người mua
-    // products: mảng id của sản phẩm và số lượng mua
-    console.log(products)
     const userInDB = await UserModel.findById(user);
     if (!userInDB) {
       throw new Error("User not found");
     }
-    console.log("user", user);
-    // kiểm tra products có phải là mảng hay không
-    console.log("Products", products);
+
     if (!Array.isArray(products)) {
       throw new Error("Products must be an array");
     }
+
     let productsInCart = [];
     let total = 0;
+
     for (let index = 0; index < products.length; index++) {
-      //thầy dùng mảng để chắc chắn tất cả các sp đều được duyệt qua
       const item = products[index];
       const product = await ProductModel.findById(item.id);
       if (!product) {
-        throw new Error("Không tìm thấy sp");
+        throw new Error("Không tìm thấy sản phẩm");
       }
 
       if (item.quantity > product.quantity) {
         throw new Error("Vượt quá số lượng trong kho");
       }
+
       const productItem = {
-
         _id: product._id,
-
         name: product.name,
         price: product.price,
         quantity: item.quantity,
-      };
+        category_id: product.category._id,  
+        category_name: product.category.category_name,  
+        image: product.image, 
+    };
+
       productsInCart.push(productItem);
       total += product.price * item.quantity;
     }
-    // const addressInDB = await AddressModel.findById(address);
 
-    // console.log(address);
-
-    // if (!addressInDB) {
-    //   throw new Error("address not found");
-    // }
-    // tạo giỏ hàng mới
     const cart = new CartModel({
       user: { _id: userInDB._id, name: userInDB.name },
       products: productsInCart,
-      // address: {
-      //   _id: addressInDB._id,
-      //   houseNumber: addressInDB.houseNumber,
-      //   alley: addressInDB.alley,
-      //   quarter: addressInDB.quarter,
-      //   district: addressInDB.district,
-      //   city: addressInDB.city,
-      //   country: addressInDB.country,
-      // },
       total,
     });
+
     const result = await cart.save();
-
-
-  
-
 
     return result;
   } catch (error) {
@@ -81,6 +61,7 @@ const addCart = async (user, products) => {
     throw new Error("Add to cart failed");
   }
 };
+
 // cập nhật trangj thái đơn hàng 
 const updateCarts = async (id, status) => {
   try {
