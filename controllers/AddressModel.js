@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
 const AddressSchema = new Schema({
+    
     user: {type: Object, require: true},
     houseNumber: { type: String, required: true },
     alley: { type: String, required: true },
@@ -21,4 +22,4 @@ const AddressSchema = new Schema({
     // giỏ hàng tạm
 });
 // tiếng anh, số ít, chữ thường, không dấu, không cách
-module.exports = mongoose.models.address || mongoose.model('address', AddressSchema);
+module.exports = AddressSchema;
