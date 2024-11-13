@@ -49,7 +49,7 @@ const addSale = async (
   discountPercent,
   minOrderValue,
   expirationDate,
-  isExpired
+
 ) => {
   try {
     // Kiểm tra các tham số
@@ -59,8 +59,8 @@ const addSale = async (
       typeof discountAmount !== "number" ||
       typeof discountPercent !== "number" ||
       typeof minOrderValue !== "number" ||
-      !expirationDate ||
-      typeof isExpired !== "boolean"
+      !expirationDate 
+     
     ) {
       throw new Error("Vui lòng nhập đầy đủ thông tin khuyến mãi");
     }
@@ -72,7 +72,7 @@ const addSale = async (
       discountPercent,
       minOrderValue,
       expirationDate,
-      isExpired,
+   
     };
 
     const newSale = new SaleModel(sale);
