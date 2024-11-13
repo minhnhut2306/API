@@ -248,6 +248,86 @@ const updateProfile = async (id, name, birthday, bio, gender) => {
     throw new Error("Cập nhật thông tin người dùng thất bại");
   }
 }
+
+const addAddress = async (
+  userId,
+  user,
+  houseNumber,
+  alley,
+  quarter,
+  district,
+  city,
+  country,
+) => {
+  try {
+    console.log("1");
+
+    // Kiểm tra người dùng có tồn tại không
+    const userIndb = await userModel.findById(userId);
+    if (!userIndb) {
+      throw new Error("Người dùng không tồn tại");
+    }
+
+    // Kiểm tra định dạng số điện thoại
+    const phoneRegex = /^[0-9]{10,11}$/; // Cho phép số có 10 hoặc 11 chữ số
+    if (!phoneRegex.test(user.phone)) {
+      throw new Error("Số điện thoại không hợp lệ");
+    }
+
+    // Kiểm tra trong tất cả người dùng khác có số điện thoại trùng không
+    const existingUserWithPhone = await userModel.findOne({
+      _id: { $ne: userId }, // Loại trừ người dùng hiện tại
+      'address.user.phone': user.phone
+    });
+    if (existingUserWithPhone) {
+      throw new Error("Số điện thoại đã tồn tại trong hệ thống");
+    }
+
+    // Kiểm tra số điện thoại trùng trong địa chỉ của chính người dùng hiện tại
+    const isPhoneDuplicateInUser = userIndb.address.some(addr => addr.user.phone === user.phone);
+    if (isPhoneDuplicateInUser) {
+      throw new Error("Số điện thoại đã tồn tại trong địa chỉ của người dùng này");
+    }
+
+    const newAddress = {
+      userId,
+      user: { name: userIndb.name, phone: user.phone },
+      houseNumber,
+      alley,
+      quarter,
+      district,
+      city,
+      country,
+    };
+
+    console.log(user);
+    userIndb.address.push(newAddress);
+
+    await userIndb.save();
+    return userIndb;
+  } catch (error) {
+    console.error("addAddress error:", error);
+    throw error;
+  }
+};
+
+// lấy danh sách danh mục
+const getAddress = async (userId) => {
+  try {
+    const userIndb = await userModel.findById(userId);
+    if (!userIndb) {
+      throw new Error("Không tìm thấy user");
+    }
+
+    // Trả về địa chỉ của người dùng
+    return userIndb.address;
+  } catch (error) {
+    console.log("getAddress error: ", error.message); // sửa 'massage' thành 'message'
+    throw new Error("Lấy địa chỉ thất bại");
+  }
+};
+;
+
 module.exports = {
   register,
   login,
