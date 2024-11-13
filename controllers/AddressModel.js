@@ -5,10 +5,12 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
 const AddressSchema = new Schema({
+
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",required: true,
       },
+
     user: {type: Object, require: true},
     houseNumber: { type: String, required: true },
     alley: { type: String, required: true },
