@@ -186,11 +186,24 @@ const getAllCart = async () => {
       throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
-
+const deleteCart = async (id) =>{
+  try {
+    const cartInDB = await CartModel.findById(id);
+    if(!cartInDB){
+      throw new Error('Cart không tồn tại');
+    }
+    await CartModel.deleteOne({ _id: id });
+    return true;
+  } catch (error) {
+    console.error("Lỗi khi lấy giỏ hàng:", error); // In chi tiết lỗi ra console
+        throw new Error("Xóa Cart thất bại.");
+  }
+  }
 
 module.exports = {
   addCart,
   updateCarts,
   QuanLyHangHoa,
-  getAllCart
+  getAllCart,
+  deleteCart
 };
