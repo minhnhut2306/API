@@ -1,67 +1,127 @@
-const AddressModel = require("./AddressModel");
-const UserModel = require("./UserModel");
+// const AddressModel = require("./AddressModel");
+// const UserModel = require("./UserModel");
 
-// lấy danh sách danh mục
-const getAddress = async () => {
-  try {
-    const address = await AddressModel.find();
-    return address;
-  } catch (error) {
-    console.log("getAddress error: ", error.massage);
-    throw new Error("Lấy địa chỉ thất bại");
-  }
-};
+// // lấy danh sách danh mục
+// const getAddress = async () => {
+//   try {
+//     const address = await AddressModel.find();
+//     return address;
+//   } catch (error) {
+//     console.log("getAddress error: ", error.massage);
+//     throw new Error("Lấy địa chỉ thất bại");
+//   }
+// };
 
-// Thêm đại chỉ ,mới
-const addAddress = async (
-  user,
-  houseNumber,
-  alley,
-  quarter,
-  district,
-  city,
-  country
-) => {
-  try {
-    // Kiểm tra các thông tin cần thiết
-    if (
-      !user ||
-      !houseNumber ||
-      !alley ||
-      !quarter ||
-      !district ||
-      !city ||
-      !country
-    ) {
-      throw new Error("Vui lòng cung cấp đầy đủ thông tin địa chỉ");
-    }
+// // Thêm đại chỉ ,mới
+// const addAddress = async (
 
-    const userInDB = await UserModel.findById(user);
-    if (!userInDB) {
-      throw new Error("không tìm thấy người dùng");
-    }
+//   houseNumber,
+//   alley,
+//   quarter,
+//   district,
+//   city,
+//   country
+// ) => {
+//   try {
+
+//     // Kiểm tra các thông tin cần thiết
+//     if (
+//       !user ||
+//       !houseNumber ||
+//       !alley ||
+//       !quarter ||
+//       !district ||
+//       !city ||
+//       !country
+//     ) {
+//       throw new Error("Vui lòng cung cấp đầy đủ thông tin địa chỉ");
+//     }
+
+//     const userInDB = await UserModel.findById(user);
+//     if (!userInDB) {
+//       throw new Error("không tìm thấy người dùng");
+//     }
  
-    const addressData = new AddressModel({
-      user: { _id: userInDB._id, name: userInDB.name},
-      houseNumber,
-      alley,
-      quarter,
-      district,
-      city,
-      country,
-    });
+//     const addressData = new AddressModel({
+//       user: { _id: userInDB._id, name: userInDB.name},
 
-    console.log(addressData);
+//     // Tìm user trong cơ sở dữ liệu
+//     const userInDB = await UserModel.findById(userId);
+//     if (!userInDB) {
+//       throw new Error("Không tìm thấy user");
+//     }
 
-    const newAddress = new AddressModel(addressData);
-    console.log(newAddress);
+//     // Tạo đối tượng địa chỉ
+//     const addressData = {
+//       userId,
 
-    const result = await newAddress.save();
-    return result;
-  } catch (error) {
-    console.error("addAddress error: ", error.message);
-    throw new Error("Thêm địa chỉ thất bại: " + error.message);
-  }
-};
+//       houseNumber,
+//       alley,
+//       quarter,
+//       district,
+//       city,
+//       country,
 
-module.exports = { getAddress, addAddress };
+//     });
+
+//     console.log(addressData);
+
+//     };
+
+//     // Thêm đối tượng địa chỉ vào mảng `address` của user
+//     userInDB.address.push(addressData);
+
+//     // Lưu lại tài liệu người dùng sau khi thêm địa chỉ
+//     const result = await userInDB.save();
+//     return result;
+//   } catch (error) {
+//     console.error("addAddress error: ", error.message);
+//     throw new Error("Thêm địa chỉ thất bại: " + error.message);
+//   }
+// };
+
+
+// const deleteAddress = async (id) => {
+//   try {
+//     const addresstInDB = await AddressModel.findById(id);
+//     if (!addresstInDB) {
+//       throw new Error("Địa chỉ không tồn tại");
+//     }
+//     await AddressModel.deleteOne({ _id: id });
+//     return true;
+//   } catch (error) {
+//     console.log("deleteAddress: ", error);
+//     throw new Error("Xóa địa chỉ lỗi");
+//   }
+// };
+
+// // add
+// const addAddressesText = async (userId, addresses) => {
+//   try {
+//     // Kiểm tra nếu có userId
+//     if (!userId) {
+//       throw new Error("User ID không hợp lệ");
+//     }
+
+//     // Tạo danh sách địa chỉ từ mảng `addresses`
+//     const addressData = addresses.map(address => ({
+//       userId,
+//       houseNumber: address.houseNumber,
+//       alley: address.alley,
+//       quarter: address.quarter,
+//       district: address.district,
+//       city: address.city,
+//       country: address.country,
+//     }));
+
+//     // Lưu tất cả các địa chỉ vào cơ sở dữ liệu
+//     const result = await AddressModel.insertMany(addressData);
+//     return result;
+//   } catch (error) {
+//     console.error("Error adding addresses: ", error.message);
+//     throw new Error("Không thể thêm địa chỉ: " + error.message);
+//   }
+// };
+
+// module.exports = { getAddress, addAddress,deleteAddress,addAddressesText };
+
