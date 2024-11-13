@@ -256,6 +256,8 @@ const updateProfile = async (id, name, birthday, bio, gender) => {
     throw new Error("Cập nhật thông tin người dùng thất bại");
   }
 }
+
+
 module.exports = {
   register,
   login,
