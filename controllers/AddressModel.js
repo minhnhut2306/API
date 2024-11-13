@@ -5,8 +5,13 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
 const AddressSchema = new Schema({
-    contact_name : { type: String, required: true },
-    contact_phone : { type: String, required: true },
+
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",required: true,
+      },
+
+    user: {type: Object, require: true},
     houseNumber: { type: String, required: true },
     alley: { type: String, required: true },
     quarter: { type: String, required: true },
@@ -20,6 +25,7 @@ const AddressSchema = new Schema({
     // tài khoản còn hoạt động hay không
     available: { type: Boolean, default: true },
     // giỏ hàng tạm
+
 });
 // tiếng anh, số ít, chữ thường, không dấu, không cách
-module.exports = mongoose.models.address || mongoose.model('address', AddressSchema);
+module.exports = AddressSchema;
