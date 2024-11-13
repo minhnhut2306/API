@@ -188,6 +188,10 @@ module.exports = {
   updateCarts,
   QuanLyHangHoa,
   getAllCart,
+
   deleteCart,
   getCarts
+
+
+
 };

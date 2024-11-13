@@ -23,6 +23,7 @@ const UserSchema = new Schema({
   // tài khoản còn hoạt động hay không
   available: { type: Boolean, default: true },
   // giỏ hàng tạm
+  
 });
 // tiếng anh, số ít, chữ thường, không dấu, không cách
 module.exports = mongoose.models.user || mongoose.model("user", UserSchema);
