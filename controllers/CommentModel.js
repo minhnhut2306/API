@@ -1,12 +1,16 @@
+// khai báo 1 schema cho users
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
-  user: { type: Object, require: true },
-
   productId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "product",
+    required: true,
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
     required: true,
   },
   rating: {
@@ -27,12 +31,12 @@ const CommentSchema = new Schema({
   ],
   videos: [
     {
-      type: String,
+      type: String, // URL hoặc đường dẫn đến video
       required: false,
     },
   ],
   displayName: {
-    type: Boolean,
+    type: Boolean, // true: hiển thị tên đăng nhập, false: ẩn tên
     default: true,
   },
   createdAt: {
@@ -40,6 +44,7 @@ const CommentSchema = new Schema({
     default: Date.now,
   },
 });
+
 
 // Export the schema directly, without creating a model
 module.exports = CommentSchema;
@@ -85,3 +90,7 @@ module.exports = CommentSchema;
 
 // // Export the schema directly, without creating a model
 // module.exports = CommentSchema;
+
+// tiếng anh, số ít, chữ thường, không dấu, không cách
+// module.exports =
+//   mongoose.models.comment || mongoose.model("comment", CommentSchema);
