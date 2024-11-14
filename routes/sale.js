@@ -13,7 +13,7 @@ router.post("/addSale", async (req, res, next) => {
       discountPercent,
       minOrderValue,
       expirationDate,
-      isExpired,
+
     } = req.body;
     const result = await SaleController.addSale(
       date,
@@ -22,7 +22,7 @@ router.post("/addSale", async (req, res, next) => {
       discountPercent,
       minOrderValue,
       expirationDate,
-      isExpired
+  
     );
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
@@ -75,7 +75,7 @@ router.put("/:id/updateSale", async (req, res, next) => {
       discountPercent,
       minOrderValue,
       expirationDate,
-      isExpired,
+   
     } = req.body;
     const result = await SaleController.updateSale(
       id,
@@ -85,7 +85,7 @@ router.put("/:id/updateSale", async (req, res, next) => {
       discountPercent,
       minOrderValue,
       expirationDate,
-      isExpired
+ 
     );
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
@@ -98,8 +98,8 @@ router.put("/:id/updateSale", async (req, res, next) => {
 
 router.post('/addSale', async (req, res, next) => {
     try {
-        const {date,title,discountAmount,discountPercent,minOrderValue,expirationDate,isExpired} = req.body;
-        const result = await SaleController.addSale(date,title,discountAmount,discountPercent,minOrderValue,expirationDate,isExpired);
+        const {date,title,discountAmount,discountPercent,minOrderValue,expirationDate} = req.body;
+        const result = await SaleController.addSale(date,title,discountAmount,discountPercent,minOrderValue,expirationDate);
         return res.status(200).json({ status: true, data: result });
     } catch (error) {
         console.log(error.message);
