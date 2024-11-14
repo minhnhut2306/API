@@ -12,40 +12,42 @@ const addCart = async (user, products) => {
   try {
     const userInDB = await UserModel.findById(user);
     if (!userInDB) {
-      throw new Error("User not found");
+      throw new Error("Không tìm thấy người dùng");
     }
 
     if (!Array.isArray(products)) {
-      throw new Error("Products must be an array");
+      throw new Error("Sản phẩm phải là một mảng");
     }
 
-    let productsInCart = [];
     let total = 0;
+    const productIds = products.map(item => item.id);
+    const productData = await ProductModel.find({ _id: { $in: productIds } });
 
-    for (let index = 0; index < products.length; index++) {
-      const item = products[index];
-      const product = await ProductModel.findById(item.id);
+    const productsInCart = products.map(item => {
+      const product = productData.find(p => p._id.toString() === item.id);
       if (!product) {
-        throw new Error("Không tìm thấy sản phẩm");
+        throw new Error(`Không tìm thấy sản phẩm với ID: ${item.id}`);
       }
 
       if (item.quantity > product.quantity) {
-        throw new Error("Vượt quá số lượng trong kho");
+        throw new Error(`Số lượng vượt quá trong kho cho sản phẩm: ${product.name}`);
       }
 
-      const productItem = {
+      // Lấy hình ảnh đầu tiên dưới dạng chuỗi
+      const productImage = Array.isArray(product.images) ? product.images[0] : product.images;
+
+      total += product.price * item.quantity;
+
+      return {
         _id: product._id,
         name: product.name,
         price: product.price,
         quantity: item.quantity,
-        category_id: product.category._id,  
-        category_name: product.category.category_name,  
-        image: product.image, 
-    };
-
-      productsInCart.push(productItem);
-      total += product.price * item.quantity;
-    }
+        category_id: product.category._id,
+        category_name: product.category.category_name,
+        images: productImage, // Lưu hình ảnh dưới dạng chuỗi
+      };
+    });
 
     const cart = new CartModel({
       user: { _id: userInDB._id, name: userInDB.name },
@@ -54,11 +56,10 @@ const addCart = async (user, products) => {
     });
 
     const result = await cart.save();
-
     return result;
   } catch (error) {
-    console.log(error);
-    throw new Error("Add to cart failed");
+    console.log(error.message);
+    throw new Error("Thêm vào giỏ hàng thất bại");
   }
 };
 
@@ -169,7 +170,6 @@ module.exports = {
   updateCarts,
   QuanLyHangHoa,
   getAllCart,
-
   deleteCart,
   getCarts
 
