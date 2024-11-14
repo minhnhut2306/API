@@ -319,6 +319,5 @@ module.exports = {
   addProduct,
   updateProduct,
   getProductsByCategory,
-
   commentProduct,
 };
