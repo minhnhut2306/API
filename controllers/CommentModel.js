@@ -43,3 +43,45 @@ const CommentSchema = new Schema({
 
 // Export the schema directly, without creating a model
 module.exports = CommentSchema;
+
+
+// const mongoose = require("mongoose");
+// const Schema = mongoose.Schema;
+// const videoSchema = require("./VideoModel");
+// const imageSchemaa = require("./ImagesModel");
+// const CommentSchema = new Schema({
+//   user: { type: Object, require: true },
+
+//   productId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: "product",
+//     required: true,
+//   },
+//   rating: {
+//     type: Number,
+//     required: true,
+//     min: 1,
+//     max: 5,
+//   },
+//   comment: {
+//     type: String,
+//     required: false,
+//   },
+//   images: [
+//     { type: mongoose.Schema.Types.ObjectId, ref: "Image" } // Reference to the Video model
+//   ],
+//   videos: [
+//     { type: mongoose.Schema.Types.ObjectId, ref: "Video" } // Reference to the Video model
+// ],
+//   displayName: {
+//     type: Boolean,
+//     default: true,
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now,
+//   },
+// });
+
+// // Export the schema directly, without creating a model
+// module.exports = CommentSchema;
