@@ -3,13 +3,14 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
+const AddressSchema = require("./AddressModel");
 
 const UserSchema = new Schema({
   email: { type: String, required: true, unique: true }, // required (dữ liệu cần truyền vô)
   password: { type: String, required: true },
   name: { type: String, required: true },
   phone: { type: String, required: true },
-  address: { type: Array, default: [] },
+  address:[AddressSchema],
   bio: { type: String, default: "" }, // tiểu sử
   gender: { type: String, default: "" },
   birthday: { type: String, required: false },
@@ -23,6 +24,7 @@ const UserSchema = new Schema({
   // tài khoản còn hoạt động hay không
   available: { type: Boolean, default: true },
   // giỏ hàng tạm
+  
 });
 // tiếng anh, số ít, chữ thường, không dấu, không cách
 module.exports = mongoose.models.user || mongoose.model("user", UserSchema);

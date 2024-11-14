@@ -75,6 +75,7 @@ const findProductsByKey_App = async (key) => {
   } catch (error) {
     console.log("getProducts error: ", error.message);
     throw new Error("Lấy danh sách sản phẩm lỗi");
+    
   }
 };
 
