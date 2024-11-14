@@ -70,7 +70,7 @@ const addOrder = async (cart, address, ship, sale) => {
         });
       }
 
-      // Add each cart item with details like user, total, products, and date
+ 
       cartInOrder.push({
         _id: cartItem._id,
         user: cartItem.user,
@@ -80,7 +80,6 @@ const addOrder = async (cart, address, ship, sale) => {
       });
     }
 
-    // Apply shipping fee
     let shippingFee = 0;
     if (ship === 1) {
       shippingFee = 8000;
@@ -119,7 +118,7 @@ const addOrder = async (cart, address, ship, sale) => {
     });
     const result = await order.save();
 
-    // Update product stock and user's purchase history (assuming the cart has user info)
+    
     for (const cartItem of cartInOrder) {
       for (const productItem of cartItem.products) {
         const product = await ProductModel.findById(productItem._id);
