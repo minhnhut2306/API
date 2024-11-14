@@ -36,33 +36,27 @@ const getOrderQById = async (id) => {
   }
 };
 
-const addOrder = async (cart, address, ship, sale) => {
+const addOrder = async (cart, userId, ship, sale) => {
   try {
+    const user = await UserModel.findById(userId);
+    if (!user || !user.address) {
+      throw new Error("Không tìm thấy người dùng hoặc địa chỉ không tồn tại");
+    }
+
+    const address = user.address.find((addr) => addr.available) || user.address[0];
     if (!address) {
       throw new Error("Vui lòng nhập địa chỉ");
     }
-    const cartInDB = await CartModel.findById(cart);
-    if (!cartInDB) {
-      throw new Error("Không tìm thấy giỏ hàng");
-    }
-    const addressInDB = await AddressModel.findById(address);
 
-    console.log(address);
-
-    if (!addressInDB) {
-      throw new Error("address not found");
-    }
-
-    let cartInOder = [];
+    let cartInOrder = [];
     let total = 0;
 
-    for (let index = 0; index < cart.length; index++) {
-      const item = cart[index];
-      const cartO = await CartModel.findById(item._id);
+    // Duyệt qua từng sản phẩm trong giỏ hàng
+    for (let itemId of cart) {
+      const cartO = await CartModel.findById(itemId);
       if (!cartO) {
         throw new Error("Không tìm thấy giỏ hàng");
       }
-      // Cộng dồn giá trị sản phẩm vào tổng số tiền
       total += cartO.total || 0;
       const cartItem = {
         _id: cartO._id,
@@ -71,10 +65,9 @@ const addOrder = async (cart, address, ship, sale) => {
         products: cartO.products,
         date: cartO.date,
       };
-      cartInOder.push(cartItem);
+      cartInOrder.push(cartItem);
     }
-    // Tính tổng số tiền giảm giá từ mảng sale
-    // Tính tổng số tiền giảm giá từ mảng sale
+
     let totalOrder = total;
     let shippingFee = 0;
     if (ship === 1) {
@@ -84,60 +77,44 @@ const addOrder = async (cart, address, ship, sale) => {
     } else if (ship === 3) {
       shippingFee = 20000;
     }
-    totalOrder += shippingFee; // Thêm phí vận chuyển vào tổng tiền
+    totalOrder += shippingFee;
 
     let totalDiscount = 0;
     if (Array.isArray(sale)) {
       totalDiscount = sale.reduce((sum, item) => {
-        if (
-          typeof item.discountAmount === "number" &&
-          item.discountAmount > 0
-        ) {
-          // Giảm giá theo số tiền cố định
+        if (typeof item.discountAmount === "number" && item.discountAmount > 0) {
           return sum + item.discountAmount;
         } else if (
           typeof item.discountPercent === "number" &&
           item.discountPercent > 0 &&
           item.discountPercent <= 100
         ) {
-          // Giảm giá theo % (tối đa là 100%)
           return sum + (totalOrder * item.discountPercent) / 100;
         } else {
           return sum;
         }
       }, 0);
-      // Đảm bảo tổng giảm giá không vượt quá totalOrder
       totalOrder -= totalDiscount;
       if (totalOrder < 0) {
         totalOrder = 0;
       }
-    } // Đảm bảo tổng tiền không bị âm
-    else {
+    } else {
       throw new Error("Sale phải là một mảng");
     }
-    // Tính phí vận chuyển dựa trên giá trị của `ship`
 
     const order = new OrderModel({
-      cart: cartInOder,
+      cart: cartInOrder,
       ship,
-      address: {
-        _id: addressInDB._id,
-        houseNumber: addressInDB.houseNumber,
-        alley: addressInDB.alley,
-        quarter: addressInDB.quarter,
-        district: addressInDB.district,
-        city: addressInDB.city,
-        country: addressInDB.country,
-      },
+      address,
       sale,
       totalOrder,
     });
     const result = await order.save();
 
     // Cập nhật lịch sử mua hàng của người dùng
-    const userInDB = await UserModel.findById(cartInDB.user);
+    const userInDB = await UserModel.findById(userId);
     if (userInDB) {
-      for (let item of cartInOder) {
+      for (let item of cartInOrder) {
         const product = await ProductModel.findById(item._id);
         if (product) {
           let newItem = {
@@ -151,15 +128,111 @@ const addOrder = async (cart, address, ship, sale) => {
           userInDB.carts.push(newItem);
         }
       }
-
       await userInDB.save();
     }
+
     return result;
   } catch (error) {
     console.log(error);
     throw new Error("Add to order failed");
   }
 };
+
+
+// const addOrder = async (cart, userId, ship, sale) => {
+//   try {
+//     // Tìm thông tin user để lấy địa chỉ
+//     const user = await UserModel.findById(userId);
+//     if (!user || !user.address) {
+//       throw new Error("Không tìm thấy người dùng hoặc địa chỉ không tồn tại");
+//     }
+
+//     // Chọn địa chỉ mặc định (hoặc địa chỉ có `available: true`)
+//     const address =
+//       user.address.find((addr) => addr.available) || user.address[0];
+    
+//     if (!address) {
+//       throw new Error("Người dùng không có địa chỉ khả dụng");
+//     }
+
+//     let cartInOrder = [];
+//     let total = 0;
+
+//     for (const cartItemId of cart) {
+//       const cartItem = await CartModel.findById(cartItemId);
+//       if (!cartItem) {
+//         throw new Error("Không tìm thấy giỏ hàng");
+//       }
+
+//       let cartProducts = [];
+//       for (const productItem of cartItem.products) {
+//         const product = await ProductModel.findById(productItem._id);
+//         if (!product) {
+//           throw new Error("Không tìm thấy sản phẩm trong giỏ hàng");
+//         }
+
+//         total += product.price * productItem.quantity;
+//         cartProducts.push({
+//           _id: product._id,
+//           name: product.name,
+//           quantity: productItem.quantity,
+//           price: product.price,
+//         });
+//       }
+
+//       cartInOrder.push({
+//         _id: cartItem._id,
+//         user: cartItem.user,
+//         total: cartItem.total,
+//         products: cartProducts,
+//         date: cartItem.date,
+//       });
+//     }
+
+//     let shippingFee = ship === 1 ? 8000 : ship === 2 ? 10000 : 20000;
+//     let totalOrder = total + shippingFee;
+
+//     let totalDiscount = 0;
+//     if (Array.isArray(sale)) {
+//       totalDiscount = sale.reduce((sum, item) => {
+//         if (item.discountAmount) return sum + item.discountAmount;
+//         else if (item.discountPercent)
+//           return sum + (totalOrder * item.discountPercent) / 100;
+//         return sum;
+//       }, 0);
+
+//       totalOrder = Math.max(0, totalOrder - totalDiscount);
+//     } else {
+//       throw new Error("Sale phải là một mảng");
+//     }
+
+//     const order = new OrderModel({
+//       cart: cartInOrder,
+//       ship,
+//       address, // Sử dụng địa chỉ đã lấy từ `UserModel`
+//       sale,
+//       totalOrder,
+//     });
+//     const result = await order.save();
+
+//     for (const cartItem of cartInOrder) {
+//       for (const productItem of cartItem.products) {
+//         const product = await ProductModel.findById(productItem._id);
+//         if (product) {
+//           product.quantity = Math.max(product.quantity - productItem.quantity, 0);
+//           product.sold = (product.sold || 0) + productItem.quantity;
+//           await product.save();
+//         }
+//       }
+//     }
+
+//     return result;
+//   } catch (error) {
+//     console.log(error);
+//     throw new Error("Add to order failed");
+//   }
+// };
+
 
 //update trạng thái đơn hàng
 const updateOrder = async (id, status) => {
