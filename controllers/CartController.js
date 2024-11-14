@@ -28,8 +28,9 @@ const addCart = async (user, products) => {
     for (let index = 0; index < products.length; index++) {
       //thầy dùng mảng để chắc chắn tất cả các sp đều được duyệt qua
       const item = products[index];
-      const product = await ProductModel.findById(item.id);
+      const product = await ProductModel.findById(item._id);
       if (!product) {
+        console.log("Product not found with ID:", item._id);
         throw new Error("Không tìm thấy sp");
       }
 
@@ -37,12 +38,12 @@ const addCart = async (user, products) => {
         throw new Error("Vượt quá số lượng trong kho");
       }
       const productItem = {
-
         _id: product._id,
-
         name: product.name,
+        category: product.category,
         price: product.price,
         quantity: item.quantity,
+        images: product.images
       };
       productsInCart.push(productItem);
       total += product.price * item.quantity;
