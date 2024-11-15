@@ -156,4 +156,20 @@ router.get("/:id/getProfileApp", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+
+router.post('/addCart_App', async (req, res, next) => {
+  try {
+    const { user, products } = req.body;
+    
+    if (!user || !products) {
+      return res.status(400).json({ status: false, data: "Thiếu user hoặc products" });
+    }
+
+    const result = await userController.addCart(user, products);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.error("Add to cart error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 module.exports = router;

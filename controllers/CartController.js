@@ -37,7 +37,6 @@ const addCart = async (user, products) => {
         throw new Error("Vượt quá số lượng trong kho");
       }
       const productItem = {
-
         _id: product._id,
         name: product.name,
         category: product.category,
