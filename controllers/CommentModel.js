@@ -1,45 +1,48 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const CommentSchema = new Schema({
-  user: { type: Object, require: true },
-
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "product",
-    required: true,
-  },
-  rating: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 5,
-  },
-  comment: {
-    type: String,
-    required: false,
-  },
-  images: [
-    {
-      type: String, // URL hoặc đường dẫn đến ảnh
-      required: false,
+const CommentSchema = new Schema(
+  {
+    user: {
+      type: Object,
+      default: {},
+      required: true, // Trường này là bắt buộc
     },
-  ],
-  videos: [
-    {
-      type: String,
-      required: false,
+    productId: {
+      type: mongoose.Schema.Types.ObjectId, // Tham chiếu đến collection product
+      ref: "product",
+      required: true, // Trường này là bắt buộc
     },
-  ],
-  displayName: {
-    type: Boolean,
-    default: true,
+    rating: {
+      type: Number,
+      required: true, // Trường này là bắt buộc
+      min: 1,
+      max: 5,
+    },
+    comment: {
+      type: String, // Nội dung bình luận
+      trim: true,
+    }, // Không cần required vì mặc định không bắt buộc
+    images: [
+      {
+        type: String, // URL ảnh
+        trim: true,
+      },
+    ], // Không cần required vì đây là trường không bắt buộc
+    videos: [
+      {
+        type: String, // URL video
+        trim: true,
+      },
+    ], // Không cần required vì đây là trường không bắt buộc
+    displayName: {
+      type: Boolean, // true: hiển thị tên đăng nhập, false: ẩn tên
+      default: true,
+    },
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true, // Tự động thêm createdAt và updatedAt
+  }
+);
 
-// Export the schema directly, without creating a model
 module.exports = CommentSchema;

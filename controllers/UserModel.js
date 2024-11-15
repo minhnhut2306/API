@@ -3,6 +3,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
+// const CartSchema = require("./CartModel")
 
 const UserSchema = new Schema({
   email: { type: String, required: true, unique: true }, // required (dữ liệu cần truyền vô)
@@ -22,6 +23,7 @@ const UserSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
   // tài khoản còn hoạt động hay không
   available: { type: Boolean, default: true },
+  // carts: [CartSchema],
   // giỏ hàng tạm
 });
 // tiếng anh, số ít, chữ thường, không dấu, không cách

@@ -5,7 +5,15 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
 const AddressSchema = new Schema({
+    contact_name : { type: String, required: true },
+    contact_phone : { type: String, required: true },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",required: true,
+      },
+
     user: {type: Object, require: true},
+
     houseNumber: { type: String, required: true },
     alley: { type: String, required: true },
     quarter: { type: String, required: true },

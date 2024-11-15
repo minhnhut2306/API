@@ -1,5 +1,4 @@
 const AddressModel = require("./AddressModel");
-const UserModel = require("./UserModel");
 
 // lấy danh sách danh mục
 const getAddress = async () => {
@@ -14,7 +13,6 @@ const getAddress = async () => {
 
 // Thêm đại chỉ ,mới
 const addAddress = async (
-  user,
   houseNumber,
   alley,
   quarter,
@@ -23,34 +21,21 @@ const addAddress = async (
   country
 ) => {
   try {
-    // Kiểm tra các thông tin cần thiết
-    if (
-      !user ||
-      !houseNumber ||
-      !alley ||
-      !quarter ||
-      !district ||
-      !city ||
-      !country
-    ) {
-      throw new Error("Vui lòng cung cấp đầy đủ thông tin địa chỉ");
-    }
 
-    const userInDB = await UserModel.findById(user);
-    if (!userInDB) {
-      throw new Error("không tìm thấy người dùng");
-    }
- 
-    const addressData = new AddressModel({
-      user: { _id: userInDB._id, name: userInDB.name},
+    // Kiểm tra các thông tin cần thiết
+    // if (!houseNumber || !alley || !quarter || !district || !city || !country) {
+    //   throw new Error("Vui lòng cung cấp đầy đủ thông tin địa chỉ");
+    // }
+
+    // Tạo đối tượng Address để lưu
+    const addressData = {
       houseNumber,
       alley,
       quarter,
       district,
       city,
       country,
-    });
-
+    };
     console.log(addressData);
 
     const newAddress = new AddressModel(addressData);

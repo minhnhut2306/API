@@ -1,6 +1,7 @@
 const { model } = require("mongoose");
 const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
+const ProductModel = require("./ProductModel")
 
 // const register = async (email, password, name, phone) => {
 //   try {
@@ -113,7 +114,7 @@ const register = async (email, password, name, phone) => {
 
     // Tạo mã xác nhận và gửi email
     const verificationCode = Math.random().toString(36).substr(2, 8);
-    const subTitle = 'Xác nhận đăng ký tài khoản';
+    const subTitle = "Xác nhận đăng ký tài khoản";
     await sendEmail(email, verificationCode, subTitle, name); // Gửi email
 
     return result;
@@ -180,8 +181,8 @@ const getOldUsers = async () => {
     ThreeMonthsAgo.setMonth(ThreeMonthsAgo.getMonth() - 3);
 
     const user = userModel.find({
-      createdAt: { $lt: ThreeMonthsAgo }
-    })
+      createdAt: { $lt: ThreeMonthsAgo },
+    });
     return user;
   } catch (error) {
     console.log("Lấy danh sách người dùng thất bại", error.message);
@@ -191,22 +192,23 @@ const getOldUsers = async () => {
 
 const getProfile = async (id) => {
   try {
-    const user = await userModel.findById(id).select('name email phone birthday bio gender')
+    const user = await userModel
+      .findById(id)
+      .select("name email phone birthday bio gender");
     if (!user) {
-      throw new Error("Không tim thấy user")
+      throw new Error("Không tim thấy user");
     }
     return user;
   } catch (error) {
     console.log("Lấy thông tin người dùng thất bại", error.message);
     throw new Error("Lấy thông tin người dùng thất bại");
   }
-}
-
+};
 
 const deleteAccount = async (emailOrPhone) => {
   try {
     const result = await userModel.findOneAndDelete({
-      $or: [{ email: emailOrPhone }, { phone: emailOrPhone }]
+      $or: [{ email: emailOrPhone }, { phone: emailOrPhone }],
     });
 
     if (!result) {
@@ -221,26 +223,12 @@ const deleteAccount = async (emailOrPhone) => {
   }
 };
 
-const Profile = async (user, images) => {
-  try {
-    const userInDB= await userModel.findById(user);
-    if(!userInDB){
-      throw new error("không tìm thấy user");
-    }
-  } catch (error) {
-    
-  }
-}
-
-
-
 const updateProfile = async (id, name, birthday, bio, gender) => {
   try {
-    const userUD = await userModel.findById(id)
+    const userUD = await userModel.findById(id);
 
     if (!userUD) {
-      throw new Error("Không tìm thấy user")
-
+      throw new Error("Không tìm thấy user");
     }
 
     userUD.name = name || userUD.name;
@@ -255,7 +243,159 @@ const updateProfile = async (id, name, birthday, bio, gender) => {
     console.log("Cập nhật thông tin người dùng thất bại", error.message);
     throw new Error("Cập nhật thông tin người dùng thất bại");
   }
-}
+};
+
+const addAddress = async (
+  userId,
+  user,
+  houseNumber,
+  alley,
+  quarter,
+  district,
+  city,
+  country
+) => {
+  try {
+    console.log("1");
+
+    // Kiểm tra người dùng có tồn tại không
+    const userIndb = await userModel.findById(userId);
+    if (!userIndb) {
+      throw new Error("Người dùng không tồn tại");
+    }
+
+    // Kiểm tra định dạng số điện thoại
+    const phoneRegex = /^[0-9]{10,11}$/; // Cho phép số có 10 hoặc 11 chữ số
+    if (!phoneRegex.test(user.phone)) {
+      throw new Error("Số điện thoại không hợp lệ");
+    }
+
+    // Kiểm tra trong tất cả người dùng khác có số điện thoại trùng không
+    const existingUserWithPhone = await userModel.findOne({
+      _id: { $ne: userId }, // Loại trừ người dùng hiện tại
+      "address.user.phone": user.phone,
+    });
+    if (existingUserWithPhone) {
+      throw new Error("Số điện thoại đã tồn tại trong hệ thống");
+    }
+
+    // Kiểm tra số điện thoại trùng trong địa chỉ của chính người dùng hiện tại
+    const isPhoneDuplicateInUser = userIndb.address.some(
+      (addr) => addr.user.phone === user.phone
+    );
+    if (isPhoneDuplicateInUser) {
+      throw new Error(
+        "Số điện thoại đã tồn tại trong địa chỉ của người dùng này"
+      );
+    }
+
+    const newAddress = {
+      userId,
+      user: { name: userIndb.name, phone: user.phone },
+      houseNumber,
+      alley,
+      quarter,
+      district,
+      city,
+      country,
+    };
+
+    console.log(user);
+    userIndb.address.push(newAddress);
+
+    await userIndb.save();
+    return userIndb;
+  } catch (error) {
+    console.error("addAddress error:", error);
+    throw error;
+  }
+};
+
+// lấy danh sách danh mục
+const getAddress = async (userId) => {
+  try {
+    const userIndb = await userModel.findById(userId);
+    if (!userIndb) {
+      throw new Error("Không tìm thấy user");
+    }
+
+    // Trả về địa chỉ của người dùng
+    return userIndb.address;
+  } catch (error) {
+    console.log("getAddress error: ", error.message); 
+    throw new Error("Lấy địa chỉ thất bại");
+  }
+};
+// const addCart = async (user, products) => {
+//   try {
+//     // user: user id của người mua
+//     // products: mảng id của sản phẩm và số lượng mua
+//     console.log(products);
+//     const userInDB = await userModel.findById(user);
+//     if (!userInDB) {
+//       throw new Error("User not found");
+//     }
+//     console.log("user", user);
+//     // kiểm tra products có phải là mảng hay không
+//     console.log("Products", products);
+//     if (!Array.isArray(products)) {
+//       throw new Error("Products must be an array");
+//     }
+//     let productsInCart = [];
+//     let total = 0;
+//     for (let index = 0; index < products.length; index++) {
+//       //thầy dùng mảng để chắc chắn tất cả các sp đều được duyệt qua
+//       const item = products[index];
+//       const product = await ProductModel.findById(item._id);
+//       if (!product) {
+//         throw new Error("Không tìm thấy sp");
+//       }
+
+//       if (item.quantity > product.quantity) {
+//         throw new Error("Vượt quá số lượng trong kho");
+//       }
+//       const productItem = {
+//         _id: product._id,
+//         name: product.name,
+//         category: product.category,
+//         price: product.price,
+//         quantity: item.quantity,
+//         images: product.images,
+//       };
+//       productsInCart.push(productItem);
+//       total += product.price * item.quantity;
+//     }
+//     // const addressInDB = await AddressModel.findById(address);
+
+//     // console.log(address);
+
+//     // if (!addressInDB) {
+//     //   throw new Error("address not found");
+//     // }
+//     // tạo giỏ hàng mới
+//     const newCart = {
+      
+//       products: productsInCart,
+//       // address: {
+//       //   _id: addressInDB._id,
+//       //   houseNumber: addressInDB.houseNumber,
+//       //   alley: addressInDB.alley,
+//       //   quarter: addressInDB.quarter,
+//       //   district: addressInDB.district,
+//       //   city: addressInDB.city,
+//       //   country: addressInDB.country,
+//       // },
+//       total,
+//     };
+//     user.carts.push(cart);
+//     await user.save();
+
+//     return cart;
+//   } catch (error) {
+//     console.log(error);
+//     throw new Error("Add to cart failed");
+//   }
+// };
 module.exports = {
   register,
   login,
@@ -264,5 +404,8 @@ module.exports = {
   getProfile,
   updateProfile,
   deleteAccount,
+
+  getAddress,
+  addAddress,
 
 };

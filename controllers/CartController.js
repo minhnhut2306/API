@@ -28,7 +28,7 @@ const addCart = async (user, products) => {
     for (let index = 0; index < products.length; index++) {
       //thầy dùng mảng để chắc chắn tất cả các sp đều được duyệt qua
       const item = products[index];
-      const product = await ProductModel.findById(item.id);
+      const product = await ProductModel.findById(item._id);
       if (!product) {
         throw new Error("Không tìm thấy sp");
       }
@@ -37,12 +37,12 @@ const addCart = async (user, products) => {
         throw new Error("Vượt quá số lượng trong kho");
       }
       const productItem = {
-
         _id: product._id,
-
         name: product.name,
+        category: product.category,
         price: product.price,
         quantity: item.quantity,
+        images: product.images
       };
       productsInCart.push(productItem);
       total += product.price * item.quantity;
@@ -156,7 +156,6 @@ const getAllCart = async () => {
   }
 };
 
-
 const deleteCart = async (id) =>{
   try {
     const cartInDB = await CartModel.findById(id);
@@ -170,17 +169,19 @@ const deleteCart = async (id) =>{
         throw new Error("Xóa Cart thất bại.");
   }
   }
-// lấy cart
-const getCarts = async () => {
-  try {
-    let query = {};
-    const Carts = await ProductModel.find(query).sort({ createAt: -1 });
-    return Carts;
-  } catch (error) {
-    console.log("getCarts error: ", error.message);
-    throw new Error("Lấy danh sách carts lỗi");
-  }
-};
+
+  // lấy cart
+  const getCarts = async () => {
+    try {
+      let query = {};  
+      const Carts = await CartModel.find(query).sort({ createdAt: -1 });
+      console.log("Carts data:", Carts); 
+      return Carts;
+    } catch (error) {
+      console.log("getCarts error:", error.message);
+      throw new Error("Lỗi khi lấy danh sách giỏ hàng");
+    }
+  };
 
 module.exports = {
   addCart,
@@ -188,5 +189,5 @@ module.exports = {
   QuanLyHangHoa,
   getAllCart,
   deleteCart,
-  getCarts
+  getCarts,
 };

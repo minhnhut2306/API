@@ -134,7 +134,6 @@ router.delete("/delete-account", async (req, res) => {
   }
 });
 
-
 router.put("/:id/updateProfile", async (req, res, next) => {
 try {
   const { id } = req.params;
@@ -146,6 +145,7 @@ try {
     return res.status(500).json({ status: false, data: error.message });
 }
 });
+
 router.get("/:id/getProfileApp", async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -156,5 +156,64 @@ router.get("/:id/getProfileApp", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+
+// <<<<<<< HEAD
+// router.post('/addCart_App', async (req, res, next) => {
+//   try {
+//     const { user, products } = req.body;
+    
+//     if (!user || !products) {
+//       return res.status(400).json({ status: false, data: "Thiếu user hoặc products" });
+//     }
+
+//     const result = await userController.addCart(user, products);
+//     return res.status(200).json({ status: true, data: result });
+//   } catch (error) {
+//     console.error("Add to cart error:", error.message);
+//     return res.status(500).json({ status: false, data: error.message });
+//   }
+// });
+// =======
+router.post("/:userId/addressNew", async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const {
+      user,
+      houseNumber,
+      alley,
+      quarter,
+      district,
+      city,
+      country, } = req.body;
+
+    const address = await userController.addAddress(
+      userId,
+      user,
+      houseNumber,
+      alley,
+      quarter,
+      district,
+      city,
+      country,
+    );
+
+    return res.status(200).json({ status: true, data: address });
+  } catch (error) {
+    console.error("Thêm địa chỉ error:", error.message); 
+    return res.status(500).json({ status: false, data: error.message }); 
+  }
+});
+
+router.get("/getAddress/:userId", async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const user = await userController.getAddress(userId);
+    return res.status(200).json({ status: true, data: user });
+  } catch (error) {
+    console.log("Get address error: ", error.massage);
+    return res.status(500).json({ status: false, data: error.massage });
+  }
+});
+
 
 module.exports = router;
