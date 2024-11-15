@@ -322,7 +322,7 @@ const getAddress = async (userId) => {
     // Trả về địa chỉ của người dùng
     return userIndb.address;
   } catch (error) {
-    console.log("getAddress error: ", error.message); // sửa 'massage' thành 'message'
+    console.log("getAddress error: ", error.message); 
     throw new Error("Lấy địa chỉ thất bại");
   }
 };
@@ -336,5 +336,6 @@ module.exports = {
   getProfile,
   updateProfile,
   deleteAccount,
-
+  getAddress,
+  addAddress,
 };
