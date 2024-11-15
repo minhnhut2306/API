@@ -54,9 +54,12 @@ const addOrder = async (cart, userId, ship, sale) => {
     // Duyệt qua từng sản phẩm trong giỏ hàng
     for (let itemId of cart) {
       const cartO = await CartModel.findById(itemId);
+      
       if (!cartO) {
+        console.log(`Không tìm thấy giỏ hàng với id: ${itemId}`);
         throw new Error("Không tìm thấy giỏ hàng");
       }
+
       total += cartO.total || 0;
       const cartItem = {
         _id: cartO._id,
@@ -120,7 +123,7 @@ const addOrder = async (cart, userId, ship, sale) => {
           let newItem = {
             _id: item._id,
             name: product.name,
-            quantity: item.quantity,
+            quantity: item.products, // sửa để dùng `quantity` từ `products` của giỏ hàng
             status: result.status,
             images: product.images,
             date: Date.now(),
@@ -137,6 +140,10 @@ const addOrder = async (cart, userId, ship, sale) => {
     throw new Error("Add to order failed");
   }
 };
+
+
+
+
 
 
 
