@@ -139,7 +139,19 @@ const addOrder = async (cart, userId, ship, sale) => {
 };
 
 
+
 // const addOrder = async (cart, userId, ship, sale) => {
+
+
+
+
+
+
+
+//update trạng thái đơn hàng
+
+// const addOrder = async (cart, address, ship, sale) => {
+
 //   try {
 //     // Tìm thông tin user để lấy địa chỉ
 //     const user = await UserModel.findById(userId);
