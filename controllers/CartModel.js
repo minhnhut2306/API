@@ -14,7 +14,7 @@ const Schema = mongoose.Schema;
         quantity: { type: Number },
         category_id: { type: Schema.Types.ObjectId, ref: 'categories' }, 
         category_name: { type: String }, 
-        images: [{ type: String }], 
+        images: { type: String }, 
         }],
         date: { type: Date, default: Date.now },
     });
