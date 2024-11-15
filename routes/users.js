@@ -164,10 +164,11 @@ router.post("/:userId/addressNew", async (req, res, next) => {
 
     return res.status(200).json({ status: true, data: address });
   } catch (error) {
-    console.error("Thêm địa chỉ error:", error.message); // Sửa thành error.message
-    return res.status(500).json({ status: false, data: error.message }); // Sửa thành error.message
+    console.error("Thêm địa chỉ error:", error.message); 
+    return res.status(500).json({ status: false, data: error.message }); 
   }
 });
+
 router.get("/getAddress/:userId", async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -178,4 +179,5 @@ router.get("/getAddress/:userId", async (req, res, next) => {
     return res.status(500).json({ status: false, data: error.massage });
   }
 });
+
 module.exports = router;
