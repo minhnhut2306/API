@@ -158,18 +158,18 @@ const getAllCart = async () => {
 
 
 const deleteCart = async (id) =>{
-try {
-  const cartInDB = await CartModel.findById(id);
-  if(!cartInDB){
-    throw new Error('Cart không tồn tại');
+  try {
+    const cartInDB = await CartModel.findById(id);
+    if(!cartInDB){
+      throw new Error('Cart không tồn tại');
+    }
+    await CartModel.deleteOne({ _id: id });
+    return true;
+  } catch (error) {
+    console.error("Lỗi khi lấy giỏ hàng:", error); // In chi tiết lỗi ra console
+        throw new Error("Xóa Cart thất bại.");
   }
-  await CartModel.deleteOne({ _id: id });
-  return true;
-} catch (error) {
-  console.error("Lỗi khi lấy giỏ hàng:", error); // In chi tiết lỗi ra console
-      throw new Error("Xóa Cart thất bại.");
-}
-};
+  }
 // lấy cart
 const getCarts = async () => {
   try {
