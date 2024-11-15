@@ -12,9 +12,6 @@ const getCategories = async () => {
         throw new Error('Lấy ds danh mục lỗi');
     }
 }
-
-
-
 module.exports = {
   getCategories
 };
