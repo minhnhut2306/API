@@ -52,13 +52,13 @@ router.get('/QuanLiHangHoa', async (req, res) => {
     }
 });
 
-router.delete("/deleteCart/:id", async (req, res) => {
+router.delete("/:id/deleteCart", async (req, res) => { // Corrected syntax here
   try {
-      const { id } = req.params;
-      const cart = await CartController.deleteCart(id);
-      return res.status(200).json({ success: true, data: cart });
+    const { id } = req.params;
+    const result = await CartController.deleteCart(id); // Call deleteCart function
+    return res.status(200).json({ success: true, data: result });
   } catch (error) {
-      return res.status(500).json({ success: false, data: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 });
 
