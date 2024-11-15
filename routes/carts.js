@@ -51,5 +51,32 @@ router.get('/QuanLiHangHoa', async (req, res) => {
     }
 });
 
+router.delete("/deleteCart/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const cart = await CartController.deleteCart(id);
+        return res.status(200).json({ success: true, data: cart });
+    } catch (error) {
+        return res.status(500).json({ success: false, data: error.message });
+    }
+  });
+  
+  // lấy cart
+  router.get("/getCarts", async (req, res, next) => {
+    try {
+      const cart = await CartController.getCarts();
+      if (!cart || cart.length === 0) {
+        console.log("No carts found");
+      }
+      return res.status(200).json({ status: true, data: cart });
+    } catch (error) {
+      console.error("Get carts error:", error);
+      return res.status(500).json({
+        status: false,
+        message: "Lỗi khi lấy danh sách giỏ hàng",
+        error: error.message, 
+      });
+    }
+  });
 
 module.exports = router;
