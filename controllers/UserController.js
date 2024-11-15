@@ -1,7 +1,7 @@
-const userModel = require('./UserModel')
+const { model } = require("mongoose");
+const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
-const mongoose = require("mongoose");
-
+const AddressController = require("./AddressController");
 
 // const register = async (email, password, name, phone) => {
 //   try {
@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 //     if (user) {
 //       throw new Error("Email đã tồn tại");
 //     }
-//     if ( 
+//     if (
 //       email == "" ||
 //       email == undefined ||
 //       name == "" ||
@@ -257,48 +257,66 @@ const updateProfile = async (id, name, birthday, bio, gender) => {
     throw new Error("Cập nhật thông tin người dùng thất bại");
   }
 }
-const addAddress = async (req, res) => {
+
+const addAddress = async (
+  userId,
+  user,
+  houseNumber,
+  alley,
+  quarter,
+  district,
+  city,
+  country,
+) => {
   try {
-    const { userId } = req.params;
-    
-    // Kiểm tra nếu không có userId trong params
-    if (!userId) {
-      return res.status(400).json({ error: 'userId không hợp lệ' });
+    console.log("1");
+
+    // Kiểm tra người dùng có tồn tại không
+    const userIndb = await userModel.findById(userId);
+    if (!userIndb) {
+      throw new Error("Người dùng không tồn tại");
     }
 
-    // Kiểm tra tính hợp lệ của userId (ví dụ, kiểm tra ObjectId cho MongoDB)
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: 'userId không hợp lệ' });
+    // Kiểm tra định dạng số điện thoại
+    const phoneRegex = /^[0-9]{10,11}$/; // Cho phép số có 10 hoặc 11 chữ số
+    if (!phoneRegex.test(user.phone)) {
+      throw new Error("Số điện thoại không hợp lệ");
     }
 
-    const { houseNumber, alley, quarter, district, city, country } = req.body;
+    // Kiểm tra trong tất cả người dùng khác có số điện thoại trùng không
+    const existingUserWithPhone = await userModel.findOne({
+      _id: { $ne: userId }, // Loại trừ người dùng hiện tại
+      'address.user.phone': user.phone
+    });
+    if (existingUserWithPhone) {
+      throw new Error("Số điện thoại đã tồn tại trong hệ thống");
+    }
 
-    // Tìm user với userId
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User không tồn tại' });
+    // Kiểm tra số điện thoại trùng trong địa chỉ của chính người dùng hiện tại
+    const isPhoneDuplicateInUser = userIndb.address.some(addr => addr.user.phone === user.phone);
+    if (isPhoneDuplicateInUser) {
+      throw new Error("Số điện thoại đã tồn tại trong địa chỉ của người dùng này");
     }
 
     const newAddress = {
+      userId,
+      user: { name: userIndb.name, phone: user.phone },
       houseNumber,
       alley,
       quarter,
       district,
       city,
       country,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      available: true
     };
 
-    // Thêm địa chỉ vào danh sách địa chỉ của người dùng
-    user.address.push(newAddress);
-    await user.save();
+    console.log(user);
+    userIndb.address.push(newAddress);
 
-    return res.status(200).json({ message: 'Địa chỉ đã được thêm thành công', address: newAddress });
+    await userIndb.save();
+    return userIndb;
   } catch (error) {
-    console.error('Thêm địa chỉ error:', error);
-    return res.status(500).json({ error: `Thêm địa chỉ error: ${error.message}` });
+    console.error("addAddress error:", error);
+    throw error;
   }
 };
 

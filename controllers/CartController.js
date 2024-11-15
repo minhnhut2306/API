@@ -33,18 +33,19 @@ const addCart = async (user, products) => {
         throw new Error(`Số lượng vượt quá trong kho cho sản phẩm: ${product.name}`);
       }
 
-      const images = Array.isArray(product.images) ? product.images[0] : product.images;
-      
+      // Lấy hình ảnh đầu tiên dưới dạng chuỗi
+      const productImage = Array.isArray(product.images) ? product.images[0] : product.images;
+
       total += product.price * item.quantity;
 
       return {
-        _id: product._id, 
+        _id: product._id,
         name: product.name,
         price: product.price,
         quantity: item.quantity,
         category_id: product.category._id,
         category_name: product.category.category_name,
-        images: images,  
+        images: productImage, // Lưu hình ảnh dưới dạng chuỗi
       };
     });
 
@@ -58,7 +59,7 @@ const addCart = async (user, products) => {
     return result;
   } catch (error) {
     console.log(error.message);
-    throw new Error(error.message);
+    throw new Error("Thêm vào giỏ hàng thất bại");
   }
 };
 
@@ -89,6 +90,7 @@ const updateCarts = async (id, status) => {
 };
 const QuanLyHangHoa = async (productQuery, userQuery) => {
   try {
+    // Fetch product based on productQuery (e.g., by product ID or another unique identifier)
     const productInDB = await CartModel.findOne(productQuery).select(['name', 'category', 'price', 'deliveryMethod', 'orderStatus', 'totalProductPrice', 'totalPayment']);
 
     if (!productInDB) {
@@ -96,6 +98,7 @@ const QuanLyHangHoa = async (productQuery, userQuery) => {
       return { error: "Sản phẩm không tồn tại" };
     }
 
+    // Fetch user based on userQuery (assuming userId is associated with the product in the database)
     const userInDB = await UserModel.findOne(userQuery).select('email');
 
     if (!userInDB) {
@@ -103,6 +106,7 @@ const QuanLyHangHoa = async (productQuery, userQuery) => {
       return { error: "Người dùng không tồn tại" };
     }
 
+    // Construct response body with product and user information
     const body = {
       email: userInDB.email,
       name: productInDB.name,
@@ -129,7 +133,7 @@ const getAllCart = async () => {
       }
       return carts
   } catch (error) {
-      console.error("Lỗi khi lấy danh sách giỏ hàng:", error); 
+      console.error("Lỗi khi lấy danh sách giỏ hàng:", error); // In chi tiết lỗi ra console
       throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
@@ -169,4 +173,6 @@ module.exports = {
   deleteCart,
   getCarts
 
-};  
+
+
+};
