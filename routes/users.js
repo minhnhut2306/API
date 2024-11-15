@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const userController = require("../controllers/UserController")
-const { deleteAccount } = require("../controllers/UserController");
+const {deleteAccount } = require("../controllers/UserController");
 
 
 /* GET 
@@ -84,6 +84,23 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
+// SMS
+// const sendSMS = async (to, message) => {
+//   try {
+//     const messageResponse = await client.messages.create({
+//       body: message,
+//       from: TWILIO_PHONE_NUMBER, // Số điện thoại Twilio của bạn
+//       to: to, // Số điện thoại người dùng đăng ký
+//     });
+//     console.log(`SMS sent: ${messageResponse.sid}`);
+//   } catch (error) {
+//     console.error("Error sending SMS:", error.message);
+//   }
+// };
+
+///////////////////////////////////////////////////////////////////
+// login
+
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -117,18 +134,18 @@ router.delete("/delete-account", async (req, res) => {
   }
 });
 
-
 router.put("/:id/updateProfile", async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { name, birthday, bio, gender } = req.body
-    const result = await userController.updateProfile(id, name, birthday, bio, gender);
-    return res.status(200).json({ status: true, data: result });
-  } catch (error) {
-    console.log("UpdateProfile error:", error.message);
+try {
+  const { id } = req.params;
+  const{ name, birthday, bio, gender } = req.body
+  const result = await userController.updateProfile(id, name, birthday, bio, gender);
+  return res.status(200).json({ status: true, data: result });
+} catch (error) {
+  console.log("UpdateProfile error:", error.message);
     return res.status(500).json({ status: false, data: error.message });
-  }
+}
 });
+
 router.get("/:id/getProfileApp", async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -137,45 +154,6 @@ router.get("/:id/getProfileApp", async (req, res, next) => {
   } catch (error) {
     console.log("Get NewUsers error:", error.message);
     return res.status(500).json({ status: false, data: error.message });
-  }
-});
-router.post("/:userId/addressNew", async (req, res, next) => {
-  try {
-    const { userId } = req.params;
-    const {
-      user,
-      houseNumber,
-      alley,
-      quarter,
-      district,
-      city,
-      country, } = req.body;
-
-    const address = await userController.addAddress(
-      userId,
-      user,
-      houseNumber,
-      alley,
-      quarter,
-      district,
-      city,
-      country,
-    );
-
-    return res.status(200).json({ status: true, data: address });
-  } catch (error) {
-    console.error("Thêm địa chỉ error:", error.message); // Sửa thành error.message
-    return res.status(500).json({ status: false, data: error.message }); // Sửa thành error.message
-  }
-});
-router.get("/getAddress/:userId", async (req, res, next) => {
-  try {
-    const { userId } = req.params;
-    const user = await userController.getAddress(userId);
-    return res.status(200).json({ status: true, data: user });
-  } catch (error) {
-    console.log("Get address error: ", error.massage);
-    return res.status(500).json({ status: false, data: error.massage });
   }
 });
 module.exports = router;

@@ -30,16 +30,23 @@ router.get("/:id/getOrderById", async (req, res, next) => {
  * url: http://localhost:6677/categories
  * trả về:
  */
-router.post("/addOder", async (req, res, next) => {
+ router.post("/addOrder", async (req, res, next) => {
   try {
-    const { cart, address, ship, sale } = req.body;
-    const result = await OderController.addOrder(cart, address, ship, sale);
+    const { cart, userId, ship, sale } = req.body;
+
+    if (!cart || !userId || !ship) {
+      return res.status(400).json({ status: false, data: "Thiếu thông tin đơn hàng" });
+    }
+
+    const result = await OderController.addOrder(cart, userId, ship, sale);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
-    console.log(error.message);
+    console.error("Error in addOrder:", error.message);
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+
+
 
 // cập nhật trạng thái đơn hàng
 router.post("/:id/updateOrder", async (req, res, next) => {

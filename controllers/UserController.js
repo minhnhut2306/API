@@ -1,7 +1,6 @@
 const { model } = require("mongoose");
 const userModel = require("./UserModel");
 const bcrypt = require("bcryptjs");
-const AddressController = require("./AddressController");
 
 // const register = async (email, password, name, phone) => {
 //   try {
@@ -112,10 +111,10 @@ const register = async (email, password, name, phone) => {
     // Lưu người dùng
     const result = await user.save();
 
-    // // Tạo mã xác nhận và gửi email
-    // const verificationCode = Math.random().toString(36).substr(2, 8);
-    // const subTitle = 'Xác nhận đăng ký tài khoản';
-    // await sendEmail(email, verificationCode, subTitle, name); // Gửi email
+    // Tạo mã xác nhận và gửi email
+    const verificationCode = Math.random().toString(36).substr(2, 8);
+    const subTitle = 'Xác nhận đăng ký tài khoản';
+    await sendEmail(email, verificationCode, subTitle, name); // Gửi email
 
     return result;
   } catch (error) {
@@ -222,16 +221,8 @@ const deleteAccount = async (emailOrPhone) => {
   }
 };
 
-const Profile = async (user, images) => {
-  try {
-    const userInDB = await userModel.findById(user);
-    if (!userInDB) {
-      throw new error("không tìm thấy user");
-    }
-  } catch (error) {
 
-  }
-}
+
 
 
 
@@ -337,8 +328,6 @@ const getAddress = async (userId) => {
 };
 ;
 
-
-
 module.exports = {
   register,
   login,
@@ -347,6 +336,5 @@ module.exports = {
   getProfile,
   updateProfile,
   deleteAccount,
-  addAddress,
-  getAddress
+
 };
