@@ -156,10 +156,37 @@ const getAllCart = async () => {
   }
 };
 
+const deleteCart = async (id) =>{
+  try {
+    const cartInDB = await CartModel.findById(id);
+    if(!cartInDB){
+      throw new Error('Cart không tồn tại');
+    }
+    await CartModel.deleteOne({ _id: id });
+    return true;
+  } catch (error) {
+    console.error("Lỗi khi lấy giỏ hàng:", error);
+        throw new Error("Xóa Cart thất bại.");
+  }
+  };
+  // lấy cart
+  const getCarts = async () => {
+    try {
+      let query = {};  
+      const Carts = await CartModel.find(query).sort({ createdAt: -1 });
+      console.log("Carts data:", Carts); 
+      return Carts;
+    } catch (error) {
+      console.log("getCarts error:", error.message);
+      throw new Error("Lỗi khi lấy danh sách giỏ hàng");
+    }
+  };
 
 module.exports = {
   addCart,
   updateCarts,
   QuanLyHangHoa,
-  getAllCart
+  getAllCart,
+  deleteCart,
+  getCarts,
 };
