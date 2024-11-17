@@ -1,7 +1,8 @@
 const { model } = require("mongoose");
 const userModel = require("./UserModel");
+const CartModel = require("./CartModel");
+const productModel = require("./ProductModel");
 const bcrypt = require("bcryptjs");
-const ProductModel = require("./ProductModel")
 
 // const register = async (email, password, name, phone) => {
 //   try {
@@ -79,14 +80,17 @@ const register = async (email, password, name, phone) => {
       throw new Error("Email, password, name và phone không được để trống!");
     }
 
-    // Kiểm tra định dạng email và phone
+    // Kiểm tra định dạng email, password và phone
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[0-9]{10,11}$/;
-
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*\d)(?=.*[@.#$!%*?&^])[A-Za-z\d@.#$!%*?&]{8,15}$/;
     if (!emailRegex.test(email)) {
       throw new Error("Email không đúng định dạng");
     }
-
+    if (!passwordRegex.test(password)) {
+      throw new Error("Password không đúng định dạng");
+    }
     if (!phoneRegex.test(phone)) {
       throw new Error("Số điện thoại không đúng định dạng");
     }
@@ -95,6 +99,12 @@ const register = async (email, password, name, phone) => {
     let user = await userModel.findOne({ email: email });
     if (user) {
       throw new Error("Email đã tồn tại");
+    }
+
+    // Kiểm tra xem số điện thoại đã tồn tại chưa
+    user = await userModel.findOne({ phone: phone });
+    if (user) {
+      throw new Error("Số điện thoại đã tồn tại");
     }
 
     // Mã hóa mật khẩu
@@ -112,10 +122,10 @@ const register = async (email, password, name, phone) => {
     // Lưu người dùng
     const result = await user.save();
 
-    // Tạo mã xác nhận và gửi email
+    // Tạo mã xác nhận và gửi email (tùy chọn)
     const verificationCode = Math.random().toString(36).substr(2, 8);
     const subTitle = "Xác nhận đăng ký tài khoản";
-    await sendEmail(email, verificationCode, subTitle, name); // Gửi email
+    // await sendEmail(email, verificationCode, subTitle, name); // Gửi email (nếu cần)
 
     return result;
   } catch (error) {
@@ -271,23 +281,21 @@ const addAddress = async (
     }
 
     // Kiểm tra trong tất cả người dùng khác có số điện thoại trùng không
-    const existingUserWithPhone = await userModel.findOne({
-      _id: { $ne: userId }, // Loại trừ người dùng hiện tại
-      "address.user.phone": user.phone,
-    });
-    if (existingUserWithPhone) {
-      throw new Error("Số điện thoại đã tồn tại trong hệ thống");
-    }
+    //     const existingUserWithPhone = await userModel.findOne({
+    //       _id: { $ne: userId }, // Loại trừ người dùng hiện tại
+    //       'address.user.phone': user.phone
+    //     });
+    //     console.log(user.phone);
+    //     if (existingUserWithPhone) {
+    //       throw new Error("Số điện thoại đã tồn tại trong hệ thống");
+    //     }
+    // console.log(existingUserWithPhone);
 
     // Kiểm tra số điện thoại trùng trong địa chỉ của chính người dùng hiện tại
-    const isPhoneDuplicateInUser = userIndb.address.some(
-      (addr) => addr.user.phone === user.phone
-    );
-    if (isPhoneDuplicateInUser) {
-      throw new Error(
-        "Số điện thoại đã tồn tại trong địa chỉ của người dùng này"
-      );
-    }
+    // const isPhoneDuplicateInUser = userIndb.address.some(addr => addr.user.phone === user.phone);
+    // if (isPhoneDuplicateInUser) {
+    //   throw new Error("Số điện thoại đã tồn tại trong địa chỉ của người dùng này");
+    // }
 
     const newAddress = {
       userId,
@@ -322,80 +330,152 @@ const getAddress = async (userId) => {
     // Trả về địa chỉ của người dùng
     return userIndb.address;
   } catch (error) {
-    console.log("getAddress error: ", error.message); 
+    console.log("getAddress error: ", error.message); // sửa 'massage' thành 'message'
     throw new Error("Lấy địa chỉ thất bại");
   }
 };
-// const addCart = async (user, products) => {
-//   try {
-//     // user: user id của người mua
-//     // products: mảng id của sản phẩm và số lượng mua
-//     console.log(products);
-//     const userInDB = await userModel.findById(user);
-//     if (!userInDB) {
-//       throw new Error("User not found");
-//     }
-//     console.log("user", user);
-//     // kiểm tra products có phải là mảng hay không
-//     console.log("Products", products);
-//     if (!Array.isArray(products)) {
-//       throw new Error("Products must be an array");
-//     }
-//     let productsInCart = [];
-//     let total = 0;
-//     for (let index = 0; index < products.length; index++) {
-//       //thầy dùng mảng để chắc chắn tất cả các sp đều được duyệt qua
-//       const item = products[index];
-//       const product = await ProductModel.findById(item._id);
-//       if (!product) {
-//         throw new Error("Không tìm thấy sp");
-//       }
+const getCartById = async (userId) => {
+  try {
+    // Kiểm tra xem người dùng có tồn tại không
+    const userIndb = await userModel.findById(userId);
+    if (!userIndb) {
+      throw new Error("Không tìm thấy người dùng");
+    }
+    // Tìm cart của người dùng theo userId
+    const cart = await CartModel.findOne({ user: userId }); // Sửa từ userId thành user
+    if (!cart) {
+      throw new Error("Giỏ hàng không tồn tại cho người dùng này");
+    }
 
-//       if (item.quantity > product.quantity) {
-//         throw new Error("Vượt quá số lượng trong kho");
-//       }
-//       const productItem = {
-//         _id: product._id,
-//         name: product.name,
-//         category: product.category,
-//         price: product.price,
-//         quantity: item.quantity,
-//         images: product.images,
-//       };
-//       productsInCart.push(productItem);
-//       total += product.price * item.quantity;
-//     }
-//     // const addressInDB = await AddressModel.findById(address);
+    return cart; // Trả về cart
+  } catch (error) {
+    console.error("Lỗi khi lấy cart:", error.message); // In chi tiết lỗi ra console
+    throw new Error("Có lỗi xảy ra trong quá trình lấy cart.");
+  }
+};
 
-//     // console.log(address);
+const addCart = async (userId, products) => {
+  try {
+    // Kiểm tra xem user có tồn tại trong DB không
+    const userInDB = await userModel.findById(userId);
+    if (!userInDB) {
+      throw new Error("User không tồn tại");
+    }
 
-//     // if (!addressInDB) {
-//     //   throw new Error("address not found");
-//     // }
-//     // tạo giỏ hàng mới
-//     const newCart = {
-      
-//       products: productsInCart,
-//       // address: {
-//       //   _id: addressInDB._id,
-//       //   houseNumber: addressInDB.houseNumber,
-//       //   alley: addressInDB.alley,
-//       //   quarter: addressInDB.quarter,
-//       //   district: addressInDB.district,
-//       //   city: addressInDB.city,
-//       //   country: addressInDB.country,
-//       // },
-//       total,
-//     };
-//     user.carts.push(cart);
-//     await user.save();
+    // Kiểm tra xem products có phải là mảng không
+    if (!Array.isArray(products)) {
+      throw new Error("Products phải là một mảng");
+    }
 
-//     return cart;
-//   } catch (error) {
-//     console.log(error);
-//     throw new Error("Add to cart failed");
-//   }
-// };
+    let productsInCart = [];
+    let total = 0;
+
+    for (let item of products) {
+      // Kiểm tra từng sản phẩm trong giỏ hàng
+      const product = await productModel.findById(item._id);
+      if (!product) {
+        throw new Error(`Sản phẩm không tồn tại: ${item._id}`);
+      }
+
+      if (item.quantity > product.quantity) {
+        throw new Error(
+          `Số lượng vượt quá số lượng có trong kho cho sản phẩm: ${product.name}`
+        );
+      }
+
+      const productItem = {
+        _id: product._id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        quantity: item.quantity,
+        images: product.images,
+      };
+
+      productsInCart.push(productItem);
+      total += product.price * item.quantity;
+    }
+
+    // Tạo mới giỏ hàng
+    const cart = new CartModel({
+      user: userInDB._id, // Tham chiếu đến _id của User
+      products: productsInCart,
+      total,
+    });
+
+    const savedCart = await cart.save();
+
+    // Cập nhật cart vào user
+    userInDB.cart = savedCart._id;
+    await userInDB.save();
+
+    return savedCart;
+  } catch (error) {
+    console.log("Add to cart error:", error.message);
+    throw new Error("Thêm vào giỏ hàng thất bại: " + error.message);
+  }
+};
+
+const changePassword = async (id, password, newPassword) => {
+  if (!id || !password || !newPassword) {
+    throw new Error("Vui lòng nhập đầy đủ thông tin");
+  }
+
+  // Tìm user theo id
+  const user = await userModel.findById(id);
+  if (!user) {
+    throw new Error("User không tồn tại");
+  }
+
+  // So sánh mật khẩu cũ với mật khẩu đã mã hóa trong DB
+  const isMatch = bcrypt.compareSync(password, user.password);
+  if (!isMatch) {
+    throw new Error("Mật khẩu hiện tại không đúng");
+  }
+
+  // Mã hóa mật khẩu mới
+  const hashedNewPassword = bcrypt.hashSync(newPassword, 10);
+
+  // Cập nhật mật khẩu mới vào DB
+  user.password = hashedNewPassword;
+  await user.save();
+
+  console.log("Đổi mật khẩu thành công");
+  return { message: "Đổi mật khẩu thành công" };
+};
+
+
+
+const deleteAddress = async (email, addressId) => {
+  try {
+    // Kiểm tra nếu `addressId` không hợp lệ
+    if (!addressId) {
+      throw new Error("ID không hợp lệ");
+    }
+
+    // Tìm user theo email
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      throw new Error("Người dùng không tồn tại");
+    }
+
+    // Kiểm tra địa chỉ có tồn tại trong user hay không
+    const addressIndex = user.address.findIndex(address => address._id.toString() === addressId);
+    if (addressIndex === -1) {
+      throw new Error("Địa chỉ không tồn tại trong danh sách của người dùng");
+    }
+
+    // Xóa địa chỉ trong mảng address của user
+    user.address.splice(addressIndex, 1);
+    await user.save();
+
+    return { status: true, message: "Xóa địa chỉ thành công" };
+  } catch (error) {
+    console.error("deleteAddress: ", error.message);
+    throw new Error(`Xóa address lỗi: ${error.message}`);
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -404,8 +484,10 @@ module.exports = {
   getProfile,
   updateProfile,
   deleteAccount,
-
-  getAddress,
   addAddress,
-
+  getAddress,
+  getCartById,
+  addCart,
+  changePassword,
+  deleteAddress
 };

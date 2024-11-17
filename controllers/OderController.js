@@ -39,22 +39,25 @@ const getOrderQById = async (id) => {
 const addOrder = async (cart, userId, ship, sale) => {
   try {
     const user = await UserModel.findById(userId);
-    if (!user || !user.address) {
-      throw new Error("Không tìm thấy người dùng hoặc địa chỉ không tồn tại");
+    if (!user) {
+      throw new Error("Không tìm thấy người dùng");
     }
 
-    const address = user.address.find((addr) => addr.available) || user.address[0];
-    if (!address) {
-      throw new Error("Vui lòng nhập địa chỉ");
+    // Kiểm tra địa chỉ của người dùng
+    let address = null;
+    if (user.address && user.address.length > 0) {
+      address = user.address.find((addr) => addr.available) || user.address[0];
+    } else {
+      throw new Error("Người dùng chưa có địa chỉ. Vui lòng thêm địa chỉ trước khi đặt hàng.");
     }
 
+    // Tạo giỏ hàng cho đơn hàng
     let cartInOrder = [];
     let total = 0;
 
-    // Duyệt qua từng sản phẩm trong giỏ hàng
     for (let itemId of cart) {
       const cartO = await CartModel.findById(itemId);
-      
+
       if (!cartO) {
         console.log(`Không tìm thấy giỏ hàng với id: ${itemId}`);
         throw new Error("Không tìm thấy giỏ hàng");
@@ -71,7 +74,7 @@ const addOrder = async (cart, userId, ship, sale) => {
       cartInOrder.push(cartItem);
     }
 
-    let totalOrder = total;
+    // Tính phí vận chuyển
     let shippingFee = 0;
     if (ship === 1) {
       shippingFee = 8000;
@@ -80,8 +83,9 @@ const addOrder = async (cart, userId, ship, sale) => {
     } else if (ship === 3) {
       shippingFee = 20000;
     }
-    totalOrder += shippingFee;
+    let totalOrder = total + shippingFee;
 
+    // Tính giảm giá
     let totalDiscount = 0;
     if (Array.isArray(sale)) {
       totalDiscount = sale.reduce((sum, item) => {
@@ -105,6 +109,7 @@ const addOrder = async (cart, userId, ship, sale) => {
       throw new Error("Sale phải là một mảng");
     }
 
+    // Tạo đơn hàng
     const order = new OrderModel({
       cart: cartInOrder,
       ship,
@@ -114,21 +119,44 @@ const addOrder = async (cart, userId, ship, sale) => {
     });
     const result = await order.save();
 
+    // Cập nhật số lượng `sold` cho các sản phẩm
+    for (let cartItem of cartInOrder) {
+      for (let productItem of cartItem.products) {
+        const productId = productItem.productId || productItem._id; // Hỗ trợ cả productId và _id
+        if (!productId) {
+          console.error(`Sản phẩm thiếu ID: ${JSON.stringify(productItem)}`);
+          continue;
+        }
+
+        const product = await ProductModel.findById(productId);
+        if (product) {
+          product.sold = (product.sold || 0) + productItem.quantity;
+          await product.save();
+          console.log(`Cập nhật thành công: Sản phẩm ${product.name}, Sold: ${product.sold}`);
+        } else {
+          console.error(`Không tìm thấy sản phẩm với ID: ${productId}`);
+        }
+      }
+    }
+    
+
     // Cập nhật lịch sử mua hàng của người dùng
     const userInDB = await UserModel.findById(userId);
     if (userInDB) {
-      for (let item of cartInOrder) {
-        const product = await ProductModel.findById(item._id);
-        if (product) {
-          let newItem = {
-            _id: item._id,
-            name: product.name,
-            quantity: item.products, // sửa để dùng `quantity` từ `products` của giỏ hàng
-            status: result.status,
-            images: product.images,
-            date: Date.now(),
-          };
-          userInDB.carts.push(newItem);
+      for (let cartItem of cartInOrder) {
+        for (let productItem of cartItem.products) {
+          const product = await ProductModel.findById(productItem.productId);
+          if (product) {
+            let newItem = {
+              _id: productItem.productId,
+              name: product.name,
+              quantity: productItem.quantity,
+              status: result.status,
+              images: product.images,
+              date: Date.now(),
+            };
+            userInDB.carts.push(newItem);
+          }
         }
       }
       await userInDB.save();
@@ -136,10 +164,13 @@ const addOrder = async (cart, userId, ship, sale) => {
 
     return result;
   } catch (error) {
-    console.log(error);
-    throw new Error("Add to order failed");
+    console.log(error.message);
+    throw new Error(error.message || "Thêm đơn hàng thất bại");
   }
 };
+
+
+
 
 
 
