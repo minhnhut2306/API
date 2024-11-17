@@ -215,5 +215,26 @@ router.get("/getAddress/:userId", async (req, res, next) => {
   }
 });
 
+router.post('/change-password', async (req, res) => {
+  const { id, password, newPassword } = req.body;
+
+  try {
+    const result = await userController.changePassword(id, password, newPassword);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.delete('/:userId/address/:addressId', async (req, res) => {
+  try {
+    const { userId, addressId } = req.params;  // Lấy id người dùng và địa chỉ từ URL
+    const result = await userController.deleteAddress(userId, addressId);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 
 module.exports = router;
