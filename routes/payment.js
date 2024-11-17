@@ -9,7 +9,7 @@ const payos = new PayOS(
     '4b550b9acc1e453288f2476cfd57b4426c6095019e00d9e47cc6dc32a7077f61'
 );
 
-const YOUR_DOMAIN = 'http://localhost:3000/';
+const YOUR_DOMAIN = 'http://192.168.1.10:6677';
 
 router.post('/create-payment-link', async (req, res) => {
     const {amount, orderId, description, fullname, phone, email } = req.body;
