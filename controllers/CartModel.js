@@ -6,10 +6,10 @@ const Schema = mongoose.Schema;
 
 const CartSchema = new Schema({
     //id, name
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    user: {type: Object, require: true},
     total: {type: Number, default: 0},
     //{id, name, price, quantity}
-     products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    products: {type: Array, default: []},
     //1 xác nhận, 2: đang giao, 3: hoàn thành, 4: hủy
     // status: {type: Number, default: AppConstants.CART_STATUS.XAC_NHAN},
     //ngày giờ mua
