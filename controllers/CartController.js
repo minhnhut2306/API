@@ -4,7 +4,7 @@ const AppConstants = require("../helpers/AppConstants");
 const UserModel = require("./UserModel");
 const ProductModel = require("./ProductModel");
 // const AddressModel = require("./AddressModel");
-const mongoose = require("mongoose");
+
 //________________________________________APP_______________________________________
 
 //thêm cart
@@ -154,57 +154,23 @@ const deleteCart = async (id) =>{
     await CartModel.deleteOne({ _id: id });
     return true;
   } catch (error) {
-    console.error("Lỗi khi lấy giỏ hàng:", error);
+    console.error("Lỗi khi lấy giỏ hàng:", error); // In chi tiết lỗi ra console
         throw new Error("Xóa Cart thất bại.");
   }
-  };
+  }
 
-  const getCartsByUserId = async (userId) => {
+  // lấy cart
+  const getCarts = async () => {
     try {
-      const carts = await CartModel.aggregate([
-        {
-          $match: {
-            "user": new mongoose.Types.ObjectId(userId), 
-          },
-        },
-        {
-          $lookup: {
-            from: "products", 
-            localField: "products",
-            foreignField: "_id",
-            as: "productDetails", 
-          },
-        },
-        {
-          $unwind: "$productDetails",
-        },
-        {
-          $project: {
-            _id: 1,
-            user: 1,
-            total: 1,
-            date: 1,
-            "productDetails._id": 1,
-            "productDetails.name": 1,
-            "productDetails.price": 1,
-            "productDetails.quantity": 1,
-            "productDetails.category": 1,
-            "productDetails.images": 1,
-          },
-        },
-        {
-          $sort: { date: -1 }, 
-        },
-      ]);
-  
-      return carts;
+      let query = {};  
+      const Carts = await CartModel.find(query).sort({ createdAt: -1 });
+      console.log("Carts data:", Carts); 
+      return Carts;
     } catch (error) {
-      console.log("Error in getCartsByUserId:", error.message);
-      throw new Error("Error while fetching carts by userId");
+      console.log("getCarts error:", error.message);
+      throw new Error("Lỗi khi lấy danh sách giỏ hàng");
     }
   };
-  
-
 
 module.exports = {
   addCart,
@@ -212,5 +178,5 @@ module.exports = {
   QuanLyHangHoa,
   getAllCart,
   deleteCart,
-  getCartsByUserId,
+  getCarts,
 };

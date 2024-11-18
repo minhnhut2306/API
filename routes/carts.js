@@ -52,13 +52,21 @@ router.get('/QuanLiHangHoa', async (req, res) => {
     }
 });
 
-router.delete("/:id/deleteCart", async (req, res) => { // Corrected syntax here
+router.delete('/deleteCart/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await CartController.deleteCart(id); // Call deleteCart function
-    return res.status(200).json({ success: true, data: result });
+    const cartId = req.params.id;
+    if (!cartId) {
+      return res.status(400).send({ data: 'Cart ID is required.', success: false });
+    }
+    const result = await CartController.deleteCart(cartId);
+    if (result.deletedCount === 0) {
+      return res.status(404).send({ data: 'Cart item not found.', success: false });
+    }
+
+    res.status(200).send({ data: 'Xóa Cart thành công.', success: true });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.error('Error deleting cart item:', error);
+    res.status(500).send({ data: error.message || 'Xóa Cart thất bại.', success: false });
   }
 });
 
