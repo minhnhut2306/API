@@ -44,9 +44,39 @@ const loginAdmin = async (email, password, adminID) => {
     throw new Error("Đăng nhập thất bại");
   }
 };
+const changePassword = async (email, password, newPassword) => {
+  try {
+    // Kiểm tra đầu vào
+    if (!email || !password || !newPassword) {
+      throw new Error("Vui lòng nhập đầy đủ thông tin");
+    }
+
+    // Tìm user theo email
+    const user = await AdminModel.findOne({ email });
+    if (!user) {
+      throw new Error("Người dùng không tồn tại");
+    }
+
+    // So sánh mật khẩu cũ trực tiếp
+    if (user.password !== password) {
+      throw new Error("Mật khẩu hiện tại không đúng");
+    }
+
+    // Cập nhật mật khẩu mới vào DB (không mã hóa)
+    user.password = newPassword;
+    await user.save();
+
+    console.log("Đổi mật khẩu thành công");
+    return { message: "Đổi mật khẩu thành công" };
+  } catch (error) {
+    console.error("Lỗi đổi mật khẩu:", error.message);
+    throw new Error(error.message || "Có lỗi xảy ra khi đổi mật khẩu");
+  }
+};
 
 
 
 module.exports = {
   loginAdmin,
+  changePassword
 };
