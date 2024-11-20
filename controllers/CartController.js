@@ -90,9 +90,9 @@ const updateCarts = async (id, status) => {
     let result = await cart.save();
     return result;
   } catch (error) {
-      console.log(error);
-      throw new Error("Cập nhật trạng thái đơn hàng thất bại");
-      
+    console.log(error);
+    throw new Error("Cập nhật trạng thái đơn hàng thất bại");
+
   }
 };
 const QuanLyHangHoa = async (productQuery, userQuery) => {
@@ -134,43 +134,44 @@ const QuanLyHangHoa = async (productQuery, userQuery) => {
 
 const getAllCart = async () => {
   try {
-      const carts = await CartModel.find();
-      if(!carts){
-        throw new Error("Không giỏ hàng");
-      }
-      return carts
+    const carts = await CartModel.find();
+    if (!carts) {
+      throw new Error("Không giỏ hàng");
+    }
+    return carts
   } catch (error) {
-      console.error("Lỗi khi lấy danh sách giỏ hàng:", error); // In chi tiết lỗi ra console
-      throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
+    console.error("Lỗi khi lấy danh sách giỏ hàng:", error); // In chi tiết lỗi ra console
+    throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
 
-const deleteCart = async (id) =>{
+const deleteCart = async (id) => {
   try {
     const cartInDB = await CartModel.findById(id);
-    if(!cartInDB){
+    if (!cartInDB) {
       throw new Error('Cart không tồn tại');
     }
     await CartModel.deleteOne({ _id: id });
     return true;
   } catch (error) {
     console.error("Lỗi khi lấy giỏ hàng:", error); // In chi tiết lỗi ra console
-        throw new Error("Xóa Cart thất bại.");
+    throw new Error("Xóa Cart thất bại.");
   }
-  }
+}
 
-  // lấy cart
-  const getCarts = async () => {
-    try {
-      let query = {};  
-      const Carts = await CartModel.find(query).sort({ createdAt: -1 });
-      console.log("Carts data:", Carts); 
-      return Carts;
-    } catch (error) {
-      console.log("getCarts error:", error.message);
-      throw new Error("Lỗi khi lấy danh sách giỏ hàng");
-    }
-  };
+// lấy cart
+const getCarts = async () => {
+  try {
+    let query = {};
+    const Carts = await CartModel.find(query).sort({ createdAt: -1 });
+    console.log("Carts data:", Carts);
+    return Carts;
+  } catch (error) {
+    console.log("getCarts error:", error.message);
+    throw new Error("Lỗi khi lấy danh sách giỏ hàng");
+  }
+};
+
 
 module.exports = {
   addCart,
