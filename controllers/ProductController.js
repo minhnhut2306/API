@@ -2,7 +2,7 @@ const { isValidObjectId, Types } = require("mongoose");
 const ProductModel = require("./ProductModel");
 const CategoryModel = require("./CategoryModel");
 const PreserveModel = require("./PreserveModel");
-
+const OrderModel = require("./OderModel");
 const UserModel = require("./UserModel");
 //________________________________________APP_______________________________________
 
@@ -141,7 +141,7 @@ const addProduct = async (
 
     // tạo object category
     category = {
-category_id: categoryInDB._id,
+      category_id: categoryInDB._id,
       category_name: categoryInDB.name,
     };
 
@@ -257,13 +257,129 @@ const getProductsByCategory = async (id) => {
       "category.category_id": new Types.ObjectId(id),
     };
     console.log(query);
-const products = await ProductModel.find(query);
+    const products = await ProductModel.find(query);
     return products;
   } catch (error) {
     console.log("findProduct error: ", error.message);
     throw new Error("Tìm kiếm sản phẩm không thành công");
   }
 };
+
+const commentProduct = async (
+  productId,
+  user,
+  rating,
+  comment,
+  images,
+  videos,
+  displayName
+) => {
+  try {
+    console.log("1");
+    const productInDB = await ProductModel.findById(productId);
+    if (!productInDB) {
+      throw new Error("Sản phẩm không tồn tại");
+    }
+
+    const userInDB = await UserModel.findById(user);
+    if (!userInDB) {
+      throw new Error("Người dùng không tồn tại");
+    }
+
+    const newComment = {
+      productId,
+      user: { _id: userInDB._id, name: userInDB.name },
+      rating,
+      comment,
+      images,
+      videos,
+      displayName,
+    };
+    console.log(user);
+    productInDB.comments.push(newComment);
+
+    await productInDB.save();
+    return productInDB;
+  } catch (error) {
+    console.error("addComment error:", error);
+    throw error;
+  }
+};
+
+const getTop10PW = async (week, year) => {
+  // Hàm tính ngày bắt đầu tuần
+  function getStartOfWeek(week, year) {
+    const firstDayOfYear = new Date(year, 0, 1);
+    const days = (week - 1) * 7;
+    const startOfWeek = new Date(
+      firstDayOfYear.setDate(firstDayOfYear.getDate() + days)
+    );
+    startOfWeek.setHours(0, 0, 0, 0);
+    return startOfWeek;
+  }
+
+  // Hàm tính ngày kết thúc tuần
+  function getEndOfWeek(week, year) {
+    const startOfWeek = getStartOfWeek(week, year);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+    return endOfWeek;
+  }
+
+  const currentDate = new Date();
+  week =
+    week ||
+    Math.ceil(
+      ((currentDate - new Date(currentDate.getFullYear(), 0, 1)) / 86400000 + 1) / 7
+    );
+  year = year || currentDate.getFullYear();
+
+  const startOfWeek = getStartOfWeek(week, year);
+  const endOfWeek = getEndOfWeek(week, year);
+
+  console.log("Start of Week:", startOfWeek);
+  console.log("End of Week:", endOfWeek);
+
+  try {
+    // Lấy các đơn hàng trong tuần
+    const orders = await OrderModel.find({
+      date: { $gte: startOfWeek, $lte: endOfWeek },
+    }).select("cart");
+
+    // Đếm tổng số lượng đã bán cho mỗi sản phẩm trong tuần
+    const productSales = {};
+
+    for (let order of orders) {
+      for (let product of order.cart[0].products) {
+        const productId = product._id;
+        const quantitySold = product.quantity;
+
+        if (productSales[productId]) {
+          productSales[productId] += quantitySold;
+        } else {
+          productSales[productId] = quantitySold;
+        }
+      }
+    }
+
+    // Lấy top 10 sản phẩm bán chạy
+    const productIds = Object.keys(productSales);
+    const topProducts = await ProductModel.find({
+      _id: { $in: productIds },
+    })
+      .select("name sold")
+      .sort({ sold: -1 })
+      .limit(10);
+
+    console.log("Top 10 Products:", topProducts);
+    return topProducts;
+  } catch (error) {
+    console.error("Error in getTop10PW:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 
 // quản lí hàng hóa
 
@@ -276,5 +392,6 @@ module.exports = {
   addProduct,
   updateProduct,
   getProductsByCategory,
-  // commentProduct,
+  commentProduct,
+  getTop10PW
 };

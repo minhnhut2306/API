@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
 const AddressSchema = new Schema({
-    contact_name : { type: String, required: true },
-    contact_phone : { type: String, required: true },
+  
+   
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",required: true,
@@ -29,4 +29,4 @@ const AddressSchema = new Schema({
     // giỏ hàng tạm
 });
 // tiếng anh, số ít, chữ thường, không dấu, không cách
-module.exports = mongoose.models.address || mongoose.model('address', AddressSchema);
+module.exports = AddressSchema;
