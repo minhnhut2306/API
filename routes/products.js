@@ -29,6 +29,16 @@ router.get("/getProductDetailById_App/:id", async (req, res, next) => {
 
 // Lấy top 10 sp bán chạy nhất trong app
 
+router.get("/getTop10PW", async (req, res, next) => {
+  try {
+    const { week, year } = req.query;
+    const products = await ProductController.getTop10PW( week, year );
+    return res.status(200).json({ status: true, data: products });
+  } catch (error) {
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
+
 router.get("/getTopProductSell", async (req, res, next) => {
   try {
     const products = await ProductController.getTopProductSell_Web();
