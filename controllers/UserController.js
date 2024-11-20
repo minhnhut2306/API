@@ -207,7 +207,7 @@ const getProfile = async (id) => {
   try {
     const user = await userModel
       .findById(id)
-      .select("name email phone birthday bio gender");
+      .select("name email phone birthday bio gender avatar");
     if (!user) {
       throw new Error("Không tim thấy user");
     }
@@ -236,7 +236,7 @@ const deleteAccount = async (emailOrPhone) => {
   }
 };
 
-const updateProfile = async (id, name, birthday, bio, gender) => {
+const updateProfile = async (id, name, birthday, bio, gender,avatar) => {
   try {
     const userUD = await userModel.findById(id);
 
@@ -248,6 +248,7 @@ const updateProfile = async (id, name, birthday, bio, gender) => {
     userUD.birthday = birthday || userUD.birthday;
     userUD.bio = bio || userUD.bio;
     userUD.gender = gender || userUD.gender;
+    userUD.avatar = avatar || userUD.avatar;
 
     await userUD.save();
 
@@ -257,6 +258,7 @@ const updateProfile = async (id, name, birthday, bio, gender) => {
     throw new Error("Cập nhật thông tin người dùng thất bại");
   }
 };
+
 const addAddress = async (
   userId,
   user,
