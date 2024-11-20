@@ -51,7 +51,18 @@ router.get('/getAllCarts', async (req, res) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+router.get('/getcartbyiduser/:userId', async (req, res) => {
+  const { userId } = req.params;
 
+  try {
+    const cart = await CartController.getCartByUserId(userId);
+    console.log('cart', cart);
+
+    res.status(200).json(cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 router.delete('/deleteCart/:id', async (req, res) => {
   try {
     const cartId = req.params.id;

@@ -245,15 +245,6 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
-router.delete('/:userId/address/:addressId', async (req, res) => {
-  try {
-    const { userId, addressId } = req.params;
-    const result = await userController.deleteAddress(userId, addressId);
-    return res.status(200).json(result);
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
 
 router.get('/getAddressById/:addressId', async (req, res) => {
   const { addressId } = req.params;
@@ -263,14 +254,59 @@ router.get('/getAddressById/:addressId', async (req, res) => {
     const result = await userController.getAddressById(addressId);
     console.log('result', result);
     if (result.status === 200) {
-      res.status(200).json(result.data); 
+      res.status(200).json(result.data);
     } else {
-      res.status(result.status).json({ message: result.message });  
+      res.status(result.status).json({ message: result.message });
     }
   } catch (error) {
     console.error('Error in route getAddressById:', error.message);
-    res.status(500).json({ message: 'Lỗi server: ' + error.message });  
+    res.status(500).json({ message: 'Lỗi server: ' + error.message });
   }
 });
+router.put('/updateAddress/:userId/:addressId', async (req, res) => {
+  const { userId, addressId } = req.params;
+  const { name, phone } = req.body.user;
+  const { houseNumber, alley, quarter, district, city, country } = req.body;
+
+  // Log incoming request data
+  console.log("Received update request:", { userId, addressId, user: req.body.user });
+
+  try {
+    const updatedAddress = await userController.updateAddress(
+      userId,
+      addressId,
+      { name, phone },
+      houseNumber,
+      alley,
+      quarter,
+      district,
+      city,
+      country
+    );
+
+    console.log("Updated address from controller:", updatedAddress);
+    if (updatedAddress) {
+      res.status(200).json({ message: 'Địa chỉ đã được cập nhật', addressId: updatedAddress });
+    } else {
+      res.status(400).json({ message: 'Lỗi cập nhật địa chỉ' });
+    }
+  } catch (error) {
+    console.error('Update address error:', error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.delete('/deleteAddress/:userId/:addressId', async (req, res) => {
+  const { userId, addressId } = req.params;
+
+  try {
+    const result = await userController.deleteAddress(userId, addressId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Delete address error:', error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
 
 module.exports = router;

@@ -3,6 +3,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const AppConstants = require("../helpers/AppConstants");
 const UserModel = require("./UserModel");
 const ProductModel = require("./ProductModel");
+const mongoose = require('mongoose');
 // const AddressModel = require("./AddressModel");
 
 //________________________________________APP_______________________________________
@@ -140,10 +141,28 @@ const getAllCart = async () => {
     }
     return carts
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách giỏ hàng:", error); // In chi tiết lỗi ra console
+    console.error("Lỗi khi lấy danh sách giỏ hàng:", error); 
     throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
+
+const getCartByUserId = async (userId) => {
+  try {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const cart = await CartModel.find({ 'user._id': userObjectId });
+
+    if (!cart) {
+      throw new Error("Không tìm thấy giỏ hàng cho người dùng này");
+    }
+
+    return cart;
+  } catch (error) {
+    console.error("Lỗi khi lấy giỏ hàng theo ID người dùng:", error); 
+    throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
+  }
+};
+
 
 const deleteCart = async (id) => {
   try {
@@ -154,7 +173,7 @@ const deleteCart = async (id) => {
     await CartModel.deleteOne({ _id: id });
     return true;
   } catch (error) {
-    console.error("Lỗi khi lấy giỏ hàng:", error); // In chi tiết lỗi ra console
+    console.error("Lỗi khi lấy giỏ hàng:", error); 
     throw new Error("Xóa Cart thất bại.");
   }
 }
@@ -180,4 +199,5 @@ module.exports = {
   getAllCart,
   deleteCart,
   getCarts,
+  getCartByUserId,
 };

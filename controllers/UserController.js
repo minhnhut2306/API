@@ -5,6 +5,8 @@ const productModel = require("./ProductModel");
 const bcrypt = require("bcryptjs");
 const UserModel = require("./UserModel");
 
+const { ObjectId } = require('mongodb'); 
+
 // const register = async (email, password, name, phone) => {
 //   try {
 //     //check email
@@ -298,6 +300,7 @@ const addAddress = async (
   }
 };
 
+
 // lấy danh sách danh mục
 const getAddress = async (userId) => {
   try {
@@ -317,20 +320,20 @@ const getAddress = async (userId) => {
 
 const getCartById = async (userId) => {
   try {
-    // Kiểm tra xem người dùng có tồn tại không
+
     const userIndb = await userModel.findById(userId);
     if (!userIndb) {
       throw new Error("Không tìm thấy người dùng");
     }
-    // Tìm cart của người dùng theo userId
-    const cart = await CartModel.findOne({ user: userId }); // Sửa từ userId thành user
+
+    const cart = await CartModel.findOne({ user: userId });
     if (!cart) {
       throw new Error("Giỏ hàng không tồn tại cho người dùng này");
     }
 
-    return cart; // Trả về cart
+    return cart;
   } catch (error) {
-    console.error("Lỗi khi lấy cart:", error.message); // In chi tiết lỗi ra console
+    console.error("Lỗi khi lấy cart:", error.message); 
     throw new Error("Có lỗi xảy ra trong quá trình lấy cart.");
   }
 };
@@ -425,44 +428,12 @@ const changePassword = async (id, password, newPassword) => {
   return { message: "Đổi mật khẩu thành công" };
 };
 
-
-
-const deleteAddress = async (email, addressId) => {
-  try {
-    // Kiểm tra nếu `addressId` không hợp lệ
-    if (!addressId) {
-      throw new Error("ID không hợp lệ");
-    }
-
-    // Tìm user theo email
-    const user = await userModel.findOne({ email });
-    if (!user) {
-      throw new Error("Người dùng không tồn tại");
-    }
-
-    // Kiểm tra địa chỉ có tồn tại trong user hay không
-    const addressIndex = user.address.findIndex(address => address._id.toString() === addressId);
-    if (addressIndex === -1) {
-      throw new Error("Địa chỉ không tồn tại trong danh sách của người dùng");
-    }
-
-    // Xóa địa chỉ trong mảng address của user
-    user.address.splice(addressIndex, 1);
-    await user.save();
-
-    return { status: true, message: "Xóa địa chỉ thành công" };
-  } catch (error) {
-    console.error("deleteAddress: ", error.message);
-    throw new Error(`Xóa address lỗi: ${error.message}`);
-  }
-};
-
 const getAddressById = async (addressId) => {
   try {
     const user = await UserModel.findOne({ 'address._id': addressId }).populate('address.userId');
-    
+
     if (!user) {
-      return { status: 404, message: 'Không tìm thấy địa chỉ' };  
+      return { status: 404, message: 'Không tìm thấy địa chỉ' };
     }
     const address = user.address.find(addr => addr._id.toString() === addressId);
     if (!address) {
@@ -470,7 +441,7 @@ const getAddressById = async (addressId) => {
     }
     const addressData = {
       _id: address._id,
-      user: address.user, 
+      user: address.user,
       houseNumber: address.houseNumber,
       alley: address.alley,
       quarter: address.quarter,
@@ -485,9 +456,79 @@ const getAddressById = async (addressId) => {
     return { status: 200, data: addressData };
   } catch (error) {
     console.error('Error fetching address: ', error.message);
-    return { status: 500, message: 'Lỗi server: ' + error.message }; 
+    return { status: 500, message: 'Lỗi server: ' + error.message };
   }
 };
+const updateAddress = async (
+  userId,
+  addressId,
+  user,
+  houseNumber,
+  alley,
+  quarter,
+  district,
+  city,
+  country
+) => {
+  try {
+    const userIndb = await userModel.findById(userId);
+    if (!userIndb) {
+      throw new Error("Người dùng không tồn tại");
+    }
+    console.log("User Addresses:", userIndb.address);
+    const address = userIndb.address.find((address) => address._id.toString() === addressId.toString());
+    
+    if (!address) {
+      userIndb.address.push({
+        _id: addressId,
+        user: { name: user.name, phone: user.phone },
+        houseNumber,
+        alley,
+        quarter,
+        district,
+        city,
+        country,
+        userId,
+      });
+    } else {
+      address.user = { name: user.name, phone: user.phone };
+      address.houseNumber = houseNumber;
+      address.alley = alley;
+      address.quarter = quarter;
+      address.district = district;
+      address.city = city;
+      address.country = country;
+    }
+
+    await userIndb.save();
+    return address || userIndb.address[userIndb.address.length - 1]; 
+  } catch (error) {
+    console.error("updateAddress error:", error.message);
+    throw error;
+  }
+};
+
+
+
+const deleteAddress = async (userId, addressId) => {
+  try {
+    const userIndb = await userModel.findById(userId);
+    if (!userIndb) {
+      throw new Error("Người dùng không tồn tại");
+    }
+
+    userIndb.address = userIndb.address.filter(address => address._id.toString() !== addressId);
+
+    await userIndb.save();
+
+    return { message: "Địa chỉ đã được xóa" };
+  } catch (error) {
+    console.error("deleteAddress error:", error);
+    throw error;
+  }
+};
+
+
 
 
 
@@ -505,5 +546,6 @@ module.exports = {
   addCart,
   changePassword,
   deleteAddress,
-  getAddressById
+  getAddressById,
+  updateAddress
 };
