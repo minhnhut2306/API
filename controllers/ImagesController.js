@@ -1,9 +1,12 @@
 // controllers/imagesController.js
 const Image = require('../controllers/ImagesModel');
 const Video = require('../controllers/VideoModel');
-const fs = require('fs');
+const fs = require('fs').promises;
 const multer = require('multer');
 const path = require('path');
+const { promisify } = require('util');
+const access = promisify(fs.access);  // Đảm bảo promisify được thực hiện đúng.
+const unlink = promisify(fs.unlink);  // Đảm bảo promisify được thực hiện đúng.
 
 // Hàm để upload ảnh
 const uploadImage = async (req, res) => {
@@ -43,40 +46,56 @@ const getUserImages = async (req, res) => {
 
 // Hàm để xóa ảnh
 const deleteImage = async (req, res) => {
-    const imageId = req.params.id; // Lấy imageId từ tham số URL
-  
-    try {
+  const imageId = req.params.id;
+
+  try {
       // Kiểm tra nếu ID ảnh hợp lệ
       const image = await Image.findById(imageId);
       if (!image) {
-        return res.status(404).json({ message: 'Không tìm thấy ảnh' });
+          return res.status(404).json({ message: 'Không tìm thấy ảnh' });
       }
-  
-      // Đảm bảo file ảnh tồn tại trước khi cố gắng xóa
-      const filePath = path.join(__dirname, '..', image.imageUrl);
-  
-      try {
-        // Kiểm tra xem file có tồn tại không
-        await fs.access(filePath);
-        
-        // Xóa file ảnh khỏi thư mục uploads
-        await fs.unlink(filePath);
-        console.log('Ảnh đã được xóa khỏi hệ thống');
-      } catch (err) {
-        console.error('Không thể xóa ảnh khỏi hệ thống', err);
-        return res.status(500).json({ message: 'Không thể xóa ảnh khỏi hệ thống', error: err });
+
+      // Kiểm tra nếu imageUrl tồn tại và có giá trị hợp lệ
+      if (image.imageUrl) {
+          if (image.imageUrl.startsWith('http')) {
+              // Xử lý xóa nếu URL là từ dịch vụ lưu trữ bên ngoài (như Cloudinary)
+              const publicId = image.imageUrl.split('/').slice(-1)[0].split('.')[0];
+              try {
+                  await cloudinary.uploader.destroy(publicId);
+                  console.log('Ảnh đã được xóa khỏi Cloudinary');
+              } catch (err) {
+                  console.error('Lỗi khi xóa ảnh khỏi Cloudinary:', err);
+                  return res.status(500).json({ message: 'Lỗi khi xóa ảnh từ Cloudinary', error: err.message });
+              }
+          } else {
+              // Xử lý nếu là file cục bộ
+              const filePath = path.join(__dirname, '..', image.imageUrl);
+              try {
+                  await fs.access(filePath); // Kiểm tra xem file có tồn tại không
+                  await fs.unlink(filePath); // Xóa file khỏi hệ thống
+                  console.log('Ảnh đã được xóa khỏi hệ thống tệp cục bộ');
+              } catch (err) {
+                  if (err.code === 'ENOENT') {
+                      console.warn('Tệp không tồn tại, không cần xóa');
+                  } else {
+                      console.error('Lỗi khi xóa ảnh khỏi hệ thống tệp cục bộ:', err);
+                      return res.status(500).json({ message: 'Không thể xóa ảnh khỏi hệ thống tệp cục bộ', error: err.message });
+                  }
+              }
+          }
+      } else {
+          console.warn('Không tìm thấy imageUrl hợp lệ để xóa');
       }
-  
+
       // Xóa ảnh khỏi database
       await Image.findByIdAndDelete(imageId);
-      res.status(200).json({ message: 'Ảnh đã được xóa' });
-  
-    } catch (error) {
+      res.status(200).json({ message: 'Ảnh đã được xóa thành công' });
+
+  } catch (error) {
       console.error('Lỗi khi xóa ảnh:', error);
       res.status(500).json({ message: 'Không thể xóa ảnh', error });
-    }
-  };
-
+  }
+};
 
 // Hàm để upload video
 const uploadVideo = async (req, res) => {
@@ -104,51 +123,67 @@ const uploadVideo = async (req, res) => {
 };
 
 
+
+
+
 const deleteVideo = async (req, res) => {
-    const videoId = req.params.id; // Lấy ID video từ URL
-  
-    try {
+  const videoId = req.params.id; // Lấy ID video từ URL
+
+  try {
       // Tìm video trong cơ sở dữ liệu
-      const video = await Video.findById(videoId); // Thay 'Video' bằng model của bạn
+      const video = await Video.findById(videoId);
       if (!video) {
-        console.error('Video không tìm thấy');
-        return res.status(404).json({ message: 'Video không tìm thấy' });
+          console.error('Video không tìm thấy');
+          return res.status(404).json({ message: 'Video không tìm thấy' });
       }
-  
-      // Tạo đường dẫn đến tệp video
-      const filePath = path.join(__dirname, '..', video.videoUrl);
-  
-      // Kiểm tra xem tệp có tồn tại không
-      fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (err) {
-          console.error('Tệp không tồn tại:', err);
-          return res.status(404).json({ message: 'Tệp video không tồn tại' });
-        }
-  
-        // Xóa tệp video
-        fs.unlink(filePath, async (err) => {
-          if (err) {
-            console.error('Không thể xóa video:', err);
-            return res.status(500).json({ message: 'Không thể xóa video', error: err });
+
+      // Kiểm tra nếu videoUrl tồn tại và không phải undefined
+      if (video.videoUrl) {
+          if (video.videoUrl.startsWith('http')) {
+              // Nếu videoUrl là URL từ dịch vụ bên ngoài, bỏ qua kiểm tra tệp cục bộ
+              const publicId = video.videoUrl.split('/').slice(-1)[0].split('.')[0];
+              try {
+                  // Xóa video từ Cloudinary (hoặc dịch vụ khác)
+                  await cloudinary.uploader.destroy(publicId);
+                  console.log('Video đã được xóa khỏi Cloudinary');
+              } catch (err) {
+                  console.error('Lỗi khi xóa video khỏi Cloudinary:', err);
+                  return res.status(500).json({ message: 'Lỗi khi xóa video từ Cloudinary', error: err.message });
+              }
+          } else {
+              // Nếu videoUrl là đường dẫn tệp cục bộ
+              const filePath = path.join(__dirname, '..', video.videoUrl);
+
+              try {
+                  // Kiểm tra sự tồn tại của tệp
+                  await fs.access(filePath, fs.constants.F_OK); // Kiểm tra file có tồn tại không
+                  await fs.unlink(filePath); // Xóa tệp nếu tồn tại
+                  console.log('Video đã được xóa khỏi hệ thống tệp cục bộ');
+              } catch (err) {
+                  if (err.code === 'ENOENT') {
+                      console.warn('Tệp video không tồn tại, bỏ qua bước xóa');
+                  } else {
+                      console.error('Không thể xóa video khỏi hệ thống tệp cục bộ:', err);
+                      return res.status(500).json({ message: 'Không thể xóa video khỏi hệ thống tệp cục bộ', error: err.message });
+                  }
+              }
           }
-  
-          console.log('Video đã được xóa khỏi hệ thống');
-  
-          try {
-            // Xóa video khỏi cơ sở dữ liệu
-            await Video.findByIdAndDelete(videoId);
-            return res.status(200).json({ message: 'Video đã được xóa thành công' });
-          } catch (deleteError) {
-            console.error('Lỗi khi xóa video trong cơ sở dữ liệu:', deleteError);
-            return res.status(500).json({ message: 'Lỗi khi xóa video trong cơ sở dữ liệu', error: deleteError });
-          }
-        });
-      });
-    } catch (error) {
+      } else {
+          console.warn('Không tìm thấy videoUrl hợp lệ để xóa');
+      }
+
+      // Xóa video khỏi cơ sở dữ liệu
+      await Video.findByIdAndDelete(videoId);
+      res.status(200).json({ message: 'Video đã được xóa thành công' });
+
+  } catch (error) {
       console.error('Lỗi khi xóa video:', error);
-      res.status(500).json({ message: 'Lỗi khi xóa video', error: error });
-    }
-  };
+      res.status(500).json({ message: 'Lỗi khi xóa video', error });
+  }
+};
+
+
+
 
 // Hàm để lấy tất cả video của một người dùng
 const getUserVideos = async (req, res) => {
