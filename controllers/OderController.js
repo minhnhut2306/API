@@ -57,12 +57,10 @@ const addOrder = async (cart, userId, ship, sale) => {
 
     for (let itemId of cart) {
       const cartO = await CartModel.findById(itemId);
-
       if (!cartO) {
         console.log(`Không tìm thấy giỏ hàng với id: ${itemId}`);
         throw new Error("Không tìm thấy giỏ hàng");
       }
-
       total += cartO.total || 0;
       const cartItem = {
         _id: cartO._id,
@@ -76,13 +74,10 @@ const addOrder = async (cart, userId, ship, sale) => {
 
     // Tính phí vận chuyển
     let shippingFee = 0;
-    if (ship === 1) {
-      shippingFee = 8000;
-    } else if (ship === 2) {
-      shippingFee = 10000;
-    } else if (ship === 3) {
-      shippingFee = 20000;
-    }
+    if (ship === 1) shippingFee = 8000;
+    else if (ship === 2) shippingFee = 10000;
+    else if (ship === 3) shippingFee = 20000;
+
     let totalOrder = total + shippingFee;
 
     // Tính giảm giá
@@ -97,19 +92,15 @@ const addOrder = async (cart, userId, ship, sale) => {
           item.discountPercent <= 100
         ) {
           return sum + (totalOrder * item.discountPercent) / 100;
-        } else {
-          return sum;
         }
+        return sum;
       }, 0);
       totalOrder -= totalDiscount;
-      if (totalOrder < 0) {
-        totalOrder = 0;
-      }
+      totalOrder = totalOrder < 0 ? 0 : totalOrder;
     } else {
       throw new Error("Sale phải là một mảng");
     }
 
-    // Tạo đơn hàng
     const order = new OrderModel({
       cart: cartInOrder,
       ship,
@@ -119,10 +110,9 @@ const addOrder = async (cart, userId, ship, sale) => {
     });
     const result = await order.save();
 
-    // Cập nhật số lượng `sold` cho các sản phẩm
     for (let cartItem of cartInOrder) {
       for (let productItem of cartItem.products) {
-        const productId = productItem.productId || productItem._id; // Hỗ trợ cả productId và _id
+        const productId = productItem.productId || productItem._id; 
         if (!productId) {
           console.error(`Sản phẩm thiếu ID: ${JSON.stringify(productItem)}`);
           continue;
@@ -138,7 +128,6 @@ const addOrder = async (cart, userId, ship, sale) => {
         }
       }
     }
-    
 
     // Cập nhật lịch sử mua hàng của người dùng
     const userInDB = await UserModel.findById(userId);
@@ -164,13 +153,10 @@ const addOrder = async (cart, userId, ship, sale) => {
 
     return result;
   } catch (error) {
-    console.log(error.message);
+    console.error("Error adding order:", error.message);
     throw new Error(error.message || "Thêm đơn hàng thất bại");
   }
 };
-
-
-
 
 
 

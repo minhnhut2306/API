@@ -3,53 +3,53 @@ var router = express.Router();
 const mongoose = require('mongoose');
 //http://localhost:6677/carts
 const CartController = require('../controllers/CartController');
+const CartModel = require('../controllers/CartModel');
 
 router.post('/addCart_App', async (req, res, next) => {
-    try {
-        const { user, products } = req.body;
-        
-        const result = await CartController.addCart(user, products);
-        return res.status(200).json({ status: true, data: result });
-    } catch (error) {
-        console.log(error.message);
-        return res.status(500).json({ status: false, data: error.message });
-    }
+  try {
+    const { user, products } = req.body;
+
+    const result = await CartController.addCart(user, products);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
 });
 
 // cập nhật trạng thái đơn hàng 
-router.post('/:id/update',async(req,res,next)=>{
-    try {
-        const{id} =req.params;
-        const{status} = req.body;
-        const result = await CartController.updateCarts(id,status);
-        return res.status(200).json({ status: true, data: result });
+router.post('/:id/update', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const result = await CartController.updateCarts(id, status);
+    return res.status(200).json({ status: true, data: result });
 
-    } catch (error) {
-        console.log(error.message);
-        return res.status(500).json({ status: false, data: error.message });
-
-        
-        
-    }
-});
-router.get('/QuanLiHangHoa', async (req, res) => {
-    try {
-      const result = await CartController.QuanLyHangHoa();
-      return res.status(200).json({ status: true, data: result });
   } catch (error) {
-      console.log(error.message);
-      return res.status(500).json({ status: false, data: error.message });
+    console.log(error.message);
+    return res.status(500).json({ status: false, data: error.message });
+
   }
-  });
+});
+
+router.get('/QuanLiHangHoa', async (req, res) => {
+  try {
+    const result = await CartController.QuanLyHangHoa();
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 // 
-  router.get('/getAllCarts', async (req, res) => {
-    try {
-        const result = await CartController.getAllCart();
-        return res.status(200).json({ status: true, data: result });
-    } catch (error) {
-        console.log(error.message);
-        return res.status(500).json({ status: false, data: error.message });
-    }
+router.get('/getAllCarts', async (req, res) => {
+  try {
+    const result = await CartController.getAllCart();
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
 });
 
 router.delete('/deleteCart/:id', async (req, res) => {
@@ -83,11 +83,30 @@ router.get("/getCarts", async (req, res, next) => {
     return res.status(500).json({
       status: false,
       message: "Lỗi khi lấy danh sách giỏ hàng",
-      error: error.message, 
+      error: error.message,
     });
   }
 });
 
+router.get('/getCartById', async (req, res) => {
+  const { cartIds } = req.query;
+
+  if (!cartIds) {
+    return res.status(400).json({ message: 'Không có ID giỏ hàng' });
+  }
+
+  const ids = cartIds.split(',');
+  try {
+    const carts = await CartModel.find({ '_id': { $in: ids } });
+    if (!carts || carts.length === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy giỏ hàng' });
+    }
+    res.json(carts);
+  } catch (error) {
+    console.error('Lỗi khi lấy giỏ hàng:', error);
+    res.status(500).json({ message: 'Lỗi server' });
+  }
+});
 
 
 module.exports = router;

@@ -3,6 +3,7 @@ const userModel = require("./UserModel");
 const CartModel = require("./CartModel");
 const productModel = require("./ProductModel");
 const bcrypt = require("bcryptjs");
+const UserModel = require("./UserModel");
 
 // const register = async (email, password, name, phone) => {
 //   try {
@@ -254,7 +255,6 @@ const updateProfile = async (id, name, birthday, bio, gender) => {
     throw new Error("Cập nhật thông tin người dùng thất bại");
   }
 };
-
 const addAddress = async (
   userId,
   user,
@@ -266,40 +266,20 @@ const addAddress = async (
   country
 ) => {
   try {
-    console.log("1");
-
-    // Kiểm tra người dùng có tồn tại không
+    console.log("User data:", user);
     const userIndb = await userModel.findById(userId);
     if (!userIndb) {
       throw new Error("Người dùng không tồn tại");
     }
 
-    // Kiểm tra định dạng số điện thoại
-    const phoneRegex = /^[0-9]{10,11}$/; // Cho phép số có 10 hoặc 11 chữ số
+    const phoneRegex = /^[0-9]{10,11}$/;
     if (!phoneRegex.test(user.phone)) {
       throw new Error("Số điện thoại không hợp lệ");
     }
 
-    // Kiểm tra trong tất cả người dùng khác có số điện thoại trùng không
-    //     const existingUserWithPhone = await userModel.findOne({
-    //       _id: { $ne: userId }, // Loại trừ người dùng hiện tại
-    //       'address.user.phone': user.phone
-    //     });
-    //     console.log(user.phone);
-    //     if (existingUserWithPhone) {
-    //       throw new Error("Số điện thoại đã tồn tại trong hệ thống");
-    //     }
-    // console.log(existingUserWithPhone);
-
-    // Kiểm tra số điện thoại trùng trong địa chỉ của chính người dùng hiện tại
-    // const isPhoneDuplicateInUser = userIndb.address.some(addr => addr.user.phone === user.phone);
-    // if (isPhoneDuplicateInUser) {
-    //   throw new Error("Số điện thoại đã tồn tại trong địa chỉ của người dùng này");
-    // }
-
     const newAddress = {
       userId,
-      user: { name: userIndb.name, phone: user.phone },
+      user: { name: user.name, phone: user.phone },
       houseNumber,
       alley,
       quarter,
@@ -308,11 +288,10 @@ const addAddress = async (
       country,
     };
 
-    console.log(user);
     userIndb.address.push(newAddress);
 
     await userIndb.save();
-    return userIndb;
+    return newAddress;
   } catch (error) {
     console.error("addAddress error:", error);
     throw error;
@@ -334,6 +313,8 @@ const getAddress = async (userId) => {
     throw new Error("Lấy địa chỉ thất bại");
   }
 };
+
+
 const getCartById = async (userId) => {
   try {
     // Kiểm tra xem người dùng có tồn tại không
@@ -476,6 +457,40 @@ const deleteAddress = async (email, addressId) => {
   }
 };
 
+const getAddressById = async (addressId) => {
+  try {
+    const user = await UserModel.findOne({ 'address._id': addressId }).populate('address.userId');
+    
+    if (!user) {
+      return { status: 404, message: 'Không tìm thấy địa chỉ' };  
+    }
+    const address = user.address.find(addr => addr._id.toString() === addressId);
+    if (!address) {
+      return { status: 404, message: 'Không tìm thấy địa chỉ' };
+    }
+    const addressData = {
+      _id: address._id,
+      user: address.user, 
+      houseNumber: address.houseNumber,
+      alley: address.alley,
+      quarter: address.quarter,
+      district: address.district,
+      city: address.city,
+      country: address.country,
+      available: address.available,
+      createdAt: address.createdAt,
+      updatedAt: address.updatedAt
+    };
+
+    return { status: 200, data: addressData };
+  } catch (error) {
+    console.error('Error fetching address: ', error.message);
+    return { status: 500, message: 'Lỗi server: ' + error.message }; 
+  }
+};
+
+
+
 module.exports = {
   register,
   login,
@@ -489,5 +504,6 @@ module.exports = {
   getCartById,
   addCart,
   changePassword,
-  deleteAddress
+  deleteAddress,
+  getAddressById
 };
