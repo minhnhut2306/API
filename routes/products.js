@@ -29,6 +29,16 @@ router.get("/getProductDetailById_App/:id", async (req, res, next) => {
 
 // Lấy top 10 sp bán chạy nhất trong app
 
+router.get("/getTop10PW", async (req, res, next) => {
+  try {
+    const { week, year } = req.query;
+    const products = await ProductController.getTop10PW( week, year );
+    return res.status(200).json({ status: true, data: products });
+  } catch (error) {
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
+
 router.get("/getTopProductSell", async (req, res, next) => {
   try {
     const products = await ProductController.getTopProductSell_Web();
@@ -169,6 +179,28 @@ router.put(
     }
   }
 );
+
+// router.post("/:productId/commentProduct", async (req, res, next) => {
+//   try {
+//     const { productId } = req.params;
+//     const { user, rating, comment, images, videos, displayName } = req.body;
+    
+//     const comments = await ProductController.commentProduct(
+//       productId,
+//       user,
+//       rating,
+//       comment,
+//       images,
+//       videos,
+//       displayName
+//     );
+
+//     return res.status(200).json({ status: true, data: comments });
+//   } catch (error) {
+//     console.error("Thêm bình luận error:", error.message); // Sửa thành error.message
+//     return res.status(500).json({ status: false, data: error.message }); // Sửa thành error.message
+//   }
+// });
 // router.get('category/:id/GetProduct', async (req, res, next) => {
 //   try {
 //       const { id } = req.query;

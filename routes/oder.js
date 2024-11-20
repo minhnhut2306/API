@@ -30,7 +30,7 @@ router.get("/:id/getOrderById", async (req, res, next) => {
  * url: http://localhost:6677/categories
  * trả về:
  */
- router.post("/addOrder", async (req, res, next) => {
+router.post("/addOrder", async (req, res, next) => {
   try {
     const { cart, userId, ship, sale } = req.body;
 
