@@ -16,7 +16,7 @@ const uploadImage = async (req, res) => {
 
         const imageUrl = req.body.imageUrl || `/uploads/${req.file?.filename}`;
         if (!imageUrl) {
-            return res.status(400).json({ message: 'Please provide an image URL or upload a file.' });
+            return res.status(400).json({ message: 'Hãy nhập url của ảnh hoặc tải ảnh lên ' });
         }
 
         const image = new Image({
@@ -25,10 +25,10 @@ const uploadImage = async (req, res) => {
         });
 
         await image.save();
-        res.status(201).json({ message: 'Image uploaded successfully!', image });
+        res.status(201).json({ message: 'Tải ảnh lên thành công', image });
     } catch (error) {
-        console.error("Error uploading image:", error);
-        res.status(500).json({ message: 'Server error occurred', error: error.message || error });
+        console.error("Xảy ra lỗi khi tải ảnh", error);
+        res.status(500).json({ message: 'Lỗi tải ảnh', error: error.message || error });
     }
 };
 
