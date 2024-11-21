@@ -39,6 +39,7 @@ const UserSchema = new Schema({
   bio: { type: String, default: "" },
   gender: { type: String, default: "" },
   birthday: { type: String, required: false },
+  avatar: { type: String, default: " "},
   // carts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cart' }], // Chuyển thành mảng ObjectId
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

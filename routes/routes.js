@@ -16,6 +16,7 @@ var commentRouter = require("./comment");
 var profileRouter = require("./profile");
 var imagesRouter = require("./images");
 var payment = require("./payment");
+var search = require("./searchHistory");
 
 router.use("/users", usersRouter);
 router.use("/", indexRouter);
@@ -32,5 +33,6 @@ router.use("/comment", commentRouter);
 router.use("/profile", profileRouter);
 router.use("/images", imagesRouter);
 router.use("/payment", payment);
+router.use("/search", search);
 
 module.exports = router;

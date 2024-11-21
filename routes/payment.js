@@ -12,7 +12,7 @@ const payos = new PayOS(
 const YOUR_DOMAIN = 'http://192.168.1.10:6677';
 
 router.post('/create-payment-link', async (req, res) => {
-    const {amount, orderId, description, fullname, phone, email } = req.body;
+    const {amount, orderId, description, user } = req.body;
     const orderCode = Number(orderId);
 
     if (!orderId || isNaN(orderCode) || orderCode <= 0) {
@@ -39,9 +39,7 @@ router.post('/create-payment-link', async (req, res) => {
                 description: description || 'Không có mô tả',
                 redirectUrl: order.redirectUrl,
                 status: 1,
-                fullname: fullname,
-                phone: phone,
-                email: email,
+                user: user
             });
             await payment.save();
             res.status(201).json({ paymentLink: paymentLink.checkoutUrl });
