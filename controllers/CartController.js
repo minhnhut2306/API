@@ -141,25 +141,32 @@ const getAllCart = async () => {
     }
     return carts
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách giỏ hàng:", error); 
+    console.error("Lỗi khi lấy danh sách giỏ hàng:", error);
     throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
 
 const getCartByUserId = async (userId) => {
   try {
-    const userObjectId = new mongoose.Types.ObjectId(userId);
+      // Kiểm tra xem userId có phải là một ObjectId hợp lệ không
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+          throw new Error("ID người dùng không hợp lệ.");
+      }
 
-    const cart = await CartModel.find({ 'user._id': userObjectId });
+      const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    if (!cart) {
-      throw new Error("Không tìm thấy giỏ hàng cho người dùng này");
-    }
+      // Tìm giỏ hàng theo userId
+      const cart = await CartModel.find({ 'user._id': userObjectId });
 
-    return cart;
+      // Kiểm tra xem có giỏ hàng nào được tìm thấy không
+      if (cart.length === 0) {
+          throw new Error("Không tìm thấy giỏ hàng cho người dùng này");
+      }
+
+      return cart;
   } catch (error) {
-    console.error("Lỗi khi lấy giỏ hàng theo ID người dùng:", error); 
-    throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
+      console.error("Lỗi khi lấy giỏ hàng theo ID người dùng:", error);
+      throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
 
@@ -173,10 +180,11 @@ const deleteCart = async (id) => {
     await CartModel.deleteOne({ _id: id });
     return true;
   } catch (error) {
-    console.error("Lỗi khi lấy giỏ hàng:", error); 
+    console.error("Lỗi khi lấy giỏ hàng:", error);
     throw new Error("Xóa Cart thất bại.");
   }
 }
+
 
 // lấy cart
 const getCarts = async () => {
@@ -191,6 +199,72 @@ const getCarts = async () => {
   }
 };
 
+const updateCartStatus = async (cartIds, status) => {
+  try {
+      if (!Array.isArray(cartIds) || cartIds.length === 0) {
+          throw new Error("Danh sách ID giỏ hàng không hợp lệ.");
+      }
+
+      console.log('Cart IDs:', cartIds); 
+
+      const result = await CartModel.updateMany(
+          { _id: { $in: cartIds } },
+          { status: status }
+      );
+
+      if (result) {
+          return { message: 'Cập nhật trạng thái giỏ hàng thành công', result };
+      } else {
+          throw new Error('Không tìm thấy giỏ hàng nào để cập nhật.');
+      }
+  } catch (error) {
+
+  }
+};
+const updateCartQuantity = async (cartId, productId, quantity) => {
+  try {
+      if (!quantity || quantity < 1) {
+          return { success: false, error: 'Số lượng phải lớn hơn hoặc bằng 1.' };
+      }
+      const cart = await CartModel.findById(cartId);
+
+      if (!cart) {
+          return { success: false, error: 'Giỏ hàng không tìm thấy' };
+      }
+      const productIndex = cart.products.findIndex(p => p._id.toString() === productId);
+
+      if (productIndex === -1) {
+          return { success: false, error: 'Sản phẩm không tìm thấy trong giỏ hàng' };
+      }
+      cart.products[productIndex].quantity = quantity;
+      const total = cart.products.reduce((acc, product) => {
+          const price = product.price || 0;
+          const qty = product.quantity || 0; 
+          return acc + (price * qty); 
+      }, 0);
+
+      if (isNaN(total)) {
+          throw new Error('Tổng giá trị không hợp lệ');
+      }
+
+      cart.total = total;
+      const updatedCart = await CartModel.updateOne(
+          { _id: cartId },
+          { $set: { products: cart.products, total: total } }
+      );
+
+      if (updatedCart.modifiedCount === 0) {
+          return { success: false, error: 'Không có thay đổi để cập nhật' };
+      }
+
+      return { success: true, cart: cart };
+  } catch (error) {
+      console.error(error);
+      return { success: false, error: 'Đã có lỗi xảy ra' };
+  }
+};
+
+
 
 module.exports = {
   addCart,
@@ -200,4 +274,6 @@ module.exports = {
   deleteCart,
   getCarts,
   getCartByUserId,
+  updateCartStatus,
+  updateCartQuantity
 };
