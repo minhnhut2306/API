@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const userController = require("../controllers/UserController")
+const cartController = require("../controllers/CartController")
 const {deleteAccount } = require("../controllers/UserController");
 
 
@@ -222,6 +223,51 @@ router.post("/:userId/addressNew", async (req, res, next) => {
   } catch (error) {
     console.error("Thêm địa chỉ error:", error.message); // Sửa thành error.message
     return res.status(500).json({ status: false, data: error.message }); // Sửa thành error.message
+  }
+});
+router.get('/getCartByID/:id', async (req, res) => {
+  try {
+      const userId = req.params.id; // Lấy id từ URL
+      const result = await cartController.getCartById(userId); // Truyền userId vào hàm getCartById
+      return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+      console.log(error.message);
+      return res.status(500).json({ status: false, data: error.message });
+  }
+});
+router.post('/addCart_App', async (req, res, next) => {
+  try {
+    const { userId, products } = req.body;
+    
+    if (!userId || !products) {
+      return res.status(400).json({ status: false, data: "Thiếu userId hoặc products" });
+    }
+
+    const result = await userController.addCart(userId, products);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.error("Add to cart error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
+
+router.post('/change-password', async (req, res) => {
+  const { email, password, newPassword } = req.body;
+
+  try {
+    const result = await userController.changePassword(email, password, newPassword);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+router.delete('/:userId/address/:addressId', async (req, res) => {
+  try {
+    const { userId, addressId } = req.params;  // Lấy id người dùng và địa chỉ từ URL
+    const result = await userController.deleteAddress(userId, addressId);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 

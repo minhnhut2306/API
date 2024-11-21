@@ -51,5 +51,24 @@ router.get('/QuanLiHangHoa', async (req, res) => {
     }
 });
 
-
+router.get('/getCartByID/:id', async (req, res) => {
+    try {
+      const userId = req.params.id; // Lấy id từ URL
+      const result = await CartController.getCartById(userId); // Truyền userId vào hàm getCartById
+      return res.status(200).json({ status: true, data: result });
+    } catch (error) {
+      console.log("Error in getCartByID:", error.message);
+      return res.status(500).json({ status: false, data: error.message });
+    }
+  });
+  
+router.delete("/:id/deleteCart", async (req, res) => { // Corrected syntax here
+    try {
+      const { id } = req.params;
+      const result = await CartController.deleteCart(id); // Call deleteCart function
+      return res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  });
 module.exports = router;

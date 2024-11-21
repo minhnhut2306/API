@@ -19,6 +19,6 @@ const SaleSchema = new mongoose.Schema({
     // Thời gian hết hạn khuyến mãi
     expirationDate: { type: Date, required: true},
     // Xác định khuyến mãi hết hạn
-    isExpired: { type: Boolean, default: true },
+    // isExpired: { type: Boolean, default: true },
 });
 module.exports = mongoose.models.sale || mongoose.model('sale', SaleSchema);

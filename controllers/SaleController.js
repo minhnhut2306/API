@@ -49,7 +49,7 @@ const addSale = async (
   discountPercent,
   minOrderValue,
   expirationDate,
-  isExpired
+  // isExpired
 ) => {
   try {
     // Kiểm tra các tham số
@@ -58,9 +58,9 @@ const addSale = async (
       !title ||
       typeof discountAmount !== "number" ||
       typeof discountPercent !== "number" ||
-      typeof minOrderValue !== "number" ||
-      !expirationDate ||
-      typeof isExpired !== "boolean"
+      typeof minOrderValue !== "number" 
+      // !expirationDate ||
+      // typeof isExpired !== "boolean"
     ) {
       throw new Error("Vui lòng nhập đầy đủ thông tin khuyến mãi");
     }
@@ -72,7 +72,7 @@ const addSale = async (
       discountPercent,
       minOrderValue,
       expirationDate,
-      isExpired,
+      // isExpired,
     };
 
     const newSale = new SaleModel(sale);
@@ -94,7 +94,7 @@ const updateSale = async (
   discountPercent,
   minOrderValue,
   expirationDate,
-  isExpired
+  // isExpired
 ) => {
   try {
     const saleInDB = await SaleModel.findById(id);
@@ -110,7 +110,7 @@ const updateSale = async (
     saleInDB.discountPercent = discountPercent || saleInDB.discountPercent;
     saleInDB.minOrderValue = minOrderValue || saleInDB.minOrderValue;
     saleInDB.expirationDate = expirationDate || saleInDB.expirationDate;
-    saleInDB.isExpired = isExpired !== undefined ? isExpired : saleInDB.isExpired; // Update if provided
+    // saleInDB.isExpired = isExpired !== undefined ? isExpired : saleInDB.isExpired; // Update if provided
 
     await saleInDB.save();
     return saleInDB;
