@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const userController = require("../controllers/UserController")
-const {deleteAccount } = require("../controllers/UserController");
+const { deleteAccount } = require("../controllers/UserController");
 
 
 /* GET 
@@ -135,15 +135,15 @@ router.delete("/delete-account", async (req, res) => {
 });
 
 router.put("/:id/updateProfile", async (req, res, next) => {
-try {
-  const { id } = req.params;
-  const{ name, birthday, bio, gender } = req.body
-  const result = await userController.updateProfile(id, name, birthday, bio, gender);
-  return res.status(200).json({ status: true, data: result });
-} catch (error) {
-  console.log("UpdateProfile error:", error.message);
+  try {
+    const { id } = req.params;
+    const { name, birthday, bio, gender,avatar } = req.body
+    const result = await userController.updateProfile(id, name, birthday, bio, gender,avatar);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log("UpdateProfile error:", error.message);
     return res.status(500).json({ status: false, data: error.message });
-}
+  }
 });
 
 router.get("/:id/getProfileApp", async (req, res, next) => {
@@ -161,7 +161,7 @@ router.get("/:id/getProfileApp", async (req, res, next) => {
 // router.post('/addCart_App', async (req, res, next) => {
 //   try {
 //     const { user, products } = req.body;
-    
+
 //     if (!user || !products) {
 //       return res.status(400).json({ status: false, data: "Thiếu user hoặc products" });
 //     }
@@ -184,7 +184,12 @@ router.post("/:userId/addressNew", async (req, res, next) => {
       quarter,
       district,
       city,
-      country, } = req.body;
+      country,
+    } = req.body;
+
+    if (!user || !user.phone) {
+      throw new Error("User data is missing or incomplete");
+    }
 
     const address = await userController.addAddress(
       userId,
@@ -194,26 +199,40 @@ router.post("/:userId/addressNew", async (req, res, next) => {
       quarter,
       district,
       city,
-      country,
+      country
     );
+    console.log('thêm thành công address', address);
 
-    return res.status(200).json({ status: true, data: address });
+    return res.status(200).json({
+      status: true,
+      message: "Address added successfully",
+      address,
+    });
+
+
   } catch (error) {
-    console.error("Thêm địa chỉ error:", error.message); 
-    return res.status(500).json({ status: false, data: error.message }); 
+    console.error("Thêm địa chỉ error:", error.message);
+    return res.status(500).json({ status: false, message: error.message });
   }
 });
+
 
 router.get("/getAddress/:userId", async (req, res, next) => {
   try {
     const { userId } = req.params;
     const user = await userController.getAddress(userId);
+
+    if (!user || user.length === 0) {
+      return res.status(404).json({ status: false, message: "No address found for this user" });
+    }
+
     return res.status(200).json({ status: true, data: user });
   } catch (error) {
-    console.log("Get address error: ", error.massage);
-    return res.status(500).json({ status: false, data: error.massage });
+    console.log("Get address error: ", error.message);
+    return res.status(500).json({ status: false, message: error.message });
   }
 });
+
 
 router.post('/change-password', async (req, res) => {
   const { id, password, newPassword } = req.body;
@@ -226,13 +245,66 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
-router.delete('/:userId/address/:addressId', async (req, res) => {
+
+router.get('/getAddressById/:addressId', async (req, res) => {
+  const { addressId } = req.params;
+  console.log('getAddressById', addressId);
+
   try {
-    const { userId, addressId } = req.params;  // Lấy id người dùng và địa chỉ từ URL
-    const result = await userController.deleteAddress(userId, addressId);
-    return res.status(200).json(result);
+    const result = await userController.getAddressById(addressId);
+    console.log('result', result);
+    if (result.status === 200) {
+      res.status(200).json(result.data);
+    } else {
+      res.status(result.status).json({ message: result.message });
+    }
   } catch (error) {
-    return res.status(400).json({ error: error.message });
+    console.error('Error in route getAddressById:', error.message);
+    res.status(500).json({ message: 'Lỗi server: ' + error.message });
+  }
+});
+router.put('/updateAddress/:userId/:addressId', async (req, res) => {
+  const { userId, addressId } = req.params;
+  const { name, phone } = req.body.user;
+  const { houseNumber, alley, quarter, district, city, country } = req.body;
+
+  // Log incoming request data
+  console.log("Received update request:", { userId, addressId, user: req.body.user });
+
+  try {
+    const updatedAddress = await userController.updateAddress(
+      userId,
+      addressId,
+      { name, phone },
+      houseNumber,
+      alley,
+      quarter,
+      district,
+      city,
+      country
+    );
+
+    console.log("Updated address from controller:", updatedAddress);
+    if (updatedAddress) {
+      res.status(200).json({ message: 'Địa chỉ đã được cập nhật', addressId: updatedAddress });
+    } else {
+      res.status(400).json({ message: 'Lỗi cập nhật địa chỉ' });
+    }
+  } catch (error) {
+    console.error('Update address error:', error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.delete('/deleteAddress/:userId/:addressId', async (req, res) => {
+  const { userId, addressId } = req.params;
+
+  try {
+    const result = await userController.deleteAddress(userId, addressId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Delete address error:', error);
+    res.status(400).json({ message: error.message });
   }
 });
 

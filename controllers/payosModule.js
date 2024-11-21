@@ -11,9 +11,7 @@ const paymentSchema = new mongoose.Schema({
         enum: [0, 1, 2],
         default: 1
     },
-    fullname: { type: String, required: true },
-    phone: { type: String, required: true },
-    email: { type: String, required: true },
+    user: {type: Object, require: true},
 }, { timestamps: true });
 
 const Payment = mongoose.model('Payment', paymentSchema);

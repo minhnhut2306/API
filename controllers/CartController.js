@@ -3,39 +3,43 @@ const ObjectId = require("mongoose").Types.ObjectId;
 const AppConstants = require("../helpers/AppConstants");
 const UserModel = require("./UserModel");
 const ProductModel = require("./ProductModel");
+const mongoose = require('mongoose');
 // const AddressModel = require("./AddressModel");
 
 //________________________________________APP_______________________________________
 
 //thêm cart
-const addCart = async (user, products) => {
+const addCart = async (userId, products) => {
   try {
-    // user: user id của người mua
-    // products: mảng id của sản phẩm và số lượng mua
-    console.log(products)
-    const userInDB = await UserModel.findById(user);
+    // Kiểm tra xem người dùng có tồn tại không
+    const userInDB = await UserModel.findById(userId);
     if (!userInDB) {
-      throw new Error("User not found");
+      throw new Error("Người dùng không tồn tại");
     }
-    console.log("user", user);
-    // kiểm tra products có phải là mảng hay không
-    console.log("Products", products);
+
+    // Kiểm tra nếu products là một mảng
     if (!Array.isArray(products)) {
-      throw new Error("Products must be an array");
+      throw new Error("Danh sách sản phẩm phải là một mảng");
     }
+
     let productsInCart = [];
     let total = 0;
+
+    // Lặp qua từng sản phẩm để kiểm tra và thêm vào giỏ hàng
     for (let index = 0; index < products.length; index++) {
-      //thầy dùng mảng để chắc chắn tất cả các sp đều được duyệt qua
       const item = products[index];
-      const product = await ProductModel.findById(item._id);
+      const product = await ProductModel.findById(item.id); // Tìm sản phẩm theo ID
+
       if (!product) {
-        throw new Error("Không tìm thấy sp");
+        throw new Error(`Không tìm thấy sản phẩm với ID: ${item.id}`);
       }
 
+      // Kiểm tra nếu số lượng sản phẩm yêu cầu vượt quá số lượng trong kho
       if (item.quantity > product.quantity) {
-        throw new Error("Vượt quá số lượng trong kho");
+        throw new Error(`Sản phẩm ${product.name} không đủ số lượng trong kho`);
       }
+
+      // Tạo đối tượng sản phẩm trong giỏ hàng
       const productItem = {
         _id: product._id,
         name: product.name,
@@ -44,43 +48,29 @@ const addCart = async (user, products) => {
         quantity: item.quantity,
         images: product.images
       };
+
+      // Thêm sản phẩm vào giỏ hàng
       productsInCart.push(productItem);
       total += product.price * item.quantity;
     }
-    // const addressInDB = await AddressModel.findById(address);
 
-    // console.log(address);
-
-    // if (!addressInDB) {
-    //   throw new Error("address not found");
-    // }
-    // tạo giỏ hàng mới
+    // Tạo đối tượng Cart mới
     const cart = new CartModel({
       user: { _id: userInDB._id, name: userInDB.name },
       products: productsInCart,
-      // address: {
-      //   _id: addressInDB._id,
-      //   houseNumber: addressInDB.houseNumber,
-      //   alley: addressInDB.alley,
-      //   quarter: addressInDB.quarter,
-      //   district: addressInDB.district,
-      //   city: addressInDB.city,
-      //   country: addressInDB.country,
-      // },
       total,
     });
+
+    // Lưu giỏ hàng vào cơ sở dữ liệu
     const result = await cart.save();
 
-
-  
-
-
-    return result;
+    return result; // Trả về kết quả khi lưu thành công
   } catch (error) {
-    console.log(error);
-    throw new Error("Add to cart failed");
+    console.error('Lỗi khi thêm sản phẩm vào giỏ hàng:', error);
+    throw new Error(error.message || "Thêm sản phẩm vào giỏ hàng thất bại");
   }
 };
+
 // cập nhật trangj thái đơn hàng 
 const updateCarts = async (id, status) => {
   try {
@@ -101,9 +91,9 @@ const updateCarts = async (id, status) => {
     let result = await cart.save();
     return result;
   } catch (error) {
-      console.log(error);
-      throw new Error("Cập nhật trạng thái đơn hàng thất bại");
-      
+    console.log(error);
+    throw new Error("Cập nhật trạng thái đơn hàng thất bại");
+
   }
 };
 const QuanLyHangHoa = async (productQuery, userQuery) => {
@@ -145,42 +135,62 @@ const QuanLyHangHoa = async (productQuery, userQuery) => {
 
 const getAllCart = async () => {
   try {
-      const carts = await CartModel.find();
-      if(!carts){
-        throw new Error("Không giỏ hàng");
-      }
-      return carts
+    const carts = await CartModel.find();
+    if (!carts) {
+      throw new Error("Không giỏ hàng");
+    }
+    return carts
   } catch (error) {
-      console.error("Lỗi khi lấy danh sách giỏ hàng:", error); // In chi tiết lỗi ra console
-      throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
+    console.error("Lỗi khi lấy danh sách giỏ hàng:", error); 
+    throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
 
-const deleteCart = async (id) =>{
+const getCartByUserId = async (userId) => {
+  try {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    const cart = await CartModel.find({ 'user._id': userObjectId });
+
+    if (!cart) {
+      throw new Error("Không tìm thấy giỏ hàng cho người dùng này");
+    }
+
+    return cart;
+  } catch (error) {
+    console.error("Lỗi khi lấy giỏ hàng theo ID người dùng:", error); 
+    throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
+  }
+};
+
+
+const deleteCart = async (id) => {
   try {
     const cartInDB = await CartModel.findById(id);
-    if(!cartInDB){
+    if (!cartInDB) {
       throw new Error('Cart không tồn tại');
     }
     await CartModel.deleteOne({ _id: id });
     return true;
   } catch (error) {
-    console.error("Lỗi khi lấy giỏ hàng:", error);
-        throw new Error("Xóa Cart thất bại.");
+    console.error("Lỗi khi lấy giỏ hàng:", error); 
+    throw new Error("Xóa Cart thất bại.");
   }
-  };
-  // lấy cart
-  const getCarts = async () => {
-    try {
-      let query = {};  
-      const Carts = await CartModel.find(query).sort({ createdAt: -1 });
-      console.log("Carts data:", Carts); 
-      return Carts;
-    } catch (error) {
-      console.log("getCarts error:", error.message);
-      throw new Error("Lỗi khi lấy danh sách giỏ hàng");
-    }
-  };
+}
+
+// lấy cart
+const getCarts = async () => {
+  try {
+    let query = {};
+    const Carts = await CartModel.find(query).sort({ createdAt: -1 });
+    console.log("Carts data:", Carts);
+    return Carts;
+  } catch (error) {
+    console.log("getCarts error:", error.message);
+    throw new Error("Lỗi khi lấy danh sách giỏ hàng");
+  }
+};
+
 
 module.exports = {
   addCart,
@@ -189,4 +199,5 @@ module.exports = {
   getAllCart,
   deleteCart,
   getCarts,
+  getCartByUserId,
 };
