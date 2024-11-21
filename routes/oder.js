@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-
+const mongoose = require('mongoose');
 const OderController = require("../controllers/OderController");
 
 router.get("/getAllOrder", async (req, res, next) => {
@@ -16,13 +16,14 @@ router.get("/getAllOrder", async (req, res, next) => {
 router.get("/:id/getOrderById", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await OderController.getOrderQById(id);
+    const result = await OderController.getOrderById(id);  
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+
 
 /**
  * lấy ds tất cả danh mục
@@ -52,11 +53,34 @@ router.post("/:id/updateOrder", async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+
+    // Log thông tin đầu vào
+    console.log(`Cập nhật đơn hàng với ID: ${id}`);
+    console.log(`Trạng thái mới: ${status}`);
+
     const result = await OderController.updateOrder(id, status);
+
+    // Log kết quả trả về
+    console.log('Kết quả cập nhật đơn hàng:', result);
+
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
-    console.log(error.message);
+    // Log thông tin lỗi
+    console.log('Lỗi khi cập nhật đơn hàng:', error.message);
     return res.status(500).json({ status: false, data: error.message });
+  }
+});
+
+router.get('/getorderbyuserid/:id', async (req, res) => {
+  try {
+    const { id: userId } = req.params;
+    const result = await OderController.getOrderByIdUserId(userId);
+    console.log('result', result);
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.log('getOrderByIdUserId error:', error.message);
+    res.status(500).json({ message: "Lỗi khi lấy đơn hàng theo ID người dùng." });
   }
 });
 
