@@ -5,6 +5,7 @@ const ProductModel = require("./ProductModel");
 const AddressModel = require("./AddressModel");
 const { CART_STATUS } = require("../helpers/AppConstants");
 const { isValidObjectId, Types } = require("mongoose");
+const mongoose = require('mongoose');
 
 //________________________________________APP_______________________________________
 
@@ -18,23 +19,24 @@ const getAllOrder = async () => {
   }
 };
 
-const getOrderQById = async (id) => {
+const getOrderById = async (orderId) => {
   try {
-    if (!id) {
-      throw new Error("Vui lòng nhập id người dùng");
+    if (!orderId) {
+      throw new Error("Vui lòng nhập id đơn hàng");
     }
     let query = {};
     query = {
       ...query,
-      "user._id": new Types.ObjectId(id),
+      "_id": new Types.ObjectId(orderId), 
     };
-    const orderInDB = await OrderModel.find(query);
+    const orderInDB = await OrderModel.find(query); 
     return orderInDB;
   } catch (error) {
-    console.log("getOrderQById error: ", error.message);
-    throw new Error("Lấy sản phẩm theo id người dùng không thành công");
+    console.log("getOrderById error: ", error.message);
+    throw new Error("Lấy đơn hàng theo id không thành công");
   }
 };
+
 
 const addOrder = async (cart, userId, ship, sale) => {
   try {
@@ -112,7 +114,7 @@ const addOrder = async (cart, userId, ship, sale) => {
 
     for (let cartItem of cartInOrder) {
       for (let productItem of cartItem.products) {
-        const productId = productItem.productId || productItem._id; 
+        const productId = productItem.productId || productItem._id;
         if (!productId) {
           console.error(`Sản phẩm thiếu ID: ${JSON.stringify(productItem)}`);
           continue;
@@ -159,124 +161,18 @@ const addOrder = async (cart, userId, ship, sale) => {
 };
 
 
-
-
-
-
-
-// const addOrder = async (cart, userId, ship, sale) => {
-
-
-
-
-
-
-
-//update trạng thái đơn hàng
-
-// const addOrder = async (cart, address, ship, sale) => {
-
-//   try {
-//     // Tìm thông tin user để lấy địa chỉ
-//     const user = await UserModel.findById(userId);
-//     if (!user || !user.address) {
-//       throw new Error("Không tìm thấy người dùng hoặc địa chỉ không tồn tại");
-//     }
-
-//     // Chọn địa chỉ mặc định (hoặc địa chỉ có `available: true`)
-//     const address =
-//       user.address.find((addr) => addr.available) || user.address[0];
-    
-//     if (!address) {
-//       throw new Error("Người dùng không có địa chỉ khả dụng");
-//     }
-
-//     let cartInOrder = [];
-//     let total = 0;
-
-//     for (const cartItemId of cart) {
-//       const cartItem = await CartModel.findById(cartItemId);
-//       if (!cartItem) {
-//         throw new Error("Không tìm thấy giỏ hàng");
-//       }
-
-//       let cartProducts = [];
-//       for (const productItem of cartItem.products) {
-//         const product = await ProductModel.findById(productItem._id);
-//         if (!product) {
-//           throw new Error("Không tìm thấy sản phẩm trong giỏ hàng");
-//         }
-
-//         total += product.price * productItem.quantity;
-//         cartProducts.push({
-//           _id: product._id,
-//           name: product.name,
-//           quantity: productItem.quantity,
-//           price: product.price,
-//         });
-//       }
-
-//       cartInOrder.push({
-//         _id: cartItem._id,
-//         user: cartItem.user,
-//         total: cartItem.total,
-//         products: cartProducts,
-//         date: cartItem.date,
-//       });
-//     }
-
-//     let shippingFee = ship === 1 ? 8000 : ship === 2 ? 10000 : 20000;
-//     let totalOrder = total + shippingFee;
-
-//     let totalDiscount = 0;
-//     if (Array.isArray(sale)) {
-//       totalDiscount = sale.reduce((sum, item) => {
-//         if (item.discountAmount) return sum + item.discountAmount;
-//         else if (item.discountPercent)
-//           return sum + (totalOrder * item.discountPercent) / 100;
-//         return sum;
-//       }, 0);
-
-//       totalOrder = Math.max(0, totalOrder - totalDiscount);
-//     } else {
-//       throw new Error("Sale phải là một mảng");
-//     }
-
-//     const order = new OrderModel({
-//       cart: cartInOrder,
-//       ship,
-//       address, // Sử dụng địa chỉ đã lấy từ `UserModel`
-//       sale,
-//       totalOrder,
-//     });
-//     const result = await order.save();
-
-//     for (const cartItem of cartInOrder) {
-//       for (const productItem of cartItem.products) {
-//         const product = await ProductModel.findById(productItem._id);
-//         if (product) {
-//           product.quantity = Math.max(product.quantity - productItem.quantity, 0);
-//           product.sold = (product.sold || 0) + productItem.quantity;
-//           await product.save();
-//         }
-//       }
-//     }
-
-//     return result;
-//   } catch (error) {
-//     console.log(error);
-//     throw new Error("Add to order failed");
-//   }
-// };
-
-
-//update trạng thái đơn hàng
 const updateOrder = async (id, status) => {
   try {
+    console.log(`Cập nhật đơn hàng với ID: ${id}`);
+    console.log(`Trạng thái mới: ${status}`);
+
     const order = await OrderModel.findById(id);
+
     if (!order) {
-      throw new error("Không tìm thấy đơn hàng ");
+      console.log(`Không tìm thấy đơn hàng với ID: ${id}`);
+      throw new Error("Không tìm thấy đơn hàng");
     }
+
     if (
       status < order.status ||
       (status == CART_STATUS.HOAN_THANH &&
@@ -285,20 +181,51 @@ const updateOrder = async (id, status) => {
           order.status == CART_STATUS.HUY)) ||
       status > 4
     ) {
+      console.log(`Trạng thái đơn hàng không hợp lệ. Trạng thái hiện tại: ${order.status}`);
       throw new Error("Trạng thái đơn hàng không hợp lệ");
     }
+
     order.status = status;
+
+    console.log(`Trạng thái đơn hàng đã được cập nhật thành: ${status}`);
+
     let result = await order.save();
+    console.log('Kết quả lưu đơn hàng:', result);
+
     return result;
   } catch (error) {
-    console.log(error);
+    console.log('Lỗi khi cập nhật trạng thái đơn hàng:', error.message);
     throw new Error("Cập nhật trạng thái đơn hàng thất bại");
   }
 };
+
+const getOrderByIdUserId = async (userId) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new Error("ID người dùng không hợp lệ.");
+    }
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const orders = await OrderModel.find({ 
+      "cart.user._id": userObjectId 
+    });
+
+    if (orders.length === 0) {
+      throw new Error("Không tìm thấy đơn hàng cho người dùng này.");
+    }
+
+    return orders; 
+  } catch (error) {
+    console.log("getOrderByIdUserId error: ", error.message);
+    throw new Error("Lấy sản phẩm theo ID người dùng không thành công.");
+  }
+};
+
 
 module.exports = {
   getAllOrder,
   addOrder,
   updateOrder,
-  getOrderQById,
+  getOrderById,
+  getOrderByIdUserId
 };

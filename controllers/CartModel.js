@@ -14,6 +14,7 @@ const CartSchema = new Schema({
     // status: {type: Number, default: AppConstants.CART_STATUS.XAC_NHAN},
     //ngày giờ mua
     date: {type: Date, default: Date.now},
+    status: { type: Number, default: 1 } 
 
 })
 

@@ -137,8 +137,8 @@ router.delete("/delete-account", async (req, res) => {
 router.put("/:id/updateProfile", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, birthday, bio, gender } = req.body
-    const result = await userController.updateProfile(id, name, birthday, bio, gender);
+    const { name, birthday, bio, gender,avatar } = req.body
+    const result = await userController.updateProfile(id, name, birthday, bio, gender,avatar);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
     console.log("UpdateProfile error:", error.message);
