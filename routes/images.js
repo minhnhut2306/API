@@ -40,4 +40,6 @@ router.delete('/video/:id', imagesController.deleteVideo);
 // http://localhost:6677/images/media/6718f858985669198ff27cd2
 router.get('/media/:userId', imagesController.getUserMedia);
 
+
+
 module.exports = router;
