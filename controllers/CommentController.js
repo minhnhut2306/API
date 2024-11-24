@@ -44,8 +44,8 @@ const addComment = async (userId, productId, orderId, rating, comment, images, v
       orderId,
       rating,
       comment,
-      images,
-      videos,
+      images, // Lưu ảnh đã tải lên
+      videos, // Lưu video đã tải lên
       displayName,
     });
 

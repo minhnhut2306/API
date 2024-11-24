@@ -25,13 +25,14 @@ const uploadImage = async (req, res) => {
         });
 
         await image.save();
+
+        // Trả về thông tin hình ảnh đã tải lên
         res.status(201).json({ message: 'Tải ảnh lên thành công', image });
     } catch (error) {
         console.error("Xảy ra lỗi khi tải ảnh", error);
         res.status(500).json({ message: 'Lỗi tải ảnh', error: error.message || error });
     }
 };
-
 
 
 // Hàm để lấy tất cả ảnh của một người dùng
