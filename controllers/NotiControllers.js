@@ -1,5 +1,5 @@
 // notiController.js
-const Notification = require("./notiModel"); // Import notiModel
+const Notification = require("./NotiModel"); // Import notiModel
 const Order = require("./OderModel"); // Giả sử bạn đã có model cho đơn hàng
 const User = require("../controllers/UserModel");
 
