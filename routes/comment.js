@@ -1,32 +1,39 @@
-var express = require("express");
-var router = express.Router();
-
+const express = require("express");
+const router = express.Router();
 const CommentController = require("../controllers/CommentController");
 
 /**
- * lấy ds tất cả loại hàng
- * method: get
- * url: http://localhost:6677/categories
- * trả về:
+ * API thêm bình luận sản phẩm
+ * method: POST
+ * url: /api/comments/addComment
  */
-router.post("/addComment", async (req, res, next) => {
+router.post("/addComment", async (req, res) => {
   try {
-    const { userId, productId, rating, comment, images, videos, displayName } = req.body;
-    const comments = await CommentController.addComment(userId, productId, rating, comment, images, videos, displayName);
-    return res.status(200).json({ status: true, data: comments });
-  } catch (error) {
-    console.log("Thêm bình luận error: ", error.massage);
-    return res.status(500).json({ status: false, data: error.massage });
-  }
-});
+    const { userId, productId, orderId, rating, comment, images, videos, displayName } = req.body;
 
-router.get("/", async (req, res, next) => {
-  try {
-    const preserves = await PreserveController.getPreserves();
-    return res.status(200).json({ status: true, data: preserves });
+    // Gọi controller để thêm comment
+    const newComment = await CommentController.addComment(
+      userId,
+      productId,
+      orderId,
+      rating,
+      comment,
+      images,
+      videos,
+      displayName
+    );
+
+    return res.status(200).json({
+      status: true,
+      message: "Thêm bình luận thành công",
+      data: newComment,
+    });
   } catch (error) {
-    console.log("Get categories error: ", error.massage);
-    return res.status(500).json({ status: false, data: error.massage });
+    console.error("Thêm bình luận error: ", error.message);
+    return res.status(500).json({
+      status: false,
+      message: `Lỗi thêm bình luận: ${error.message}`,
+    });
   }
 });
 
