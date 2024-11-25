@@ -139,6 +139,8 @@ const addProduct = async (
       throw new Error("oại hàng không tồn tại");
     }
 
+    
+
     // tạo object category
     category = {
       category_id: categoryInDB._id,
@@ -149,6 +151,9 @@ const addProduct = async (
       preserve_id: preserveInDB._id,
       preserve_name: preserveInDB.name,
     };
+
+    
+    
 
     const product = {
       name,
@@ -179,13 +184,13 @@ const updateProduct = async (
   name,
   category,
   quantity,
-  origin,  // Có thể truyền chuỗi rỗng
+  origin, // Có thể truyền chuỗi rỗng
   price,
-  fiber,   // Có thể truyền chuỗi rỗng
-  oum,     // Có thể truyền chuỗi rỗng
+  fiber, // Có thể truyền chuỗi rỗng
+  oum, // Có thể truyền chuỗi rỗng
   preserve,
   supplier, // Có thể truyền chuỗi rỗng
-  uses,     // Có thể truyền chuỗi rỗng
+  uses, // Có thể truyền chuỗi rỗng
   images,
   description // Có thể truyền chuỗi rỗng
 ) => {
@@ -444,7 +449,6 @@ const getTop10PW = async (inputDate) => {
   }
 };
 
-
 // quản lí hàng hóa
 
 module.exports = {
@@ -457,5 +461,5 @@ module.exports = {
   updateProduct,
   getProductsByCategory,
   commentProduct,
-  getTop10PW
+  getTop10PW,
 };
