@@ -139,6 +139,8 @@ const addProduct = async (
       throw new Error("oại hàng không tồn tại");
     }
 
+    
+
     // tạo object category
     category = {
       category_id: categoryInDB._id,
@@ -149,6 +151,9 @@ const addProduct = async (
       preserve_id: preserveInDB._id,
       preserve_name: preserveInDB.name,
     };
+
+    
+    
 
     const product = {
       name,
@@ -179,34 +184,28 @@ const updateProduct = async (
   name,
   category,
   quantity,
-  origin,
+  origin, // Có thể truyền chuỗi rỗng
   price,
-  fiber,
-  oum,
+  fiber, // Có thể truyền chuỗi rỗng
+  oum, // Có thể truyền chuỗi rỗng
   preserve,
-  supplier,
-  uses,
+  supplier, // Có thể truyền chuỗi rỗng
+  uses, // Có thể truyền chuỗi rỗng
   images,
-  description
+  description // Có thể truyền chuỗi rỗng
 ) => {
   try {
-    // Find the product by its ID
+    // Tìm sản phẩm theo ID
     const udtProduct = await ProductModel.findById(id);
     if (!udtProduct) {
       throw new Error("Sản phẩm không tồn tại");
     }
 
-    // Validate the category if provided
+    // Kiểm tra và lấy category nếu có
     if (!category) {
       throw new Error("Danh mục không tồn tại");
     }
-
-    if (!preserve) {
-      throw new Error("Loại hàng không tồn tại");
-    }
-
     const udtcCategory = await CategoryModel.findById(category);
-    // Assign the category object, assuming you're storing the category details
     if (!udtcCategory) {
       throw new Error("Danh mục không tồn tại");
     }
@@ -215,39 +214,45 @@ const updateProduct = async (
       category_name: udtcCategory.name,
     };
 
+    // Kiểm tra và lấy preserve nếu có
+    if (!preserve) {
+      throw new Error("Loại hàng không tồn tại");
+    }
     const udtcPreserve = await PreserveModel.findById(preserve);
     if (!udtcPreserve) {
-      throw new Error("oại hàng không tồn tại");
+      throw new Error("Loại hàng không tồn tại");
     }
-    // Assign the category object, assuming you're storing the category details
     udtProduct.preserve = {
       preserve_id: udtcPreserve._id,
       preserve_name: udtcPreserve.name,
     };
 
-    // Update the product fields if provided
+    // Cập nhật các trường nếu có giá trị mới
     udtProduct.name = name || udtProduct.name;
     udtProduct.price = price || udtProduct.price;
     udtProduct.quantity = quantity || udtProduct.quantity;
     udtProduct.images = images || udtProduct.images;
-    udtProduct.description = description || udtProduct.description;
-    udtProduct.oum = oum || udtProduct.oum;
-    udtProduct.supplier = supplier || udtProduct.supplier;
-    udtProduct.origin = origin || udtProduct.origin;
-    udtProduct.fiber = fiber || udtProduct.fiber;
-    udtProduct.uses = uses || udtProduct.uses;
 
-    // Set the updated date (corrected)
-    udtProduct.updateProduct = Date.now();
+    // Cập nhật nếu có giá trị truyền vào, cho phép chuỗi rỗng
+    if (origin !== undefined) udtProduct.origin = origin;
+    if (fiber !== undefined) udtProduct.fiber = fiber;
+    if (oum !== undefined) udtProduct.oum = oum;
+    if (supplier !== undefined) udtProduct.supplier = supplier;
+    if (uses !== undefined) udtProduct.uses = uses;
+    if (description !== undefined) udtProduct.description = description;
 
-    // Save the updated product
+    // Cập nhật thời gian sửa đổi
+    udtProduct.updateProduct = new Date();
+
+    // Lưu lại sản phẩm đã cập nhật
     await udtProduct.save();
-    return udtProduct; // Return the updated product instead of just true
+    return udtProduct; // Trả về sản phẩm đã được cập nhật thay vì chỉ true
   } catch (error) {
     console.log("updateProduct error: ", error.message);
-    throw new Error(`Cập nhập sản phẩm lỗi: ${error.message}`);
+    throw new Error(`Cập nhật sản phẩm lỗi: ${error.message}`);
   }
 };
+
 const getProductsByCategory = async (id) => {
   try {
     console.log("---------------id: ", id);
@@ -306,37 +311,101 @@ const commentProduct = async (
   }
 };
 
-const getTop10PW = async (week, year) => {
-  // Hàm tính ngày bắt đầu tuần
-  function getStartOfWeek(week, year) {
-    const firstDayOfYear = new Date(year, 0, 1);
-    const days = (week - 1) * 7;
-    const startOfWeek = new Date(
-      firstDayOfYear.setDate(firstDayOfYear.getDate() + days)
-    );
+// const getTop10PW = async (week, year) => {
+//   // Hàm tính ngày bắt đầu tuần
+//   function getStartOfWeek(week, year) {
+//     const firstDayOfYear = new Date(year, 0, 1);
+//     const days = (week - 1) * 7;
+//     const startOfWeek = new Date(
+//       firstDayOfYear.setDate(firstDayOfYear.getDate() + days)
+//     );
+//     startOfWeek.setHours(0, 0, 0, 0);
+//     return startOfWeek;
+//   }
+
+//   // Hàm tính ngày kết thúc tuần
+//   function getEndOfWeek(week, year) {
+//     const startOfWeek = getStartOfWeek(week, year);
+//     const endOfWeek = new Date(startOfWeek);
+//     endOfWeek.setDate(startOfWeek.getDate() + 6);
+//     endOfWeek.setHours(23, 59, 59, 999);
+//     return endOfWeek;
+//   }
+
+//   const currentDate = new Date();
+//   week =
+//     week ||
+//     Math.ceil(
+//       ((currentDate - new Date(currentDate.getFullYear(), 0, 1)) / 86400000 + 1) / 7
+//     );
+//   year = year || currentDate.getFullYear();
+
+//   const startOfWeek = getStartOfWeek(week, year);
+//   const endOfWeek = getEndOfWeek(week, year);
+
+//   console.log("Start of Week:", startOfWeek);
+//   console.log("End of Week:", endOfWeek);
+
+//   try {
+//     // Lấy các đơn hàng trong tuần
+//     const orders = await OrderModel.find({
+//       date: { $gte: startOfWeek, $lte: endOfWeek },
+//     }).select("cart");
+
+//     // Đếm tổng số lượng đã bán cho mỗi sản phẩm trong tuần
+//     const productSales = {};
+
+//     for (let order of orders) {
+//       for (let product of order.cart[0].products) {
+//         const productId = product._id;
+//         const quantitySold = product.quantity;
+
+//         if (productSales[productId]) {
+//           productSales[productId] += quantitySold;
+//         } else {
+//           productSales[productId] = quantitySold;
+//         }
+//       }
+//     }
+
+//     // Lấy top 10 sản phẩm bán chạy
+//     const productIds = Object.keys(productSales);
+//     const topProducts = await ProductModel.find({
+//       _id: { $in: productIds },
+//     })
+//       .select("name sold")
+//       .sort({ sold: -1 })
+//       .limit(10);
+
+//     console.log("Top 10 Products:", topProducts);
+//     return topProducts;
+//   } catch (error) {
+//     console.error("Error in getTop10PW:", error.message);
+//     throw new Error(error.message);
+//   }
+// };
+
+const getTop10PW = async (inputDate) => {
+  // Hàm tính ngày bắt đầu tuần dựa trên một ngày cụ thể
+  function getStartOfWeekFromDate(date) {
+    const dayOfWeek = date.getDay(); // 0 (Chủ Nhật) -> 6 (Thứ Bảy)
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - dayOfWeek); // Lùi về đầu tuần (Chủ Nhật)
     startOfWeek.setHours(0, 0, 0, 0);
     return startOfWeek;
   }
 
-  // Hàm tính ngày kết thúc tuần
-  function getEndOfWeek(week, year) {
-    const startOfWeek = getStartOfWeek(week, year);
+  // Hàm tính ngày kết thúc tuần dựa trên ngày bắt đầu tuần
+  function getEndOfWeekFromDate(startOfWeek) {
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // Tiến tới cuối tuần (Thứ Bảy)
     endOfWeek.setHours(23, 59, 59, 999);
     return endOfWeek;
   }
 
-  const currentDate = new Date();
-  week =
-    week ||
-    Math.ceil(
-      ((currentDate - new Date(currentDate.getFullYear(), 0, 1)) / 86400000 + 1) / 7
-    );
-  year = year || currentDate.getFullYear();
-
-  const startOfWeek = getStartOfWeek(week, year);
-  const endOfWeek = getEndOfWeek(week, year);
+  const currentDate = inputDate ? new Date(inputDate) : new Date();
+  const startOfWeek = getStartOfWeekFromDate(currentDate);
+  const endOfWeek = getEndOfWeekFromDate(startOfWeek);
 
   console.log("Start of Week:", startOfWeek);
   console.log("End of Week:", endOfWeek);
@@ -380,7 +449,6 @@ const getTop10PW = async (week, year) => {
   }
 };
 
-
 // quản lí hàng hóa
 
 module.exports = {
@@ -393,5 +461,5 @@ module.exports = {
   updateProduct,
   getProductsByCategory,
   commentProduct,
-  getTop10PW
+  getTop10PW,
 };

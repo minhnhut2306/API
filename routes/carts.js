@@ -63,6 +63,7 @@ router.get('/getcartbyiduser/:userId', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 router.delete('/deleteCart/:id', async (req, res) => {
   try {
     const cartId = req.params.id;
@@ -119,5 +120,29 @@ router.get('/getCartById', async (req, res) => {
   }
 });
 
+router.put('/updatesatus', async (req, res) => {
+  try {
+    const { cartIds, status } = req.body;
+    const data = await CartController.updateCartStatus(cartIds, status);
+    return res.json(createResponse(200, "Cập nhật thành công", "success", data));
+  } catch (error) {
+
+  }
+});
+
+router.put('/updateQuantity/:cartId/:productId', async (req, res) => {
+  const { cartId, productId } = req.params;
+  const { quantity } = req.body;
+
+  const result = await CartController.updateCartQuantity(cartId, productId, quantity);
+  console.log('Cart quantity updated', result);
+  
+
+  if (result.success) {
+      return res.json(result);
+  } else {
+      return res.status(404).json(result);
+  }
+});
 
 module.exports = router;
