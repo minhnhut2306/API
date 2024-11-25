@@ -29,10 +29,20 @@ router.get("/getProductDetailById_App/:id", async (req, res, next) => {
 
 // Lấy top 10 sp bán chạy nhất trong app
 
+// router.get("/getTop10PW", async (req, res, next) => {
+//   try {
+//     const { week, year } = req.query;
+//     const products = await ProductController.getTop10PW( week, year );
+//     return res.status(200).json({ status: true, data: products });
+//   } catch (error) {
+//     return res.status(500).json({ status: false, data: error.message });
+//   }
+// });
+
 router.get("/getTop10PW", async (req, res, next) => {
   try {
-    const { week, year } = req.query;
-    const products = await ProductController.getTop10PW( week, year );
+    const { date } = req.query; // Nhận ngày từ query string
+    const products = await ProductController.getTop10PW(date); // Truyền ngày vào hàm
     return res.status(200).json({ status: true, data: products });
   } catch (error) {
     return res.status(500).json({ status: false, data: error.message });
@@ -78,21 +88,18 @@ router.delete("/:id/delete", async (req, res, next) => {
   }
 });
 
-
-
-router.get('/filter/:id', async (req, res, next) => {
+router.get("/filter/:id", async (req, res, next) => {
   try {
-      const { id } = req.params;
-      console.log('..............id: ', id);
-const products = await ProductController.getProductsByCategory(id);
-      console.log('..............product: ', products);
-      return res.status(200).json({ status: true, data: products })
+    const { id } = req.params;
+    console.log("..............id: ", id);
+    const products = await ProductController.getProductsByCategory(id);
+    console.log("..............product: ", products);
+    return res.status(200).json({ status: true, data: products });
   } catch (error) {
-      console.log('Lấy danh sách sản phẩm thất bại');
-      return res.status(500).json({ status: false, data: error.message });
+    console.log("Lấy danh sách sản phẩm thất bại");
+    return res.status(500).json({ status: false, data: error.message });
   }
-})
-
+});
 
 router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
   try {
@@ -102,7 +109,7 @@ router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
       quantity,
       origin,
       price,
-fiber,
+      fiber,
       oum,
       preserve,
       supplier,
@@ -184,7 +191,7 @@ router.put(
 //   try {
 //     const { productId } = req.params;
 //     const { user, rating, comment, images, videos, displayName } = req.body;
-    
+
 //     const comments = await ProductController.commentProduct(
 //       productId,
 //       user,
@@ -213,7 +220,6 @@ router.put(
 //       return res.status(500).json({ status: false, data: error.message });
 //   }
 // });
-
 
 // id,
 // name,
