@@ -116,6 +116,7 @@ router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
       uses,
       images,
       description,
+      discount
     } = req.body;
     const product = await ProductController.addProduct(
       name,
@@ -129,7 +130,8 @@ router.post("/addSP", [validation.validateProduct], async (req, res, next) => {
       supplier,
       uses,
       images,
-      description
+      description,
+      discount
     );
 
     return res.status(200).json({ status: true, data: product });
