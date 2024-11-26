@@ -173,6 +173,7 @@ const addProduct = async (
       images,
       description,
       discount,
+      
     };
 
    
@@ -199,8 +200,10 @@ const updateProduct = async (
   preserve,
   supplier, // Có thể truyền chuỗi rỗng
   uses, // Có thể truyền chuỗi rỗng
+  discount,
   images,
   description // Có thể truyền chuỗi rỗng
+  
 ) => {
   try {
     // Tìm sản phẩm theo ID
@@ -247,6 +250,7 @@ const updateProduct = async (
     if (oum !== undefined) udtProduct.oum = oum;
     if (supplier !== undefined) udtProduct.supplier = supplier;
     if (uses !== undefined) udtProduct.uses = uses;
+    if (discount !== undefined) udtProduct.discount = discount;
     if (description !== undefined) udtProduct.description = description;
 
     // Cập nhật thời gian sửa đổi
