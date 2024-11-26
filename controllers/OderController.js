@@ -173,31 +173,30 @@ const updateOrder = async (id, status) => {
       throw new Error("Không tìm thấy đơn hàng");
     }
 
+    // Kiểm tra trạng thái hợp lệ
     if (
-      status < order.status ||
-      (status == CART_STATUS.HOAN_THANH &&
-        (order.status == CART_STATUS.XAC_NHAN ||
-          order.status == CART_STATUS.DANG_GIAO ||
-          order.status == CART_STATUS.HUY)) ||
-      status > 4
+      status < order.status || // Không cho phép giảm trạng thái
+      (status === CART_STATUS.HUY && order.status !== CART_STATUS.XAC_NHAN) || // Chỉ cho phép hủy khi đang ở trạng thái Xác nhận
+      status > 4 // Không cho phép vượt quá trạng thái 4
     ) {
       console.log(`Trạng thái đơn hàng không hợp lệ. Trạng thái hiện tại: ${order.status}`);
       throw new Error("Trạng thái đơn hàng không hợp lệ");
     }
 
+    // Cập nhật trạng thái
     order.status = status;
-
     console.log(`Trạng thái đơn hàng đã được cập nhật thành: ${status}`);
 
     let result = await order.save();
-    console.log('Kết quả lưu đơn hàng:', result);
+    console.log("Kết quả lưu đơn hàng:", result);
 
     return result;
   } catch (error) {
-    console.log('Lỗi khi cập nhật trạng thái đơn hàng:', error.message);
+    console.log("Lỗi khi cập nhật trạng thái đơn hàng:", error.message);
     throw new Error("Cập nhật trạng thái đơn hàng thất bại");
   }
 };
+
 
 const getOrderByIdUserId = async (userId) => {
   try {
