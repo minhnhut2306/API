@@ -103,14 +103,14 @@ const updateSale = async (
       throw new Error("Không tìm thấy khuyến mãi");
     }
 
-    // Update fields if new values are provided, otherwise keep the existing ones
+
     saleInDB.date = date || saleInDB.date;
     saleInDB.title = title || saleInDB.title;
     saleInDB.discountAmount = discountAmount || saleInDB.discountAmount;
     saleInDB.discountPercent = discountPercent || saleInDB.discountPercent;
     saleInDB.minOrderValue = minOrderValue || saleInDB.minOrderValue;
     saleInDB.expirationDate = expirationDate || saleInDB.expirationDate;
-    saleInDB.isExpired = isExpired !== undefined ? isExpired : saleInDB.isExpired; // Update if provided
+    saleInDB.isExpired = isExpired !== undefined ? isExpired : saleInDB.isExpired; 
 
     await saleInDB.save();
     return saleInDB;

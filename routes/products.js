@@ -162,6 +162,7 @@ router.put(
         preserve,
         supplier,
         uses,
+        discount,
         images,
         description,
       } = req.body;
@@ -178,6 +179,7 @@ router.put(
         preserve,
         supplier,
         uses,
+        discount,
         images,
         description
       );
