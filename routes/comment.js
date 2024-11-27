@@ -11,12 +11,13 @@ const CommentController = require("../controllers/CommentController");
  */
 router.post("/addComment", async (req, res, next) => {
   try {
-    const { userId, productId, rating, comment, images, videos, displayName } = req.body;
-    const comments = await CommentController.addComment(userId, productId, rating, comment, images, videos, displayName);
+    const { userId, productId, rating, comment, images, videos } = req.body;
+    console.log("Received data:", { userId, productId, rating, comment, images, videos }); // Log dữ liệu nhận được
+    const comments = await CommentController.addComment(userId, productId, rating, comment, images, videos);
     return res.status(200).json({ status: true, data: comments });
   } catch (error) {
-    console.log("Thêm bình luận error: ", error.massage);
-    return res.status(500).json({ status: false, data: error.massage });
+    console.error("Thêm bình luận error: ", error); // Log toàn bộ đối tượng error
+    return res.status(500).json({ status: false, message: error.message || "Có lỗi xảy ra" });
   }
 });
 
