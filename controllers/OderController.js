@@ -79,40 +79,40 @@ const addOrder = async (cart, userId, ship, sale) => {
       cartInOrder.push(cartItem);
     }
 
-    // Tính phí vận chuyển
-    let shippingFee = 0;
-    if (ship === 1) {
-      shippingFee = 8;
-    } else if (ship === 2) {
-      shippingFee = 10;
-    } else if (ship === 3) {
-      shippingFee = 20;
-    }
-    let totalOrder = total + shippingFee;
+    // // Tính phí vận chuyển
+    // let shippingFee = 0;
+    // if (ship === 1) {
+    //   shippingFee = 8;
+    // } else if (ship === 2) {
+    //   shippingFee = 10;
+    // } else if (ship === 3) {
+    //   shippingFee = 20;
+    // }
+    // let totalOrder = total + shippingFee;
 
-    // Tính giảm giá
-    let totalDiscount = 0;
-    if (Array.isArray(sale)) {
-      totalDiscount = sale.reduce((sum, item) => {
-        if (typeof item.discountAmount === "number" && item.discountAmount > 0) {
-          return sum + item.discountAmount;
-        } else if (
-          typeof item.discountPercent === "number" &&
-          item.discountPercent > 0 &&
-          item.discountPercent <= 100
-        ) {
-          return sum + (totalOrder * item.discountPercent) / 100;
-        } else {
-          return sum;
-        }
-      }, 0);
-      totalOrder -= totalDiscount;
-      if (totalOrder < 0) {
-        totalOrder = 0;
-      }
-    } else {
-      throw new Error("Sale phải là một mảng");
-    }
+    // // Tính giảm giá
+    // let totalDiscount = 0;
+    // if (Array.isArray(sale)) {
+    //   totalDiscount = sale.reduce((sum, item) => {
+    //     if (typeof item.discountAmount === "number" && item.discountAmount > 0) {
+    //       return sum + item.discountAmount;
+    //     } else if (
+    //       typeof item.discountPercent === "number" &&
+    //       item.discountPercent > 0 &&
+    //       item.discountPercent <= 100
+    //     ) {
+    //       return sum + (totalOrder * item.discountPercent) / 100;
+    //     } else {
+    //       return sum;
+    //     }
+    //   }, 0);
+    //   totalOrder -= totalDiscount;
+    //   if (totalOrder < 0) {
+    //     totalOrder = 0;
+    //   }
+    // } else {
+    //   throw new Error("Sale phải là một mảng");
+    // }
 
     // Tạo đơn hàng
     const order = new OrderModel({
