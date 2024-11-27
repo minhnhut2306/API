@@ -11,7 +11,9 @@ const mongoose = require('mongoose');
 
 const getAllOrder = async () => {
   try {
-    const orderInDB = await OrderModel.find();
+    const orderInDB = await OrderModel.find().sort({
+      date: - 1
+    });
     return orderInDB;
   } catch (error) {
     console.log("getAllOrder error: ", error.massage);
