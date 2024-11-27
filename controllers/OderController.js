@@ -82,11 +82,11 @@ const addOrder = async (cart, userId, ship, sale) => {
     // Tính phí vận chuyển
     let shippingFee = 0;
     if (ship === 1) {
-      shippingFee = 8;
+      shippingFee = 8000;
     } else if (ship === 2) {
-      shippingFee = 10;
+      shippingFee = 10000;
     } else if (ship === 3) {
-      shippingFee = 20;
+      shippingFee = 20000;
     }
     let totalOrder = total + shippingFee;
 
