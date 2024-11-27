@@ -6,43 +6,46 @@ const CommentSchema = new Schema(
     user: {
       type: Object,
       default: {},
-      required: true, // Trường này là bắt buộc
+      required: true, 
     },
     productId: {
-      type: mongoose.Schema.Types.ObjectId, // Tham chiếu đến collection product
+      type: mongoose.Schema.Types.ObjectId, 
       ref: "product",
-      required: true, // Trường này là bắt buộc
+      required: true, 
     },
     rating: {
       type: Number,
-      required: true, // Trường này là bắt buộc
+      required: true, 
       min: 1,
       max: 5,
     },
     comment: {
-      type: String, // Nội dung bình luận
+      type: String,
       trim: true,
-    }, // Không cần required vì mặc định không bắt buộc
+    },
     images: [
       {
-        type: String, // URL ảnh
+        type: String,
         trim: true,
       },
-    ], // Không cần required vì đây là trường không bắt buộc
+    ],
     videos: [
       {
-        type: String, // URL video
+        type: String,
         trim: true,
       },
-    ], // Không cần required vì đây là trường không bắt buộc
+    ],
     displayName: {
-      type: Boolean, // true: hiển thị tên đăng nhập, false: ẩn tên
+      type: Boolean, 
       default: true,
     },
   },
   {
-    timestamps: true, // Tự động thêm createdAt và updatedAt
+    timestamps: true, 
   }
 );
 
-module.exports = CommentSchema;
+
+const CommentModel = mongoose.model("Comment", CommentSchema);
+
+module.exports = CommentModel;
