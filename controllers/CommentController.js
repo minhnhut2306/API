@@ -1,56 +1,41 @@
-const CommentModel = require("./CommentModel");
-const UserModel = require("./UserModel");
+const CommentModel = require("./CommentModel");  
 const ProductModel = require("./ProductModel");
+const UserModel = require("./UserModel");
 
-const addComment = async (
-  userId,
-  productId,
-  rating,
-  comment,
-  images,
-  videos,
-  displayName
-) => {
+
+const addComment = async (userId, productId, rating, comment, images, videos, displayName) => {
   try {
-
+ 
     const userInDB = await UserModel.findById(userId);
     if (!userInDB) {
-      throw new Error("Không tìm thấy user");
+      throw new Error("User not found");
     }
-    console.log(userInDB);
-  
+
     const productInDB = await ProductModel.findById(productId);
     if (!productInDB) {
-      throw new Error("Không tìm thấy sản phẩm");
+      throw new Error("Product not found");
     }
-    // Kiểm tra rating hợp lệ
+
     if (rating < 1 || rating > 5) {
-      return res
-        .status(400)
-        .json({ message: "Rating không hợp lệ, phải từ 1 đến 5" });
+      throw new Error("Rating must be between 1 and 5");
     }
-    const commentN = new CommentModel ({
-        userId,
-        productId,
-        rating,
-        comment,
-        images,
-        videos,
-        displayName
+    const newComment = new CommentModel({
+      user: userInDB,
+      productId,
+      rating,
+      comment,
+      images,
+      videos,
+      displayName,
     });
- 
-    
-    const newComment = new CommentModel(commentN);
+
     const result = await newComment.save();
     return result;
-
-
   } catch (error) {
-    console.log("addComment error: ", error.massage);
-    throw new Error("Thêm bình luận lỗi");
+    console.log("addComment error: ", error.message);
+    throw new Error("Error adding comment");
   }
 };
-
 module.exports = {
-    addComment
+  addComment
 };
