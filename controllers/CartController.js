@@ -68,15 +68,15 @@ const addCart = async (userId, products) => {
           });
         }
 
-        // Cập nhật lại tổng giá trị giỏ hàng
         cart.total = cart.products.reduce(
           (sum, product) => sum + product.price * product.quantity, 0
         );
       }
+    const result = await cart.save();
+    console.log('Cart saved', result);
+    
 
-      console.log("Giỏ hàng trước khi lưu vào DB:", JSON.stringify(cart, null, 2));
-      await cart.save();
-      console.log("Giỏ hàng đã được lưu thành công");
+    return result; 
     }
 
     return { status: true, message: 'Thêm sản phẩm vào giỏ hàng thành công' };
