@@ -39,6 +39,8 @@ const getOrderById = async (orderId) => {
   }
 };
 
+
+
 const addOrder = async (cart, userId, ship, sale) => {
   try {
     const user = await UserModel.findById(userId);
@@ -56,6 +58,7 @@ const addOrder = async (cart, userId, ship, sale) => {
 
     // Tạo giỏ hàng cho đơn hàng
     let cartInOrder = [];
+    let total = 0;
 
     for (let itemId of cart) {
       const cartO = await CartModel.findById(itemId);
@@ -65,6 +68,7 @@ const addOrder = async (cart, userId, ship, sale) => {
         throw new Error("Không tìm thấy giỏ hàng");
       }
 
+      total += cartO.total || 0;
       const cartItem = {
         _id: cartO._id,
         user: cartO.user,
@@ -75,14 +79,48 @@ const addOrder = async (cart, userId, ship, sale) => {
       cartInOrder.push(cartItem);
     }
 
+    // Tính phí vận chuyển
+    let shippingFee = 0;
+    if (ship === 1) {
+      shippingFee = 8;
+    } else if (ship === 2) {
+      shippingFee = 10;
+    } else if (ship === 3) {
+      shippingFee = 20;
+    }
+    let totalOrder = total + shippingFee;
+
+    // Tính giảm giá
+    let totalDiscount = 0;
+    if (Array.isArray(sale)) {
+      totalDiscount = sale.reduce((sum, item) => {
+        if (typeof item.discountAmount === "number" && item.discountAmount > 0) {
+          return sum + item.discountAmount;
+        } else if (
+          typeof item.discountPercent === "number" &&
+          item.discountPercent > 0 &&
+          item.discountPercent <= 100
+        ) {
+          return sum + (totalOrder * item.discountPercent) / 100;
+        } else {
+          return sum;
+        }
+      }, 0);
+      totalOrder -= totalDiscount;
+      if (totalOrder < 0) {
+        totalOrder = 0;
+      }
+    } else {
+      throw new Error("Sale phải là một mảng");
+    }
+
     // Tạo đơn hàng
     const order = new OrderModel({
       cart: cartInOrder,
       ship,
       address,
       sale,
-      totalOrder: 0, // Giữ nguyên mặc định là 0
-      status: 1, // Trạng thái mặc định là "Xác nhận"
+      totalOrder,
     });
     const result = await order.save();
 
@@ -105,7 +143,6 @@ const addOrder = async (cart, userId, ship, sale) => {
         }
       }
     }
-
     const userInDB = await UserModel.findById(userId);
     if (userInDB) {
       for (let cartItem of cartInOrder) {
@@ -133,137 +170,6 @@ const addOrder = async (cart, userId, ship, sale) => {
     throw new Error(error.message || "Thêm đơn hàng thất bại");
   }
 };
-
-
-// const addOrder = async (cart, userId, ship, sale) => {
-//   try {
-//     const user = await UserModel.findById(userId);
-//     if (!user) {
-//       throw new Error("Không tìm thấy người dùng");
-//     }
-
-//     // Kiểm tra địa chỉ của người dùng
-//     let address = null;
-//     if (user.address && user.address.length > 0) {
-//       address = user.address.find((addr) => addr.available) || user.address[0];
-//     } else {
-//       throw new Error("Người dùng chưa có địa chỉ. Vui lòng thêm địa chỉ trước khi đặt hàng.");
-//     }
-
-//     // Tạo giỏ hàng cho đơn hàng
-//     let cartInOrder = [];
-//     let total = 0;
-
-//     for (let itemId of cart) {
-//       const cartO = await CartModel.findById(itemId);
-
-//       if (!cartO) {
-//         console.log(`Không tìm thấy giỏ hàng với id: ${itemId}`);
-//         throw new Error("Không tìm thấy giỏ hàng");
-//       }
-
-//       total += cartO.total || 0;
-//       const cartItem = {
-//         _id: cartO._id,
-//         user: cartO.user,
-//         total: cartO.total,
-//         products: cartO.products,
-//         date: cartO.date,
-//       };
-//       cartInOrder.push(cartItem);
-//     }
-
-//     // Tính phí vận chuyển
-//     let shippingFee = 0;
-//     if (ship === 1) {
-//       shippingFee = 8000;
-//     } else if (ship === 2) {
-//       shippingFee = 10000;
-//     } else if (ship === 3) {
-//       shippingFee = 20000;
-//     }
-//     let totalOrder = total + shippingFee;
-
-//     // Tính giảm giá
-//     let totalDiscount = 0;
-//     if (Array.isArray(sale)) {
-//       totalDiscount = sale.reduce((sum, item) => {
-//         if (typeof item.discountAmount === "number" && item.discountAmount > 0) {
-//           return sum + item.discountAmount;
-//         } else if (
-//           typeof item.discountPercent === "number" &&
-//           item.discountPercent > 0 &&
-//           item.discountPercent <= 100
-//         ) {
-//           return sum + (totalOrder * item.discountPercent) / 100;
-//         } else {
-//           return sum;
-//         }
-//       }, 0);
-//       totalOrder -= totalDiscount;
-//       if (totalOrder < 0) {
-//         totalOrder = 0;
-//       }
-//     } else {
-//       throw new Error("Sale phải là một mảng");
-//     }
-
-//     // Tạo đơn hàng
-//     const order = new OrderModel({
-//       cart: cartInOrder,
-//       ship,
-//       address,
-//       sale,
-//       totalOrder,
-//     });
-//     const result = await order.save();
-
-//     // Cập nhật số lượng `sold` cho các sản phẩm
-//     for (let cartItem of cartInOrder) {
-//       for (let productItem of cartItem.products) {
-//         const productId = productItem.productId || productItem._id; // Hỗ trợ cả productId và _id
-//         if (!productId) {
-//           console.error(`Sản phẩm thiếu ID: ${JSON.stringify(productItem)}`);
-//           continue;
-//         }
-
-//         const product = await ProductModel.findById(productId);
-//         if (product) {
-//           product.sold = (product.sold || 0) + productItem.quantity;
-//           await product.save();
-//           console.log(`Cập nhật thành công: Sản phẩm ${product.name}, Sold: ${product.sold}`);
-//         } else {
-//           console.error(`Không tìm thấy sản phẩm với ID: ${productId}`);
-//         }
-//       }
-//     }
-//     const userInDB = await UserModel.findById(userId);
-//     if (userInDB) {
-//       for (let cartItem of cartInOrder) {
-//         for (let productItem of cartItem.products) {
-//           const product = await ProductModel.findById(productItem.productId);
-//           if (product) {
-//             let newItem = {
-//               _id: productItem.productId,
-//               name: product.name,
-//               quantity: productItem.quantity,
-//               status: result.status,
-//               images: product.images,
-//               date: Date.now(),
-//             };
-//             userInDB.carts.push(newItem);
-//           }
-//         }
-//       }
-//       await userInDB.save();
-//     }
-
-//     return result;
-//   } catch (error) {
-//     console.log(error.message);
-//     throw new Error(error.message || "Thêm đơn hàng thất bại");
-//   }
-// };
 
 const updateOrder = async (id, status) => {
   try {
