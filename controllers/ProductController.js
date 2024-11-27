@@ -173,7 +173,6 @@ const addProduct = async (
       images,
       description,
       discount,
-      
     };
 
    
