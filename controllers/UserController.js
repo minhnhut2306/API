@@ -530,7 +530,27 @@ const deleteAddress = async (userId, addressId) => {
   }
 };
 
+const updateUser = async(userId,phone)=>{
+  try {
+    const userInDb = await userModel.findById(userId);
+    if (!userInDb) {
+      throw new Error("Người dùng không tồn tại");
+    }
+    const phoneRegex = /^[0-9]{10,11}$/;
+   
+    if (!phoneRegex.test(phone)) {
+      throw new Error("Số điện thoại không đúng định dạng");
+    }
+    userInDb.phone = phone;
+    await userInDb.save();
+    return userInDb;
+    
+  } catch (error) {
+    console.error("updateUser error:", error);
+    throw error;
+  }
 
+}
 
 
 
@@ -549,5 +569,6 @@ module.exports = {
   changePassword,
   deleteAddress,
   getAddressById,
-  updateAddress
+  updateAddress,
+  updateUser
 };
