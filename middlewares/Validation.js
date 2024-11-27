@@ -53,7 +53,7 @@ const validateProduct = async (req, res, next) => {
     }
 
     // Kiểm tra discount (khuyến mãi)
-    if (isNaN(discount) || discount < 0 || discount > 100) {
+    if (discount === undefined || isNaN(discount) || discount < 0 || discount > 100) {
       throw new Error("Discount is invalid. It must be a number between 0 and 100.");
     }
 
