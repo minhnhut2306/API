@@ -21,8 +21,8 @@ const addCart = async (userId, products) => {
     }
 
     const carts = await CartModel.find({ "user._id": new mongoose.Types.ObjectId(userId) });
-    let cart = carts.find(cart => 
-      cart.products.some(p => p._id.equals(products[0].id))  
+    let cart = carts.find(cart =>
+      cart.products.some(p => p._id.equals(products[0].id))
     );
 
     if (!cart) {
@@ -34,8 +34,8 @@ const addCart = async (userId, products) => {
     }
     for (let index = 0; index < products.length; index++) {
       const item = products[index];
-      const productId = item.id; 
-      const quantityToAdd = item.quantity; 
+      const productId = item.id;
+      const quantityToAdd = item.quantity;
 
       const product = await ProductModel.findById(productId);
       if (!product) {
@@ -50,32 +50,28 @@ const addCart = async (userId, products) => {
       if (existingProductIndex > -1) {
         cart.products[existingProductIndex].quantity += quantityToAdd;
       } else {
+        const finalPrice = product.price - (product.discount || 0);
+
         cart.products.push({
           _id: product._id,
           name: product.name,
           category: product.category,
-          price: product.price,
+          price: finalPrice,
           quantity: quantityToAdd,
           images: product.images,
-          discount: product.discount || '',
+          discount: product.discount || 0,
         });
       }
     }
 
     cart.total = cart.products.reduce(
-      (sum, product) => {
-        const priceAfterDiscount = product.price - product.discount;
-    
-        return sum + priceAfterDiscount * product.quantity;
-      },
-      0 
+      (sum, product) => sum + product.price * product.quantity, 0
     );
-    
 
     const result = await cart.save();
     console.log('Cart saved', result);
 
-    return result; 
+    return result;
 
   } catch (error) {
     console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);

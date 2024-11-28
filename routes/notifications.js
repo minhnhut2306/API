@@ -32,7 +32,7 @@ router.get('/', async (req, res, next )=> {
  // Endpoint tạo thông báo cho khuyến mãi
 router.post('/add_notification', async (req, res) => {
     const { userId, promotionMessage } = req.body;
-
+    console.log('Received promotionMessage:', promotionMessage);
     try {
         await checkUserValidity(userId);
         const notification = await AddNoti(userId, promotionMessage);
