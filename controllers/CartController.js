@@ -21,7 +21,20 @@ const addCart = async (userId, products) => {
     }
 
     const carts = await CartModel.find({ "user._id": new mongoose.Types.ObjectId(userId) });
+    let cart = carts.find(cart => 
+      cart.products.some(p => p._id.equals(products[0].id))  // Kiểm tra nếu có sản phẩm nào trong giỏ hàng của người dùng
+    );
 
+    if (!cart) {
+      // Nếu không có giỏ hàng, tạo mới giỏ hàng
+      cart = new CartModel({
+        user: { _id: userInDB._id, name: userInDB.name },
+        products: [],
+        total: 0,
+      });
+    }
+
+    // Thêm sản phẩm vào giỏ
     for (let index = 0; index < products.length; index++) {
       const item = products[index];
       const productId = item.id; // ID sản phẩm
@@ -36,55 +49,37 @@ const addCart = async (userId, products) => {
         throw new Error(`Sản phẩm ${product.name} không đủ số lượng trong kho`);
       }
 
-      let cart = carts.find(cart => 
-        cart.products.some(p => p._id.equals(productId))
-      );
-
-      if (!cart) {
-        cart = new CartModel({
-          user: { _id: userInDB._id, name: userInDB.name },
-          products: [{
-            _id: product._id,
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            quantity: quantityToAdd,
-            images: product.images,
-          }],
-          total: product.price * quantityToAdd,
-        });
+      const existingProductIndex = cart.products.findIndex(p => p._id.equals(productId));
+      if (existingProductIndex > -1) {
+        cart.products[existingProductIndex].quantity += quantityToAdd;
       } else {
-        const existingProductIndex = cart.products.findIndex(p => p._id.equals(productId));
-        if (existingProductIndex > -1) {
-          cart.products[existingProductIndex].quantity += quantityToAdd;
-        } else {
-          cart.products.push({
-            _id: product._id,
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            quantity: quantityToAdd,
-            images: product.images,
-          });
-        }
-
-        cart.total = cart.products.reduce(
-          (sum, product) => sum + product.price * product.quantity, 0
-        );
+        cart.products.push({
+          _id: product._id,
+          name: product.name,
+          category: product.category,
+          price: product.price,
+          quantity: quantityToAdd,
+          images: product.images,
+        });
       }
-    const result = await cart.save();
-    console.log('Cart saved', result);
-    
-
-    return result; 
     }
 
-    return { status: true, message: 'Thêm sản phẩm vào giỏ hàng thành công' };
+    // Cập nhật tổng giá trị của giỏ hàng
+    cart.total = cart.products.reduce(
+      (sum, product) => sum + product.price * product.quantity, 0
+    );
+
+    const result = await cart.save(); // Lưu giỏ hàng sau khi thêm tất cả sản phẩm
+    console.log('Cart saved', result);
+
+    return result; // Trả về giỏ hàng đã cập nhật
+
   } catch (error) {
     console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
     throw new Error(error.message || "Thêm sản phẩm vào giỏ hàng thất bại");
   }
 };
+
 
 
 
