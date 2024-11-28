@@ -9,7 +9,7 @@ const payos = new PayOS(
     '4b550b9acc1e453288f2476cfd57b4426c6095019e00d9e47cc6dc32a7077f61'
 );
 
-const YOUR_DOMAIN = 'http://192.168.1.10:6677';
+const YOUR_DOMAIN = 'https://server-smoky-kappa.vercel.app/';
 
 router.post('/create-payment-link', async (req, res) => {
     const {amount, orderId, description, user } = req.body;

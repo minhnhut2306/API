@@ -106,9 +106,11 @@ const addProduct = async (
   supplier,
   uses,
   images,
-  description
+  description,
+  discount
 ) => {
   try {
+
     if (
       !name ||
       !category ||
@@ -116,40 +118,47 @@ const addProduct = async (
       !price ||
       !oum ||
       !preserve ||
-      !images
+      !images ||
+      !description ||
+      discount === undefined || 
+      isNaN(discount) || 
+      discount < 0 || 
+      discount > 100 
     ) {
-      throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm");
+      throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm hoặc nhập khuyến mãi hợp lệ");
     }
 
+ 
     if (quantity <= 0) {
       throw new Error("Số lượng không được nhập dưới 1");
     }
+
+  
     if (price < 0) {
       throw new Error("Giá tiền không được âm");
     }
 
-    // lấy category theo id
     const categoryInDB = await CategoryModel.findById(category);
     if (!categoryInDB) {
       throw new Error("Danh mục không tồn tại");
     }
 
     const preserveInDB = await PreserveModel.findById(preserve);
-    if (!categoryInDB) {
-      throw new Error("oại hàng không tồn tại");
+    if (!preserveInDB) {
+      throw new Error("Loại hàng không tồn tại");
     }
-
-    // tạo object category
     category = {
       category_id: categoryInDB._id,
       category_name: categoryInDB.name,
     };
 
+    
     preserve = {
       preserve_id: preserveInDB._id,
       preserve_name: preserveInDB.name,
     };
 
+  
     const product = {
       name,
       category,
@@ -163,9 +172,13 @@ const addProduct = async (
       uses,
       images,
       description,
+      discount,
     };
+
+   
     const newProduct = new ProductModel(product);
     const result = await newProduct.save();
+
     return result;
   } catch (error) {
     console.error("addProduct error: ", error.message);
@@ -179,15 +192,17 @@ const updateProduct = async (
   name,
   category,
   quantity,
-  origin,  // Có thể truyền chuỗi rỗng
+  origin, // Có thể truyền chuỗi rỗng
   price,
-  fiber,   // Có thể truyền chuỗi rỗng
-  oum,     // Có thể truyền chuỗi rỗng
+  fiber, // Có thể truyền chuỗi rỗng
+  oum, // Có thể truyền chuỗi rỗng
   preserve,
   supplier, // Có thể truyền chuỗi rỗng
-  uses,     // Có thể truyền chuỗi rỗng
+  uses, // Có thể truyền chuỗi rỗng
+  discount,
   images,
   description // Có thể truyền chuỗi rỗng
+  
 ) => {
   try {
     // Tìm sản phẩm theo ID
@@ -234,6 +249,7 @@ const updateProduct = async (
     if (oum !== undefined) udtProduct.oum = oum;
     if (supplier !== undefined) udtProduct.supplier = supplier;
     if (uses !== undefined) udtProduct.uses = uses;
+    if (discount !== undefined) udtProduct.discount = discount;
     if (description !== undefined) udtProduct.description = description;
 
     // Cập nhật thời gian sửa đổi
@@ -444,7 +460,6 @@ const getTop10PW = async (inputDate) => {
   }
 };
 
-
 // quản lí hàng hóa
 
 module.exports = {
@@ -457,5 +472,5 @@ module.exports = {
   updateProduct,
   getProductsByCategory,
   commentProduct,
-  getTop10PW
+  getTop10PW,
 };

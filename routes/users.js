@@ -137,8 +137,8 @@ router.delete("/delete-account", async (req, res) => {
 router.put("/:id/updateProfile", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, birthday, bio, gender,avatar } = req.body
-    const result = await userController.updateProfile(id, name, birthday, bio, gender,avatar);
+    const { name, birthday, bio, gender, avatar } = req.body
+    const result = await userController.updateProfile(id, name, birthday, bio, gender, avatar);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
     console.log("UpdateProfile error:", error.message);
@@ -308,5 +308,26 @@ router.delete('/deleteAddress/:userId/:addressId', async (req, res) => {
   }
 });
 
+router.put('/updateUsers/:userId', async (req, res) => {
+  const { phone } = req.body;
 
+  const { userId } = req.params
+  try {
+    const updateUser = await userController.updateUser(
+      userId,
+      phone
+
+    );
+
+    console.log("Updated address from controller:", updateUser);
+    if (updateUser) {
+      res.status(200).json({ message: 'User đã được cập nhật', userId: updateUser });
+    } else {
+      res.status(400).json({ message: 'Lỗi cập nhật User' });
+    }
+  } catch (error) {
+    console.error('Update User error:', error);
+    res.status(400).json({ message: error.message });
+  }
+});
 module.exports = router;
