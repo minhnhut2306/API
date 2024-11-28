@@ -4,6 +4,8 @@ const CartModel = require("./CartModel");
 const productModel = require("./ProductModel");
 const bcrypt = require("bcryptjs");
 const UserModel = require("./UserModel");
+const mongoose = require("mongoose"); // Nhập mongoose
+
 
 const { ObjectId } = require('mongodb'); 
 
@@ -218,11 +220,14 @@ const getProfile = async (id) => {
   }
 };
 
-const deleteAccount = async (emailOrPhone) => {
+const deleteAccountById = async (userId) => {
   try {
-    const result = await userModel.findOneAndDelete({
-      $or: [{ email: emailOrPhone }, { phone: emailOrPhone }],
-    });
+    // Kiểm tra định dạng userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return { message: "UserId không hợp lệ" };
+    }
+
+    const result = await userModel.findByIdAndDelete(userId);
 
     if (!result) {
       return { message: "Tài khoản không tồn tại" };
@@ -561,7 +566,7 @@ module.exports = {
   getOldUsers,
   getProfile,
   updateProfile,
-  deleteAccount,
+  deleteAccountById,
   addAddress,
   getAddress,
   getCartById,

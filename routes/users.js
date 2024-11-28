@@ -1,7 +1,9 @@
 var express = require("express");
 var router = express.Router();
 const userController = require("../controllers/UserController")
-const { deleteAccount } = require("../controllers/UserController");
+const { deleteAccountById } = require("../controllers/UserController");
+const mongoose = require("mongoose"); // Nhập mongoose
+
 
 
 /* GET 
@@ -121,16 +123,37 @@ router.post("/login", async (req, res, next) => {
 //http://localhost:6677/users/delete-account
 router.delete("/delete-account", async (req, res) => {
   try {
-    const { emailOrPhone } = req.body;
-    if (!emailOrPhone) {
-      return res.status(400).json({ status: false, data: "Email hoặc số điện thoại là bắt buộc" });
+    const { userId } = req.body; // Nhận userId từ request body
+
+    // Kiểm tra xem userId có được cung cấp hay không
+    if (!userId) {
+      return res.status(400).json({
+        status: false,
+        data: "UserId là bắt buộc",
+      });
     }
 
-    const result = await userController.deleteAccount(emailOrPhone);
-    return res.status(200).json({ status: true, data: result });
+    // Kiểm tra định dạng của userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        status: false,
+        data: "UserId không hợp lệ",
+      });
+    }
+
+    // Gọi controller để xóa tài khoản
+    const result = await userController.deleteAccountById(userId);
+
+    return res.status(200).json({
+      status: true,
+      data: result,
+    });
   } catch (error) {
-    console.log("Delete account error:", error.message);
-    return res.status(500).json({ status: false, data: error.message });
+    console.error("Delete account error:", error.message);
+    return res.status(500).json({
+      status: false,
+      data: "Xóa tài khoản thất bại: " + error.message,
+    });
   }
 });
 
