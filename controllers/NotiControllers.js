@@ -60,10 +60,12 @@ const AddNoti = async (userId, promotionMessage) => {
     throw new Error("Người dùng không hợp lệ.");
   }
 
+  console.log('Promotion message:', promotionMessage); 
   if (!promotionMessage || typeof promotionMessage !== "string") {
     console.error("Thông điệp khuyến mãi không hợp lệ.");
     throw new Error("Thông điệp khuyến mãi không hợp lệ.");
   }
+  
 
   try {
     const notification = new Notification({
