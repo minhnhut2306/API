@@ -31,4 +31,31 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+router.get('/getcommentbyuserid/:userid', async (req, res) => {
+  try {
+    const { userid } = req.params; 
+    const result = await CommentController.getComments(userid); 
+    console.log('result', result);
+    
+    
+    if (result.status) {
+      return res.status(200).json({
+        status: true,
+        data: result.data, 
+      });
+    } else {
+      return res.status(404).json({
+        status: false,
+        message: result.message, 
+      });
+    }
+  } catch (error) {
+    console.error('Error getting comments:', error.message);
+    return res.status(500).json({
+      status: false,
+      message: 'Có lỗi xảy ra khi lấy bình luận.',
+    });
+  }
+});
+
 module.exports = router;
