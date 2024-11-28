@@ -33,19 +33,20 @@ router.get("/:id/getOrderById", async (req, res, next) => {
  */
 router.post("/addOrder", async (req, res, next) => {
   try {
-    const { cart, userId, ship, sale } = req.body;
+    const { cart, userId, ship, sale, totalOrder } = req.body;
 
-    if (!cart || !userId || !ship) {
+    if (!cart || !userId || !ship || totalOrder === undefined) {
       return res.status(400).json({ status: false, data: "Thiếu thông tin đơn hàng" });
     }
 
-    const result = await OderController.addOrder(cart, userId, ship, sale);
+    const result = await OderController.addOrder(cart, userId, ship, sale, totalOrder);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
     console.error("Error in addOrder:", error.message);
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+
 
 
 // cập nhật trạng thái đơn hàng

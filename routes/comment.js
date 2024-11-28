@@ -29,15 +29,22 @@ router.post("/addComment", async (req, res) => {
       data: newComment,
     });
   } catch (error) {
-    console.error("Thêm bình luận error: ", error.message);
-    return res.status(500).json({
-      status: false,
-      message: `Lỗi thêm bình luận: ${error.message}`,
-    });
+
+    console.error("Thêm bình luận error: ", error);
+    return res.status(500).json({ status: false, message: error.message || "Có lỗi xảy ra" });
   }
 });
 
-// Sử dụng imagesRouter cho các API tải ảnh/video
-router.use("/images", imagesRouter);
+
+router.get("/", async (req, res, next) => {
+  try {
+    const preserves = await PreserveController.getPreserves();
+    return res.status(200).json({ status: true, data: preserves });
+  } catch (error) {
+    console.log("Get categories error: ", error.massage);
+    return res.status(500).json({ status: false, data: error.massage });
+  }
+});
+
 
 module.exports = router;

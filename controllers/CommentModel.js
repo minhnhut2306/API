@@ -4,22 +4,20 @@ const Schema = mongoose.Schema;
 const CommentSchema = new Schema(
   {
     user: {
-      id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-      name: { type: String, default: "Ẩn danh" },
+
+      type: Object,
+      default: {},
+      required: true, 
     },
     productId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-      required: true,
-    },
-    orderId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Order", // Tham chiếu đến collection đơn hàng
-      required: true,
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "product",
+      required: true, 
     },
     rating: {
       type: Number,
-      required: true,
+      required: true, 
+
       min: 1,
       max: 5,
     },
@@ -29,24 +27,31 @@ const CommentSchema = new Schema(
     },
     images: [
       {
-        type: String, // URL ảnh
+        type: String,
         trim: true,
       },
     ],
     videos: [
       {
-        type: String, // URL video
+        type: String,
         trim: true,
       },
     ],
     displayName: {
-      type: Boolean,
+
+      type: Boolean, 
+
       default: true,
     },
   },
   {
-    timestamps: true,
+
+    timestamps: true, 
   }
 );
 
-module.exports = mongoose.model("Comment", CommentSchema);
+
+const CommentModel = mongoose.model("Comment", CommentSchema);
+
+module.exports = CommentModel;
+
