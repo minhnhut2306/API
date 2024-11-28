@@ -22,23 +22,20 @@ const addCart = async (userId, products) => {
 
     const carts = await CartModel.find({ "user._id": new mongoose.Types.ObjectId(userId) });
     let cart = carts.find(cart => 
-      cart.products.some(p => p._id.equals(products[0].id))  // Kiểm tra nếu có sản phẩm nào trong giỏ hàng của người dùng
+      cart.products.some(p => p._id.equals(products[0].id))  
     );
 
     if (!cart) {
-      // Nếu không có giỏ hàng, tạo mới giỏ hàng
       cart = new CartModel({
         user: { _id: userInDB._id, name: userInDB.name },
         products: [],
         total: 0,
       });
     }
-
-    // Thêm sản phẩm vào giỏ
     for (let index = 0; index < products.length; index++) {
       const item = products[index];
-      const productId = item.id; // ID sản phẩm
-      const quantityToAdd = item.quantity; // Số lượng muốn thêm vào giỏ hàng
+      const productId = item.id; 
+      const quantityToAdd = item.quantity; 
 
       const product = await ProductModel.findById(productId);
       if (!product) {
@@ -60,19 +57,25 @@ const addCart = async (userId, products) => {
           price: product.price,
           quantity: quantityToAdd,
           images: product.images,
+          discount: product.discount || '',
         });
       }
     }
 
-    // Cập nhật tổng giá trị của giỏ hàng
     cart.total = cart.products.reduce(
-      (sum, product) => sum + product.price * product.quantity, 0
+      (sum, product) => {
+        const priceAfterDiscount = product.price - product.discount;
+    
+        return sum + priceAfterDiscount * product.quantity;
+      },
+      0 
     );
+    
 
-    const result = await cart.save(); // Lưu giỏ hàng sau khi thêm tất cả sản phẩm
+    const result = await cart.save();
     console.log('Cart saved', result);
 
-    return result; // Trả về giỏ hàng đã cập nhật
+    return result; 
 
   } catch (error) {
     console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
