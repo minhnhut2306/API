@@ -5,42 +5,17 @@ const mongoose = require('mongoose');
 const CartController = require('../controllers/CartController');
 const CartModel = require('../controllers/CartModel');
 
-router.post('/addCart_App', async (req, res) => {
+router.post('/addCart_App', async (req, res, next) => {
   try {
-    // Lấy dữ liệu từ body request
     const { user, products } = req.body;
 
-    // Kiểm tra dữ liệu đầu vào
-    if (!user) {
-      return res.status(400).json({ status: false, message: "Thiếu thông tin người dùng" });
-    }
-
-    if (!Array.isArray(products) || products.length === 0) {
-      return res.status(400).json({ status: false, message: "Danh sách sản phẩm không hợp lệ" });
-    }
-
-    // Gọi hàm xử lý thêm sản phẩm vào giỏ hàng
-    const result = await CartController.addCart(user._id, products);
-
-    // Trả về kết quả thành công và thông tin giỏ hàng
-    return res.status(200).json({
-      status: true,
-      message: "Thêm sản phẩm vào giỏ hàng thành công",
-      data: result,
-    });
+    const result = await CartController.addCart(user, products);
+    return res.status(200).json({ status: true, data: result });
   } catch (error) {
-    console.error("Lỗi tại endpoint /addCart_App:", error.message);
-
-    // Trả về lỗi server
-    return res.status(500).json({
-      status: false,
-      message: "Đã xảy ra lỗi trong quá trình thêm sản phẩm vào giỏ hàng",
-      error: error.message,
-    });
+    console.log(error.message);
+    return res.status(500).json({ status: false, data: error.message });
   }
 });
-
-
 
 // cập nhật trạng thái đơn hàng 
 router.post('/:id/update', async (req, res, next) => {
