@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const notiController = require('../controllers/NotiControllers');
-const NotiControllers = require('../controllers/NotiControllers')
+const NotiControllers = require('../controllers/NotiControllers');
 const { AddNoti, checkUserValidity,checkOrderValidity,createOrderNotification,deletedNotification} = require('../controllers/NotiControllers');
 //http://localhost:6677/notifications/6721f17f923e416414dbd895
 router.delete('/:notificationId', async (req, res) => {
@@ -78,7 +78,7 @@ router.post('/orderNotification', async (req, res) => {
 
 // Endpoint lấy tất cả thông báo của người dùng
 //http://localhost:6677/notifications/671b544f7e165147f9d6cd6e
-router.get('/:userId', async (req, res) => {
+router.get('/:us', async (req, res) => {
     try {
         await notiController.getUserNotifications(req, res);
     } catch (error) {
