@@ -11,72 +11,77 @@ const mongoose = require('mongoose');
 // thêm cart
 const addCart = async (userId, products) => {
   try {
-    // Kiểm tra người dùng có tồn tại không
     const userInDB = await UserModel.findById(userId);
     if (!userInDB) {
       throw new Error("Người dùng không tồn tại");
     }
 
-    // Kiểm tra danh sách sản phẩm phải là mảng
     if (!Array.isArray(products)) {
       throw new Error("Danh sách sản phẩm phải là một mảng");
     }
 
-    // Lấy giỏ hàng của người dùng từ DB, nếu chưa có thì tạo mới
-    let cart = await CartModel.findOne({ "user._id": new mongoose.Types.ObjectId(userId) });
-    if (!cart) {
-      cart = new CartModel({
-        user: { _id: userInDB._id, name: userInDB.name },
-        products: [],
-        total: 0,
-      });
-    }
+    const carts = await CartModel.find({ "user._id": new mongoose.Types.ObjectId(userId) });
 
-    // Duyệt qua từng sản phẩm cần thêm
-    for (const item of products) {
-      const productId = item.id; // ID sản phẩm
-      const quantityToAdd = item.quantity; // Số lượng muốn thêm
+    let cart;
 
-      // Kiểm tra sản phẩm có tồn tại trong kho không
+    for (let index = 0; index < products.length; index++) {
+      const item = products[index];
+      const productId = item.id;
+      const quantityToAdd = item.quantity;
+
       const product = await ProductModel.findById(productId);
       if (!product) {
         throw new Error(`Không tìm thấy sản phẩm với ID: ${productId}`);
       }
 
-      // Kiểm tra tồn kho
       if (quantityToAdd > product.quantity) {
         throw new Error(`Sản phẩm ${product.name} không đủ số lượng trong kho`);
       }
 
-      // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-      const existingProductIndex = cart.products.findIndex(p => p._id.equals(productId));
+      cart = carts.find(cart => 
+        cart.products.some(p => p._id.equals(productId))
+      );
 
-      if (existingProductIndex > -1) {
-        // Nếu sản phẩm đã tồn tại, cập nhật số lượng
-        cart.products[existingProductIndex].quantity += quantityToAdd;
-      } else {
-        // Nếu chưa tồn tại, thêm sản phẩm mới
-        cart.products.push({
-          _id: product._id,
-          name: product.name,
-          category: product.category,
-          price: product.price,
-          quantity: quantityToAdd,
-          images: product.images,
+      if (!cart) {
+        cart = new CartModel({
+          user: { _id: userInDB._id, name: userInDB.name },
+          products: [{
+            _id: product._id,
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            quantity: quantityToAdd,
+            images: product.images,
+          }],
+          total: product.price * quantityToAdd,
         });
+      } else {
+        const existingProductIndex = cart.products.findIndex(p => p._id.equals(productId));
+        if (existingProductIndex > -1) {
+          cart.products[existingProductIndex].quantity += quantityToAdd;
+        } else {
+          cart.products.push({
+            _id: product._id,
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            quantity: quantityToAdd,
+            images: product.images,
+          });
+        }
+
+        cart.total = cart.products.reduce(
+          (sum, product) => sum + product.price * product.quantity, 0
+        );
       }
     }
-
-    // Cập nhật tổng giá trị của giỏ hàng
-    cart.total = cart.products.reduce(
-      (sum, product) => sum + product.price * product.quantity, 0
-    );
-
-    // Lưu giỏ hàng vào DB
+    
     const result = await cart.save();
-    console.log("Cart saved:", result);
 
-    return { status: true, message: "Thêm sản phẩm vào giỏ hàng thành công", cart: result };
+    // In thông tin giỏ hàng
+    console.log('Thông tin giỏ hàng: ', result);
+
+    return result; 
   } catch (error) {
     console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
     throw new Error(error.message || "Thêm sản phẩm vào giỏ hàng thất bại");
