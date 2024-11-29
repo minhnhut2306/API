@@ -11,79 +11,81 @@ const mongoose = require('mongoose');
 // thêm cart
 const addCart = async (userId, products) => {
   try {
+    // Kiểm tra sự tồn tại của người dùng
     const userInDB = await UserModel.findById(userId);
     if (!userInDB) {
       throw new Error("Người dùng không tồn tại");
     }
 
+    // Kiểm tra danh sách sản phẩm
     if (!Array.isArray(products)) {
       throw new Error("Danh sách sản phẩm phải là một mảng");
     }
 
+    // Tìm giỏ hàng hiện tại của người dùng
     const carts = await CartModel.find({ "user._id": new mongoose.Types.ObjectId(userId) });
-
     let cart;
 
+    // Kiểm tra nếu không có giỏ hàng, tạo giỏ hàng mới
+    if (!carts || carts.length === 0) {
+      cart = new CartModel({
+        user: { _id: userInDB._id, name: userInDB.name },
+        products: [],
+        total: 0,
+      });
+    } else {
+      cart = carts[0]; // Lấy giỏ hàng đầu tiên nếu tìm thấy
+    }
+
+    // Duyệt qua từng sản phẩm trong danh sách sản phẩm
     for (let index = 0; index < products.length; index++) {
       const item = products[index];
       const productId = item.id;
       const quantityToAdd = item.quantity;
 
+      // Kiểm tra sự tồn tại của sản phẩm
       const product = await ProductModel.findById(productId);
       if (!product) {
         throw new Error(`Không tìm thấy sản phẩm với ID: ${productId}`);
       }
 
+      // Kiểm tra số lượng sản phẩm trong kho
       if (quantityToAdd > product.quantity) {
         throw new Error(`Sản phẩm ${product.name} không đủ số lượng trong kho`);
       }
 
-      cart = carts.find(cart => 
-        cart.products.some(p => p._id.equals(productId))
-      );
-
-      if (!cart) {
-        cart = new CartModel({
-          user: { _id: userInDB._id, name: userInDB.name },
-          products: [{
-            _id: product._id,
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            quantity: quantityToAdd,
-            images: product.images,
-          }],
-          total: product.price * quantityToAdd,
-        });
+      // Kiểm tra sản phẩm đã có trong giỏ hàng hay chưa
+      const existingProductIndex = cart.products.findIndex(p => p._id.equals(productId));
+      if (existingProductIndex > -1) {
+        // Cập nhật số lượng nếu sản phẩm đã có trong giỏ
+        cart.products[existingProductIndex].quantity += quantityToAdd;
       } else {
-        const existingProductIndex = cart.products.findIndex(p => p._id.equals(productId));
-        if (existingProductIndex > -1) {
-          cart.products[existingProductIndex].quantity += quantityToAdd;
-        } else {
-          cart.products.push({
-            _id: product._id,
-            name: product.name,
-            category: product.category,
-            price: product.price,
-            quantity: quantityToAdd,
-            images: product.images,
-          });
-        }
-
-        cart.total = cart.products.reduce(
-          (sum, product) => sum + product.price * product.quantity, 0
-        );
+        // Thêm sản phẩm mới vào giỏ hàng
+        cart.products.push({
+          _id: product._id,
+          name: product.name,
+          category: product.category,
+          price: product.price,
+          quantity: quantityToAdd,
+          images: product.images,
+        });
       }
     }
-    
+
+    // Cập nhật tổng giá trị giỏ hàng
+    cart.total = cart.products.reduce(
+      (sum, product) => sum + product.price * product.quantity, 0
+    );
+
+    // Lưu giỏ hàng vào MongoDB
     const result = await cart.save();
+    
+    // In thông tin giỏ hàng ra console
+    console.log('Thông tin giỏ hàng đã lưu:', result);
 
-    // In thông tin giỏ hàng
-    console.log('Thông tin giỏ hàng: ', result);
-
-    return result; 
+    return result;
   } catch (error) {
-    console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error);
+    console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", error.message);
     throw new Error(error.message || "Thêm sản phẩm vào giỏ hàng thất bại");
   }
 };
