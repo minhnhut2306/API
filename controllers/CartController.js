@@ -22,7 +22,7 @@ const addCart = async (userId, products) => {
       throw new Error("Danh sách sản phẩm phải là một mảng");
     }
 
-    // Lấy giỏ hàng của người dùng từ DB, nếu không có sẽ tạo mới
+    // Lấy giỏ hàng của người dùng từ DB, nếu chưa có thì tạo mới
     let cart = await CartModel.findOne({ "user._id": new mongoose.Types.ObjectId(userId) });
     if (!cart) {
       cart = new CartModel({
@@ -32,10 +32,10 @@ const addCart = async (userId, products) => {
       });
     }
 
-    // Duyệt qua danh sách sản phẩm cần thêm
+    // Duyệt qua từng sản phẩm cần thêm
     for (const item of products) {
       const productId = item.id; // ID sản phẩm
-      const quantityToAdd = item.quantity; // Số lượng muốn thêm vào giỏ hàng
+      const quantityToAdd = item.quantity; // Số lượng muốn thêm
 
       // Kiểm tra sản phẩm có tồn tại trong kho không
       const product = await ProductModel.findById(productId);
@@ -49,10 +49,11 @@ const addCart = async (userId, products) => {
       }
 
       // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-      const existingProduct = cart.products.find(p => p._id.equals(productId));
-      if (existingProduct) {
-        // Nếu sản phẩm đã tồn tại, cộng dồn số lượng
-        existingProduct.quantity += quantityToAdd;
+      const existingProductIndex = cart.products.findIndex(p => p._id.equals(productId));
+
+      if (existingProductIndex > -1) {
+        // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+        cart.products[existingProductIndex].quantity += quantityToAdd;
       } else {
         // Nếu chưa tồn tại, thêm sản phẩm mới
         cart.products.push({
@@ -71,7 +72,7 @@ const addCart = async (userId, products) => {
       (sum, product) => sum + product.price * product.quantity, 0
     );
 
-    // Lưu giỏ hàng vào cơ sở dữ liệu
+    // Lưu giỏ hàng vào DB
     const result = await cart.save();
     console.log("Cart saved:", result);
 
@@ -81,7 +82,6 @@ const addCart = async (userId, products) => {
     throw new Error(error.message || "Thêm sản phẩm vào giỏ hàng thất bại");
   }
 };
-
 
 
 
