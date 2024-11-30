@@ -39,12 +39,19 @@ router.get("/getProductDetailById_App/:id", async (req, res, next) => {
 //   }
 // });
 
-router.get("/getTop10PW", async (req, res, next) => {
+router.get("/getTop10PW", async (req, res) => {
   try {
-    const { date } = req.query; // Nhận ngày từ query string
-    const products = await ProductController.getTop10PW(date); // Truyền ngày vào hàm
+    const { date } = req.query;
+    const parsedDate = date ? new Date(date) : null;
+
+    if (parsedDate && isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ status: false, data: "Invalid date format" });
+    }
+
+    const products = await ProductController.getTop10PW(parsedDate);
     return res.status(200).json({ status: true, data: products });
   } catch (error) {
+    console.error("Error in /getTop10PW:", error.message);
     return res.status(500).json({ status: false, data: error.message });
   }
 });

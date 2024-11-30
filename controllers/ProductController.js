@@ -395,56 +395,56 @@ const commentProduct = async (
 //     throw new Error(error.message);
 //   }
 // };
-
 const getTop10PW = async (inputDate) => {
-  // Hàm tính ngày bắt đầu tuần dựa trên một ngày cụ thể
-  function getStartOfWeekFromDate(date) {
-    const dayOfWeek = date.getDay(); // 0 (Chủ Nhật) -> 6 (Thứ Bảy)
+  const getStartOfWeekFromDate = (date) => {
+    const dayOfWeek = date.getDay(); // Chủ nhật = 0
     const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - dayOfWeek); // Lùi về đầu tuần (Chủ Nhật)
+    startOfWeek.setDate(date.getDate() - dayOfWeek);
     startOfWeek.setHours(0, 0, 0, 0);
     return startOfWeek;
-  }
+  };
 
-  // Hàm tính ngày kết thúc tuần dựa trên ngày bắt đầu tuần
-  function getEndOfWeekFromDate(startOfWeek) {
+  const getEndOfWeekFromDate = (startOfWeek) => {
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6); // Tiến tới cuối tuần (Thứ Bảy)
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
     endOfWeek.setHours(23, 59, 59, 999);
     return endOfWeek;
-  }
-
-  const currentDate = inputDate ? new Date(inputDate) : new Date();
-  const startOfWeek = getStartOfWeekFromDate(currentDate);
-  const endOfWeek = getEndOfWeekFromDate(startOfWeek);
-
-  console.log("Start of Week:", startOfWeek);
-  console.log("End of Week:", endOfWeek);
+  };
 
   try {
-    // Lấy các đơn hàng trong tuần
+    const currentDate = inputDate ? new Date(inputDate) : new Date();
+    const startOfWeek = getStartOfWeekFromDate(currentDate);
+    const endOfWeek = getEndOfWeekFromDate(startOfWeek);
+
+    console.log("Start of Week:", startOfWeek);
+    console.log("End of Week:", endOfWeek);
+
     const orders = await OrderModel.find({
       date: { $gte: startOfWeek, $lte: endOfWeek },
     }).select("cart");
 
-    // Đếm tổng số lượng đã bán cho mỗi sản phẩm trong tuần
-    const productSales = {};
+    if (!orders || orders.length === 0) {
+      console.log("No orders found for the week.");
+      return [];
+    }
 
+    const productSales = {};
     for (let order of orders) {
+      if (!order.cart || !order.cart[0]?.products) continue;
+
       for (let product of order.cart[0].products) {
         const productId = product._id;
-        const quantitySold = product.quantity;
-
-        if (productSales[productId]) {
-          productSales[productId] += quantitySold;
-        } else {
-          productSales[productId] = quantitySold;
-        }
+        const quantitySold = product.quantity || 0;
+        productSales[productId] = (productSales[productId] || 0) + quantitySold;
       }
     }
 
-    // Lấy top 10 sản phẩm bán chạy
     const productIds = Object.keys(productSales);
+    if (productIds.length === 0) {
+      console.log("No products sold during the week.");
+      return [];
+    }
+
     const topProducts = await ProductModel.find({
       _id: { $in: productIds },
     })
@@ -459,7 +459,7 @@ const getTop10PW = async (inputDate) => {
     throw new Error(error.message);
   }
 };
-
+ 
 // quản lí hàng hóa
 
 module.exports = {
