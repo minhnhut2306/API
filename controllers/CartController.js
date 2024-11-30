@@ -81,6 +81,7 @@ const addCart = async (userId, products) => {
           price: product.price,
           quantity: quantityToAdd,
           images: product.images,
+          quantityMax: product.quantity
         });
       }
     }
