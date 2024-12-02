@@ -98,7 +98,6 @@ const addSale = async (
 
 // Update an existing sale
 const updateSale = async (
-
   id,
   date,
   title,
@@ -111,19 +110,26 @@ const updateSale = async (
   try {
     const saleInDB = await SaleModel.findById(id);
     console.log(id);
+    
     if (!saleInDB) {
       throw new Error("Không tìm thấy khuyến mãi");
     }
 
+    // Kiểm tra xem có nhập cả hai discountAmount và discountPercent không
+    if (discountAmount && discountPercent) {
+      throw new Error("Chỉ được phép nhập một trong hai: giảm theo số tiền cố định hoặc giảm theo phần trăm, không thể nhập cả hai.");
+    }
 
+    // Cập nhật các giá trị khác nếu có
     saleInDB.date = date || saleInDB.date;
     saleInDB.title = title || saleInDB.title;
     saleInDB.discountAmount = discountAmount || saleInDB.discountAmount;
     saleInDB.discountPercent = discountPercent || saleInDB.discountPercent;
     saleInDB.minOrderValue = minOrderValue || saleInDB.minOrderValue;
     saleInDB.expirationDate = expirationDate || saleInDB.expirationDate;
-    saleInDB.isExpired = isExpired !== undefined ? isExpired : saleInDB.isExpired; 
+    saleInDB.isExpired = isExpired !== undefined ? isExpired : saleInDB.isExpired;
 
+    // Lưu lại bản ghi đã cập nhật
     await saleInDB.save();
     return saleInDB;
   } catch (error) {
@@ -131,6 +137,7 @@ const updateSale = async (
     throw new Error("Sửa khuyến mãi thất bại: " + error.message);
   }
 };
+
 
 module.exports = {
   addSale,
