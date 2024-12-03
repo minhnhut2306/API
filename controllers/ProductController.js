@@ -118,12 +118,9 @@ const addProduct = async (
       !price ||
       !oum ||
       !preserve ||
-      !images ||
-      !description ||
-      discount === undefined || 
-      isNaN(discount) || 
-      discount < 0 || 
-      discount > 100 
+      !images 
+
+     
     ) {
       throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm hoặc nhập khuyến mãi hợp lệ");
     }
@@ -137,6 +134,8 @@ const addProduct = async (
     if (price < 0) {
       throw new Error("Giá tiền không được âm");
     }
+
+   
 
     const categoryInDB = await CategoryModel.findById(category);
     if (!categoryInDB) {
@@ -172,7 +171,7 @@ const addProduct = async (
       uses,
       images,
       description,
-      discount,
+      discount: discount || 0,
     };
 
    
