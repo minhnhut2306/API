@@ -27,7 +27,7 @@ router.use("/categories", categoriesRouter);
 router.use("/preserves", preservesRouter);
 router.use("/addresses", addressesRouter);
 router.use("/sale", saleRouter);
-router.use("/oder", oderRouter);
+router.use("/order", oderRouter);
 router.use("/notifications", notificationRouter);
 router.use("/comment", commentRouter);
 router.use("/profile", profileRouter);
