@@ -54,31 +54,48 @@ const addOrder = async (cart, userId, ship, sale, totalOrder) => {
     }
 
     let cartInOrder = [];
-    for (let cartItem of cart) {
-      const product = await ProductModel.findById(cartItem.productId);
-      if (product) {
-        cartInOrder.push({
-          _id: cartItem._id,
-          productId: cartItem.productId,
-          quantity: cartItem.quantity,
-          price: product.price,
-        });
+    let total = 0;
+
+    for (let itemId of cart) {
+      const cartO = await CartModel.findById(itemId);
+      console.log('cartInOrder', cartInOrder);
+      console.log('cart', cartO);
+      console.log('itemId', itemId);
+      
+      
+      
+      if (!cartO) {
+        console.log(`Không tìm thấy giỏ hàng với id: ${itemId}`);
+        throw new Error("Không tìm thấy giỏ hàng");
       }
+      total += cartO.total || 0;
+      const cartItem = {
+        _id: cartO._id,
+        user: cartO.user,
+        total: cartO.total,
+        products: cartO.products,
+        date: cartO.date,
+      };
+      cartInOrder.push(cartItem);
     }
+
     const order = new OrderModel({
       cart: cartInOrder,
       ship,
       address,
       sale,
-      totalOrder: totalOrder, 
+      totalOrder,
+      date: new Date()
     });
 
     const result = await order.save();
     console.log("Đơn hàng đã được lưu:", result);
+
+    // Cập nhật số lượng sản phẩm đã bán
     for (let cartItem of cartInOrder) {
-      const product = await ProductModel.findById(cartItem.productId);
+      const product = await ProductModel.findById(cartItem.products[0]._id); 
       if (product) {
-        product.sold = (product.sold || 0) + cartItem.quantity;
+        product.sold = (product.sold || 0) + cartItem.products[0].quantity;
         await product.save();
       }
     }
