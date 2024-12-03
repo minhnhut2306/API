@@ -32,7 +32,7 @@ router.get("/:id/getOrderById", async (req, res, next) => {
  * trả về:
  */
 router.post("/addOrder", async (req, res, next) => {
-  try {
+  try {       
     const { cart, userId, ship, sale, totalOrder } = req.body;
 
     if (!cart || !userId || !ship || totalOrder === undefined) {
