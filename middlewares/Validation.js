@@ -52,10 +52,7 @@ const validateProduct = async (req, res, next) => {
       throw new Error("Preserve information is invalid");
     }
 
-    // Kiểm tra discount (khuyến mãi)
-    if (discount === undefined || isNaN(discount) || discount < 0 || discount > 100) {
-      throw new Error("Discount is invalid. It must be a number between 0 and 100.");
-    }
+   
 
     // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
     next();
