@@ -74,6 +74,10 @@ const addSale = async (
       );
     }
 
+    if(discountPercent > 100){
+      throw new Error("chỉ được phép nhập tối đa 100");
+    }
+
     // Tạo đối tượng khuyến mãi
     const sale = {
       date,
@@ -115,16 +119,27 @@ const updateSale = async (
       throw new Error("Không tìm thấy khuyến mãi");
     }
 
-    // Kiểm tra xem có nhập cả hai discountAmount và discountPercent không
-    if (discountAmount && discountPercent) {
+    // Kiểm tra logic nếu discountAmount và discountPercent đều có giá trị khác 0
+    if (
+      (discountAmount && discountPercent) &&
+      (discountAmount > 0 || discountPercent > 0)
+    ) {
       throw new Error("Chỉ được phép nhập một trong hai: giảm theo số tiền cố định hoặc giảm theo phần trăm, không thể nhập cả hai.");
+    }
+
+    // Nếu discountAmount được cập nhật mà discountPercent là 0 thì tiếp tục cho phép
+    if (discountAmount && discountAmount > 0 && discountPercent === 0) {
+      saleInDB.discountAmount = discountAmount;
+    }
+
+    // Nếu discountPercent được cập nhật mà discountAmount là 0 thì tiếp tục cho phép
+    if (discountPercent && discountPercent > 0 && discountAmount === 0) {
+      saleInDB.discountPercent = discountPercent;
     }
 
     // Cập nhật các giá trị khác nếu có
     saleInDB.date = date || saleInDB.date;
     saleInDB.title = title || saleInDB.title;
-    saleInDB.discountAmount = discountAmount || saleInDB.discountAmount;
-    saleInDB.discountPercent = discountPercent || saleInDB.discountPercent;
     saleInDB.minOrderValue = minOrderValue || saleInDB.minOrderValue;
     saleInDB.expirationDate = expirationDate || saleInDB.expirationDate;
     saleInDB.isExpired = isExpired !== undefined ? isExpired : saleInDB.isExpired;
@@ -137,6 +152,7 @@ const updateSale = async (
     throw new Error("Sửa khuyến mãi thất bại: " + error.message);
   }
 };
+
 
 
 module.exports = {
