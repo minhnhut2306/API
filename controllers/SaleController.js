@@ -113,36 +113,40 @@ const updateSale = async (
 ) => {
   try {
     const saleInDB = await SaleModel.findById(id);
-    console.log(id);
-    
+
     if (!saleInDB) {
       throw new Error("Không tìm thấy khuyến mãi");
     }
 
-    // Kiểm tra logic nếu discountAmount và discountPercent đều có giá trị khác 0
-    if (
-      (discountAmount && discountPercent) &&
-      (discountAmount > 0 || discountPercent > 0)
-    ) {
-      throw new Error("Chỉ được phép nhập một trong hai: giảm theo số tiền cố định hoặc giảm theo phần trăm, không thể nhập cả hai.");
+    // Kiểm tra logic: Không được phép có cả hai giá trị > 0 cùng lúc
+    if (discountAmount > 0 && discountPercent > 0) {
+      throw new Error("Chỉ được phép nhập một trong hai: giảm theo số tiền cố định hoặc giảm theo phần trăm.");
     }
 
-    // Nếu discountAmount được cập nhật mà discountPercent là 0 thì tiếp tục cho phép
-    if (discountAmount && discountAmount > 0 && discountPercent === 0) {
+    // Cập nhật giá trị discountAmount và reset discountPercent
+    if (discountAmount > 0) {
       saleInDB.discountAmount = discountAmount;
+      saleInDB.discountPercent = 0; // Reset discountPercent nếu có discountAmount
     }
 
-    // Nếu discountPercent được cập nhật mà discountAmount là 0 thì tiếp tục cho phép
-    if (discountPercent && discountPercent > 0 && discountAmount === 0) {
+    // Cập nhật giá trị discountPercent và reset discountAmount
+    if (discountPercent > 0) {
       saleInDB.discountPercent = discountPercent;
+      saleInDB.discountAmount = 0; // Reset discountAmount nếu có discountPercent
+    }
+
+    // Nếu cả hai giá trị đều bằng 0 hoặc không có giá trị, reset về mặc định
+    if (discountAmount === 0 && discountPercent === 0) {
+      saleInDB.discountAmount = 0;
+      saleInDB.discountPercent = 0;
     }
 
     // Cập nhật các giá trị khác nếu có
-    saleInDB.date = date || saleInDB.date;
-    saleInDB.title = title || saleInDB.title;
-    saleInDB.minOrderValue = minOrderValue || saleInDB.minOrderValue;
-    saleInDB.expirationDate = expirationDate || saleInDB.expirationDate;
-    saleInDB.isExpired = isExpired !== undefined ? isExpired : saleInDB.isExpired;
+    if (date) saleInDB.date = date;
+    if (title) saleInDB.title = title;
+    if (minOrderValue) saleInDB.minOrderValue = minOrderValue;
+    if (expirationDate) saleInDB.expirationDate = expirationDate;
+    if (isExpired !== undefined) saleInDB.isExpired = isExpired;
 
     // Lưu lại bản ghi đã cập nhật
     await saleInDB.save();
@@ -152,6 +156,9 @@ const updateSale = async (
     throw new Error("Sửa khuyến mãi thất bại: " + error.message);
   }
 };
+
+
+
 
 
 
