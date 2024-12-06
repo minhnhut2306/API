@@ -9,20 +9,16 @@ router.post('/addCart_App', async (req, res, next) => {
   try {
     const { user, products } = req.body;
 
-    // Log dữ liệu nhận từ client để kiểm tra
     console.log('Received user:', user);
     console.log('Received products:', products);
 
-    // Gọi hàm addCart từ controller
     const result = await CartController.addCart(user, products);
 
-    // Trả về kết quả sau khi thêm sản phẩm vào giỏ hàng
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
-    // Log lỗi chi tiết
+
     console.log('Error while adding to cart:', error.message);
 
-    // Trả về thông báo lỗi với mã 500
     return res.status(500).json({ status: false, data: error.message });
   }
 });
