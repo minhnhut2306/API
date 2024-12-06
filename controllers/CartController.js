@@ -15,34 +15,24 @@ const addCart = async (userId, products) => {
     if (!userInDB) {
       throw new Error("Người dùng không tồn tại");
     }
-
     if (!Array.isArray(products)) {
       throw new Error("Danh sách sản phẩm phải là một mảng");
     }
-    const carts = await CartModel.find({ "user._id": new mongoose.Types.ObjectId(userId) });
-
-    
-    let cart = carts.find(cart =>
-      cart.products.some(p => p._id.toString() === products[0].id.toString())
-    );
+    let cart = await CartModel.findOne({ "user._id": new mongoose.Types.ObjectId(userId) });
 
     if (!cart) {
       cart = new CartModel({
-        user: { _id: userInDB._id, name: userInDB.name },
+        user: { _id: userInDB._id },
         products: [],
         total: 0,
       });
     }
 
     let cartChanged = false;
-
-    for (let index = 0; index < products.length; index++) {
-      const item = products[index];
+    for (let item of products) {
       const productId = item.id;
       const quantityToAdd = item.quantity;
       const product = await ProductModel.findById(productId);
-      console.log('product', product);
-      
       if (!product) {
         throw new Error(`Không tìm thấy sản phẩm với ID: ${productId}`);
       }
@@ -57,27 +47,22 @@ const addCart = async (userId, products) => {
         cartChanged = true;
       } else {
         const finalPrice = product.price - (product.discount || 0);
-
         cart.products.push({
           _id: product._id,
           name: product.name,
           category: product.category,
-          price: finalPrice,  
+          price: finalPrice,
           quantity: quantityToAdd,
           images: product.images,
           discount: product.discount || 0,
         });
         cartChanged = true;
-        console.log(`${product.name} số lượng${quantityToAdd}`);
       }
     }
+
     if (cartChanged) {
-      cart.total = cart.products.reduce(
-        (sum, product) => sum + product.price * product.quantity, 0
-      );
-      console.log('Total,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,' + cart.total);
+      cart.total = cart.products.reduce((sum, product) => sum + product.price * product.quantity, 0);
       const result = await cart.save();
-      console.log("lưu", result);
       return result;
     }
     return cart;
@@ -87,6 +72,7 @@ const addCart = async (userId, products) => {
     throw new Error(error.message || "Thêm sản phẩm vào giỏ hàng thất bại");
   }
 };
+
 
 
 
