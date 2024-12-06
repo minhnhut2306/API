@@ -22,7 +22,7 @@ const addCart = async (userId, products) => {
     }
     const carts = await CartModel.find({ "user._id": new mongoose.Types.ObjectId(userId) });
 
-    
+
     let cart = carts.find(cart =>
       cart.products.some(p => p._id.toString() === products[0].id.toString())
     );
@@ -43,7 +43,7 @@ const addCart = async (userId, products) => {
       const quantityToAdd = item.quantity;
       const product = await ProductModel.findById(productId);
       console.log('product', product);
-      
+
       if (!product) {
         throw new Error(`Không tìm thấy sản phẩm với ID: ${productId}`);
       }
@@ -63,7 +63,7 @@ const addCart = async (userId, products) => {
           _id: product._id,
           name: product.name,
           category: product.category,
-          price: finalPrice,  
+          price: finalPrice,
           quantity: quantityToAdd,
           images: product.images,
           discount: product.discount || 0,
@@ -259,30 +259,68 @@ const getAllCart = async () => {
     throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
-
 const getCartByUserId = async (userId) => {
   try {
-    // Kiểm tra xem userId có phải là một ObjectId hợp lệ không
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new Error("ID người dùng không hợp lệ.");
     }
 
-    const userObjectId = new mongoose.Types.ObjectId(userId);
+    
+    const cart = await CartModel.aggregate([
+      { $match: { "user._id": new mongoose.Types.ObjectId(userId) } },
+      {
+        $lookup: {
+          from: "products",
+          localField: "products._id",
+          foreignField: "_id",
+          as: "productDetails"
+        }
+      },
+      { $unwind: "$products" }, 
+      { $unwind: "$productDetails" },
+      {
+        $project: {
+          _id: { $toString: "$_id" }, 
+          user: {
+            _id: { $toString: "$user._id" }, 
+            name: "$user.name"
+          },
+          total: "$total",
+          status: "$status",
+          date: { $toDate: "$date" },
+          createdAt: { $toDate: "$createdAt" },
+          updatedAt: { $toDate: "$updatedAt" },
+          products: {
+            _id: { $toString: "$products._id" }, 
+            name: "$productDetails.name",
+            price: "$productDetails.price",
+            quantity: "$products.quantity",
+            productQuantity: "$productDetails.quantity",
+            category: {
+              category_id: { $toString: "$products.category.category_id" },
+              category_name: "$products.category.category_name"
+            },
+            images: "$productDetails.images",
+            discount: "$products.discount"
+          }
+        }
+      }
+    ]);
 
-    // Tìm giỏ hàng theo userId
-    const cart = await CartModel.find({ "user._id": userObjectId });
-
-    // Kiểm tra xem có giỏ hàng nào được tìm thấy không
     if (cart.length === 0) {
-      throw new Error("Không tìm thấy giỏ hàng cho người dùng này");
+      throw new Error("Không tìm thấy giỏ hàng cho người dùng này.");
     }
-
     return cart;
   } catch (error) {
-    console.error("Lỗi khi lấy giỏ hàng theo ID người dùng:", error);
+    console.error("Lỗi khi lấy giỏ hàng của người dùng:", error);
     throw new Error("Có lỗi xảy ra trong quá trình lấy giỏ hàng.");
   }
 };
+
+
+
+
+
 
 const deleteCart = async (id) => {
   try {
