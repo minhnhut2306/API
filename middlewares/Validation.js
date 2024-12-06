@@ -28,7 +28,7 @@ const validateProduct = async (req, res, next) => {
     }
 
     // Kiểm tra số lượng sản phẩm
-    if (!quantity || isNaN(quantity)) {
+    if (!quantity || isNaN(quantity) || quantity <= 0) {
       throw new Error("Quantity is invalid");
     }
 
