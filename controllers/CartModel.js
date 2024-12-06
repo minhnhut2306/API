@@ -1,21 +1,35 @@
-// khai báo 1 schema(model) cho cart
-// (_id, name, price, quantity, createAt, updateAt)
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-// const AppConstants = require('../helpers/AppConstants');
+
+const ProductSchema = new Schema({
+  _id: { type: Schema.Types.ObjectId, required: true },
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  quantity: { type: Number, required: true },
+}, { _id: false }) 
+
 
 const CartSchema = new Schema({
-    //id, name
-    user: {type: Object, require: true},
-    total: {type: Number, default: 0},
-    //{id, name, price, quantity}
-    products: {type: Array, default: []},
-    //1 xác nhận, 2: đang giao, 3: hoàn thành, 4: hủy
-    // status: {type: Number, default: AppConstants.CART_STATUS.XAC_NHAN},
-    //ngày giờ mua
-    date: {type: Date, default: Date.now},
-    status: { type: Number, default: 1 } 
-
-})
+  user: {
+    type: Schema.Types.Mixed,
+    required: true,
+  },
+  total: {
+    type: Number,
+    default: 0,
+  },
+  products: {
+    type: [ProductSchema], 
+    default: [],
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  status: {
+    type: Number,
+    default: 1, 
+  },
+}, { timestamps: true }); 
 
 module.exports = mongoose.models.cart || mongoose.model('Cart', CartSchema);
