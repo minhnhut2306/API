@@ -2,12 +2,16 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ProductSchema = new Schema({
-  _id: { type: Schema.Types.ObjectId, required: true },
-  name: { type: String, required: true },
-  price: { type: Number, required: true },
-  quantity: { type: Number, required: true },
-}, { _id: false }) 
-
+    name: { type: String, required: true },
+    category: {
+      category_id: { type: Schema.Types.ObjectId, ref: 'Category' },
+      category_name: { type: String, required: true }
+    },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true },
+    images: { type: [String], default: [] },
+    discount: { type: Number, default: 0 }
+  });
 
 const CartSchema = new Schema({
   user: {
