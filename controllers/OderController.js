@@ -5,14 +5,14 @@ const ProductModel = require("./ProductModel");
 const AddressModel = require("./AddressModel");
 const { CART_STATUS } = require("../helpers/AppConstants");
 const { isValidObjectId, Types } = require("mongoose");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 //________________________________________APP_______________________________________
 
 const getAllOrder = async () => {
   try {
     const orderInDB = await OrderModel.find().sort({
-      date: - 1
+      date: -1,
     });
     return orderInDB;
   } catch (error) {
@@ -29,7 +29,7 @@ const getOrderById = async (orderId) => {
     let query = {};
     query = {
       ...query,
-      "_id": new Types.ObjectId(orderId),
+      _id: new Types.ObjectId(orderId),
     };
     const orderInDB = await OrderModel.find(query);
     return orderInDB;
@@ -49,7 +49,9 @@ const addOrder = async (cart, userId, ship, sale, totalOrder) => {
       address = user.address.find((addr) => addr.available) || user.address[0];
       console.log("Địa chỉ người dùng:", address);
     } else {
-      throw new Error("Người dùng chưa có địa chỉ. Vui lòng thêm địa chỉ trước khi đặt hàng.");
+      throw new Error(
+        "Người dùng chưa có địa chỉ. Vui lòng thêm địa chỉ trước khi đặt hàng."
+      );
     }
 
     let cartInOrder = [];
@@ -57,12 +59,10 @@ const addOrder = async (cart, userId, ship, sale, totalOrder) => {
 
     for (let itemId of cart) {
       const cartO = await CartModel.findById(itemId);
-      console.log('cartInOrder', cartInOrder);
-      console.log('cart', cartO);
-      console.log('itemId', itemId);
-      
-      
-      
+      console.log("cartInOrder", cartInOrder);
+      console.log("cart", cartO);
+      console.log("itemId", itemId);
+
       if (!cartO) {
         console.log(`Không tìm thấy giỏ hàng với id: ${itemId}`);
         throw new Error("Không tìm thấy giỏ hàng");
@@ -84,7 +84,7 @@ const addOrder = async (cart, userId, ship, sale, totalOrder) => {
       address,
       sale,
       totalOrder,
-      date: new Date()
+      date: new Date(),
     });
 
     const result = await order.save();
@@ -92,7 +92,7 @@ const addOrder = async (cart, userId, ship, sale, totalOrder) => {
 
     // Cập nhật số lượng sản phẩm đã bán
     for (let cartItem of cartInOrder) {
-      const product = await ProductModel.findById(cartItem.products[0]._id); 
+      const product = await ProductModel.findById(cartItem.products[0]._id);
       if (product) {
         product.sold = (product.sold || 0) + cartItem.products[0].quantity;
         await product.save();
@@ -105,7 +105,6 @@ const addOrder = async (cart, userId, ship, sale, totalOrder) => {
     throw new Error(error.message || "Thêm đơn hàng thất bại");
   }
 };
-
 
 // const addOrder = async (cart, userId, ship, sale) => {
 //   try {
@@ -255,7 +254,9 @@ const updateOrder = async (id, status) => {
       (status === CART_STATUS.HUY && order.status !== CART_STATUS.XAC_NHAN) || // Chỉ cho phép hủy khi đang ở trạng thái Xác nhận
       status > 4 // Không cho phép vượt quá trạng thái 4
     ) {
-      console.log(`Trạng thái đơn hàng không hợp lệ. Trạng thái hiện tại: ${order.status}`);
+      console.log(
+        `Trạng thái đơn hàng không hợp lệ. Trạng thái hiện tại: ${order.status}`
+      );
       throw new Error("Trạng thái đơn hàng không hợp lệ");
     }
 
@@ -273,6 +274,19 @@ const updateOrder = async (id, status) => {
   }
 };
 
+const deleteOrder = async (id) => {
+  try {
+    const orderInDB = await OrderModel.findById(id);
+    if (!orderInDB) {
+      throw new Error("Không tìm thấy đơn hàng");
+    }
+    await OrderModel.deleteOne({ _id: id });
+    return true;
+  } catch (error) {
+    console.log("deleteOrderById error: ", error.message);
+    throw new Error("Xóa đơn hàng theo ID không thành công.");
+  }
+};
 
 const getOrderByIdUserId = async (userId) => {
   try {
@@ -282,7 +296,7 @@ const getOrderByIdUserId = async (userId) => {
 
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const orders = await OrderModel.find({
-      "cart.user._id": userObjectId
+      "cart.user._id": userObjectId,
     });
 
     if (orders.length === 0) {
@@ -296,11 +310,11 @@ const getOrderByIdUserId = async (userId) => {
   }
 };
 
-
 module.exports = {
   getAllOrder,
   addOrder,
   updateOrder,
   getOrderById,
-  getOrderByIdUserId
+  getOrderByIdUserId,
+  deleteOrder,
 };
