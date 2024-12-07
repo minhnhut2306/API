@@ -23,5 +23,6 @@ date: {type: Date, default: Date.now},
 //tổng thanh toán
 totalOrder: { type: Number, required: true },
 images: { type: Array, default: [],  require: false, },
+method: { type: String, required: true},
 });
 module.exports = mongoose.models.oder || mongoose.model('oder',OderSchema);

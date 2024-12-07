@@ -51,24 +51,21 @@ const findProductsByKey_App = async (key) => {
     let query = {
       $or: [
         { name: { $regex: key, $options: "i" } },
-
-        { oum: { $regex: key, $options: "i" } }, // Giả sử không cần tìm theo hình ảnh
+        { oum: { $regex: key, $options: "i" } }
       ],
     };
 
-    // Lấy danh sách sản phẩm với tất cả các trường cần thiết
-    const products = await ProductModel.find(query).select(
-      "name price images oum"
-    );
 
-    // Thêm giá trị mặc định cho image và oum
+    const products = await ProductModel.find(query);
+
+
     const productsWithDefaults = products.map((product) => ({
       ...product._doc,
       image:
         product.images && product.images.length > 0
           ? product.images[0]
-          : "default_image_url", // Lấy hình ảnh đầu tiên hoặc sử dụng hình ảnh mặc định
-      oum: product.oum || "Không có trọng lượng", // giá trị mặc định cho oum
+          : "default_image_url", 
+      oum: product.oum || "Không có trọng lượng",
     }));
 
     return productsWithDefaults;
@@ -77,6 +74,7 @@ const findProductsByKey_App = async (key) => {
     throw new Error("Lấy danh sách sản phẩm lỗi");
   }
 };
+
 
 // Xóa sản phẩm theo id
 const deleteProduct = async (id) => {
@@ -118,24 +116,24 @@ const addProduct = async (
       !price ||
       !oum ||
       !preserve ||
-      !images 
+      !images
 
-     
+
     ) {
       throw new Error("Vui lòng cung cấp đầy đủ thông tin sản phẩm hoặc nhập khuyến mãi hợp lệ");
     }
 
- 
+
     if (quantity <= 0) {
       throw new Error("Số lượng không được nhập dưới 1");
     }
 
-  
+
     if (price < 0) {
       throw new Error("Giá tiền không được âm");
     }
 
-   
+
 
     const categoryInDB = await CategoryModel.findById(category);
     if (!categoryInDB) {
@@ -151,13 +149,13 @@ const addProduct = async (
       category_name: categoryInDB.name,
     };
 
-    
+
     preserve = {
       preserve_id: preserveInDB._id,
       preserve_name: preserveInDB.name,
     };
 
-  
+
     const product = {
       name,
       category,
@@ -174,7 +172,7 @@ const addProduct = async (
       discount: discount || 0,
     };
 
-   
+
     const newProduct = new ProductModel(product);
     const result = await newProduct.save();
 
@@ -201,7 +199,7 @@ const updateProduct = async (
   discount,
   images,
   description // Có thể truyền chuỗi rỗng
-  
+
 ) => {
   try {
     // Tìm sản phẩm theo ID
@@ -458,7 +456,7 @@ const getTop10PW = async (inputDate) => {
     throw new Error(error.message);
   }
 };
- 
+
 // quản lí hàng hóa
 
 module.exports = {

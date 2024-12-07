@@ -37,7 +37,7 @@ const getOrderById = async (orderId) => {
     throw new Error("Lấy đơn hàng theo id không thành công");
   }
 };
-const addOrder = async (cart, userId, ship, sale, totalOrder) => {
+const addOrder = async (cart, userId, ship, sale, totalOrder,method) => {
   try {
     const user = await UserModel.findById(userId);
     if (!user) {
@@ -85,6 +85,7 @@ const addOrder = async (cart, userId, ship, sale, totalOrder) => {
       sale,
       totalOrder,
       date: new Date(),
+      method,
     });
 
     const result = await order.save();

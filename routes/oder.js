@@ -16,7 +16,7 @@ router.get("/getAllOrder", async (req, res, next) => {
 router.get("/:id/getOrderById", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await OderController.getOrderById(id);  
+    const result = await OderController.getOrderById(id);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
     console.log(error.message);
@@ -27,7 +27,7 @@ router.get("/:id/getOrderById", async (req, res, next) => {
 router.delete("/:id/deleteOrder", async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await OderController.deleteOrder(id);  
+    const result = await OderController.deleteOrder(id);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
     console.log(error.message);
@@ -43,14 +43,14 @@ router.delete("/:id/deleteOrder", async (req, res, next) => {
  * trả về:
  */
 router.post("/addOrder", async (req, res, next) => {
-  try {       
-    const { cart, userId, ship, sale, totalOrder } = req.body;
+  try {
+    const { cart, userId, ship, sale, totalOrder, method } = req.body;
 
     if (!cart || !userId || !ship || totalOrder === undefined) {
       return res.status(400).json({ status: false, data: "Thiếu thông tin đơn hàng" });
     }
 
-    const result = await OderController.addOrder(cart, userId, ship, sale, totalOrder);
+    const result = await OderController.addOrder(cart, userId, ship, sale, totalOrder, method);
     return res.status(200).json({ status: true, data: result });
   } catch (error) {
     console.error("Error in addOrder:", error.message);
