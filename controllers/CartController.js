@@ -264,8 +264,6 @@ const getCartByUserId = async (userId) => {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new Error("ID người dùng không hợp lệ.");
     }
-
-    
     const cart = await CartModel.aggregate([
       { $match: { "user._id": new mongoose.Types.ObjectId(userId) } },
       {
