@@ -37,7 +37,6 @@ const getOrderById = async (orderId) => {
     throw new Error("Lấy đơn hàng theo id không thành công");
   }
 };
-
 const addOrder = async (cart, userId, ship, sale, totalOrder) => {
   try {
     const user = await UserModel.findById(userId);

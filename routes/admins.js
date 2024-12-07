@@ -26,4 +26,15 @@ router.post("/loginAdmin", async (req, res, next) => {
   }
 });
 
+router.post('/change-passwordAdmin', async (req, res) => {
+  const { email, password, newPassword } = req.body;
+
+  try {
+    const result = await adminController.changePassword(email, password, newPassword);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 module.exports = router;

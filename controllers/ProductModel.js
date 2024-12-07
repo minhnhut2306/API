@@ -18,7 +18,7 @@ const ProductSchema = new Schema({
   origin: { type: String, default: "", require: false }, //xuất xứ
   preserve: { type: Object, default: {} },
   uses: { type: String, default: "", require: false }, //công dụng
-  discount: { type: String }, //giảm giá
+  discount: { type: Number, default: 0  }, //giảm giá
   createAt: { type: Date, default: Date.now },
   updateAt: { type: Date, default: Date.now },
   sold: { type: Number, require: true },
