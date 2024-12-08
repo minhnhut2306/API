@@ -353,4 +353,18 @@ router.put('/updateUsers/:userId', async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+router.delete("/delete-accountWeb", async (req, res) => {
+  try {
+    const { emailOrPhone } = req.body;
+    if (!emailOrPhone) {
+      return res.status(400).json({ status: false, data: "Email hoặc số điện thoại là bắt buộc" });
+    }
+
+    const result = await userController.deleteAccount(emailOrPhone);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log("Delete account error:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 module.exports = router;

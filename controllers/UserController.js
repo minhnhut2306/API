@@ -558,7 +558,23 @@ const updateUser = async(userId,phone)=>{
 }
 
 
+const deleteAccount = async (emailOrPhone) => {
+  try {
+    const result = await userModel.findOneAndDelete({
+      $or: [{ email: emailOrPhone }, { phone: emailOrPhone }],
+    });
 
+    if (!result) {
+      return { message: "Tài khoản không tồn tại" };
+    }
+
+    console.log("Xóa tài khoản thành công:", result);
+    return { message: "Tài khoản đã được xóa thành công" };
+  } catch (error) {
+    console.error("Xóa tài khoản thất bại:", error.message);
+    throw new Error("Xóa tài khoản thất bại: " + error.message);
+  }
+};
 module.exports = {
   register,
   login,
@@ -575,5 +591,6 @@ module.exports = {
   deleteAddress,
   getAddressById,
   updateAddress,
-  updateUser
+  updateUser,
+  deleteAccount
 };
