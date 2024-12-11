@@ -93,12 +93,16 @@ const addOrder = async (cart, userId, ship, sale, totalOrder,method) => {
 
     // Cập nhật số lượng sản phẩm đã bán
     for (let cartItem of cartInOrder) {
-      const product = await ProductModel.findById(cartItem.products[0]._id);
-      if (product) {
-        product.sold = (product.sold || 0) + cartItem.products[0].quantity;
-        await product.save();
+      for (let productData of cartItem.products) {
+        const product = await ProductModel.findById(productData._id);
+        if (product) {
+          product.quantity = (product.quantity || 0) - productData.quantity;
+          product.sold = (product.sold || 0) + productData.quantity;
+          await product.save();
+        }
       }
     }
+    
 
     return result;
   } catch (error) {
