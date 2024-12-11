@@ -198,6 +198,36 @@ router.put(
   }
 );
 
+
+// API để cập nhật số lượng sản phẩm
+router.put("/:id/update-quantity/:quantity", async (req, res) => {
+  try {
+    const { id, quantity } = req.params;
+
+    if (quantity === undefined || isNaN(quantity)) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Số lượng thay đổi không hợp lệ" });
+    }
+
+    const result = await ProductController.updateQuantity(
+      id,
+      parseInt(quantity)
+    );
+
+    if (!result.success) {
+      return res.status(400).json({ status: false, message: result.message });
+    }
+
+    return res.status(200).json({ status: true, data: result.data });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật số lượng ", error.message);
+    return res.status(500).json({ status: false, message: error.message });
+  }
+});
+
+
+
 // router.post("/:productId/commentProduct", async (req, res, next) => {
 //   try {
 //     const { productId } = req.params;
