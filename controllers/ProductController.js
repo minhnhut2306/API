@@ -457,6 +457,60 @@ const getTop10PW = async (inputDate) => {
   }
 };
 
+
+const updateQuantity = async (id, quantityChange) => {
+  try {
+    // Kiểm tra ID sản phẩm có hợp lệ không
+    if (!id || typeof id !== 'string') {
+      throw new Error("ID sản phẩm không hợp lệ");
+    }
+
+    // Tìm sản phẩm theo ID
+    const product = await ProductModel.findById(id);
+    if (!product) {
+      throw new Error(`Không tìm thấy sản phẩm với ID: ${id}`);
+    }
+
+    // Kiểm tra giá trị thay đổi số lượng
+    if (quantityChange === undefined || typeof quantityChange !== "number") {
+      throw new Error("Số lượng thay đổi không hợp lệ");
+    }
+
+    // Kiểm tra số lượng thay đổi có phải là số nguyên không
+    if (!Number.isInteger(quantityChange)) {
+      throw new Error("Số lượng thay đổi phải là số nguyên");
+    }
+
+    // Đảm bảo không giảm số lượng vượt quá tồn kho
+    if (quantityChange < 0 && product.quantity + quantityChange < 0) {
+      throw new Error("Số lượng thay đổi vượt quá tồn kho hiện có");
+    }
+
+    // Cập nhật số lượng sản phẩm
+    product.quantity += quantityChange;
+
+    // Cập nhật thời gian sửa đổi
+    product.updatedAt = new Date();
+
+    // Lưu lại sản phẩm đã cập nhật vào cơ sở dữ liệu
+    await product.save();
+
+    return {
+      success: true,
+      message: "Cập nhật số lượng thành công",
+      data: product,
+    };
+  } catch (error) {
+    console.error("updateQuantity error: ", error.message);
+
+    // Trả về thông báo lỗi
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
 // quản lí hàng hóa
 
 module.exports = {
@@ -470,4 +524,5 @@ module.exports = {
   getProductsByCategory,
   commentProduct,
   getTop10PW,
+  updateQuantity
 };
