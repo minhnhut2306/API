@@ -55,6 +55,22 @@ router.get("/getTop10PW", async (req, res) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+router.get("/thongkedoanhso", async (req, res) => {
+  try {
+    const { date } = req.query;
+    const parsedDate = date ? new Date(date) : null;
+
+    if (parsedDate && isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ status: false, data: "Invalid date format" });
+    }
+
+    const products = await ProductController.ThongKeDoanhSo(parsedDate);
+    return res.status(200).json({ status: true, data: products });
+  } catch (error) {
+    console.error("Error in /getTop10PW:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 
 router.get("/getTopProductSell", async (req, res, next) => {
   try {
@@ -80,6 +96,7 @@ router.get("/search", async (req, res, next) => {
     console.log("Tìm kiếm sản phẩm thất bại");
     return res.status(500).json({ status: false, data: error.message });
   }
+
 });
 // =================================================================================================================
 // thêm sản phẩm

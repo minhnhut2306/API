@@ -457,6 +457,83 @@ const getTop10PW = async (inputDate) => {
   }
 };
 
+const ThongKeDoanhSo = async (inputDate) => {
+  const getStartOfWeekFromDate = (date) => {
+    const dayOfWeek = date.getDay(); // Chủ nhật = 0
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - dayOfWeek);
+    startOfWeek.setHours(0, 0, 0, 0);
+    return startOfWeek;
+  };
+
+  const getEndOfWeekFromDate = (startOfWeek) => {
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+    return endOfWeek;
+  };
+
+  try {
+    const currentDate = inputDate ? new Date(inputDate) : new Date();
+    const startOfWeek = getStartOfWeekFromDate(currentDate);
+    const endOfWeek = getEndOfWeekFromDate(startOfWeek);
+
+    console.log("Start of Week:", startOfWeek);
+    console.log("End of Week:", endOfWeek);
+
+    // Tìm các đơn hàng trong khoảng thời gian của tuần
+    const orders = await OrderModel.find({
+      date: { $gte: startOfWeek, $lte: endOfWeek },
+    }).select("cart");
+
+    if (!orders || orders.length === 0) {
+      console.log("No orders found for the week.");
+      return [];
+    }
+
+    // Thống kê tổng doanh thu cho từng sản phẩm
+    const productRevenue = {};
+    for (let order of orders) {
+      if (!order.cart || !order.cart[0]?.products) continue;
+
+      for (let product of order.cart[0].products) {
+        const productId = product._id;
+        const quantitySold = product.quantity || 0;
+        const productPrice = product.price || 0; // Assume each product has a price field
+        const revenue = quantitySold * productPrice;
+
+        productRevenue[productId] = (productRevenue[productId] || 0) + revenue;
+      }
+    }
+
+    const productIds = Object.keys(productRevenue);
+    if (productIds.length === 0) {
+      console.log("No products sold during the week.");
+      return [];
+    }
+
+    // Lấy thông tin sản phẩm và ghép với doanh thu đã bán
+    const products = await ProductModel.find({
+      _id: { $in: productIds },
+    }).select("name");
+
+    const revenueReport = products.map((product) => ({
+      productId: product._id,
+      name: product.name,
+      totalRevenue: productRevenue[product._id] || 0,
+    }));
+
+    // Sắp xếp theo tổng doanh thu giảm dần
+    revenueReport.sort((a, b) => b.totalRevenue - a.totalRevenue);
+
+    console.log("Weekly Revenue Report:", revenueReport);
+    return revenueReport;
+  } catch (error) {
+    console.error("Error in getWeeklyRevenueReport:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 
 const updateQuantity = async (id, quantityChange) => {
   try {
@@ -524,5 +601,6 @@ module.exports = {
   getProductsByCategory,
   commentProduct,
   getTop10PW,
-  updateQuantity
+  updateQuantity,
+  ThongKeDoanhSo
 };
