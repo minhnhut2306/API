@@ -37,7 +37,7 @@ const getOrderById = async (orderId) => {
     throw new Error("Lấy đơn hàng theo id không thành công");
   }
 };
-const addOrder = async (cart, userId, ship, sale, totalOrder,method) => {
+const addOrder = async (cart, userId, ship, sale, totalOrder, method) => {
   try {
     const user = await UserModel.findById(userId);
     if (!user) {
@@ -102,7 +102,6 @@ const addOrder = async (cart, userId, ship, sale, totalOrder,method) => {
         }
       }
     }
-    
 
     return result;
   } catch (error) {
@@ -315,6 +314,89 @@ const getOrderByIdUserId = async (userId) => {
   }
 };
 
+const getRevenueDaily = async (startDate, endDate) => {
+  try {
+    // Nếu không có startDate hoặc endDate, sử dụng ngày mặc định từ đầu tuần tới hôm nay
+    if (!startDate || !endDate) {
+      const today = new Date();
+      const todayStr = today.toISOString().split("T")[0]; // Ngày hôm nay
+
+      // Tính ngày đầu tuần (Chủ nhật là ngày đầu tuần)
+      const firstDayOfWeek = new Date(today);
+      firstDayOfWeek.setDate(today.getDate() - today.getDay()); // Đặt về Chủ nhật trước đó
+
+      startDate = firstDayOfWeek.toISOString().split("T")[0];
+      endDate = todayStr;
+    } else {
+      // Kiểm tra xem khoảng thời gian có lớn hơn 7 ngày không
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const timeDifference = end - start; // Tính sự khác biệt giữa ngày kết thúc và bắt đầu
+
+      if (timeDifference > 7 * 24 * 60 * 60 * 1000) { // Nếu khoảng cách lớn hơn 7 ngày
+        throw new Error("Khoảng thời gian không được vượt quá 1 tuần.");
+      }
+    }
+
+    // Chuyển startDate và endDate thành đối tượng Date
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Đảm bảo rằng ngày kết thúc có giờ là 23:59:59 để bao gồm toàn bộ ngày đó
+    end.setHours(23, 59, 59, 999);
+
+    // Truy vấn các đơn hàng từ cơ sở dữ liệu (cần phải điều chỉnh truy vấn cho phù hợp)
+    const orders = await OrderModel.find({
+      status: 3, // Đơn hàng đã hoàn thành
+      date: {
+        $gte: start, // Ngày bắt đầu
+        $lte: end,   // Ngày kết thúc
+      },
+    });
+
+    // Kiểm tra xem có đơn hàng nào không
+    if (orders.length === 0) {
+      throw new Error("Không tìm thấy đơn hàng trong khoảng thời gian này");
+    }
+
+    // Nhóm theo ngày và tính doanh thu
+    const revenueByDay = orders.reduce((acc, order) => {
+      // Lặp qua từng phần tử trong `cart`
+      order.cart.forEach((cartItem) => {
+        const day = new Date(cartItem.date).toISOString().split("T")[0]; // Ngày trong `cartItem`
+        if (!acc[day]) {
+          acc[day] = 0;
+        }
+        acc[day] += cartItem.total; // Tổng doanh thu từ `cartItem`
+      });
+      return acc;
+    }, {});
+
+    // Lấp đầy các ngày trong khoảng thời gian
+    const result = [];
+    let currentDate = new Date(start);
+
+    while (currentDate <= end) {
+      const day = currentDate.toISOString().split("T")[0]; 
+      result.push({
+        day,
+        revenue: revenueByDay[day] || 0, // Nếu không có doanh thu cho ngày đó, trả về 0
+      });
+      currentDate.setDate(currentDate.getDate() + 1); // Tăng ngày lên 1
+    }
+
+    return result; // Trả về dữ liệu
+  } catch (error) {
+    console.error("Đã xảy ra lỗi:", error);
+    return {
+      status: false,
+      message: error.message || "Lỗi trong quá trình lấy thống kê doanh thu",
+    };
+  }
+};
+
+
+
 module.exports = {
   getAllOrder,
   addOrder,
@@ -322,4 +404,5 @@ module.exports = {
   getOrderById,
   getOrderByIdUserId,
   deleteOrder,
+  getRevenueDaily,
 };
