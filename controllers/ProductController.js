@@ -133,6 +133,8 @@ const addProduct = async (
       throw new Error("Giá tiền không được âm");
     }
 
+    
+
 
 
     const categoryInDB = await CategoryModel.findById(category);

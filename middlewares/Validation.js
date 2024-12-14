@@ -14,7 +14,7 @@ const validateProduct = async (req, res, next) => {
       origin,
       preserve,
       uses,
-      discount
+      discount,
     } = req.body;
 
     // Danh sách các giá trị OUM hợp lệ
@@ -46,9 +46,16 @@ const validateProduct = async (req, res, next) => {
     }
 
     // Kiểm tra UOM
-    if (!oum || typeof oum !== "string" || !/^\d+\s*(kg|chai|bó|gram|lít|thùng|con)$/i.test(oum.trim())) {
-      throw new Error("OUM is invalid. Only allowed values are: kg, chai, bó, gram, lít, thùng,con.");
+    if (
+      !oum ||
+      typeof oum !== "string" ||
+      !/^\s*(\d*\s*(kg|chai|bó|gram|lít|thùng|con|ml))$/i.test(oum.trim())
+    ) {
+      throw new Error(
+        "OUM is invalid. Only allowed values are: kg, chai, bó, gram, lít, thùng, con, ml."
+      );
     }
+
     // Kiểm tra preserve (bảo quản)
     if (!preserve) {
       throw new Error("Preserve information is invalid");
@@ -61,7 +68,6 @@ const validateProduct = async (req, res, next) => {
     return res.status(400).json({ status: false, data: error.message });
   }
 };
-
 
 // Kiểm tra lỗi cho get sp
 const validateLimitPage = async (req, res, next) => {
