@@ -35,7 +35,18 @@ router.delete("/:id/deleteOrder", async (req, res, next) => {
   }
 });
 
+//doanh thu theo ngày
 
+router.get("/revenue/daily", async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const result = await OderController.getRevenueDaily(startDate, endDate);
+    return res.status(200).json({ status: true, data: result });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 /**
  * lấy ds tất cả danh mục
  * method: get
