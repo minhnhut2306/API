@@ -20,6 +20,7 @@ address: {type: Object, require: true},
 sale: {type: Array, default: []},
 //ngày giờ mua
 date: {type: Date, default: Date.now},
+updatedAt: {type: Date, default: Date.now},
 //tổng thanh toán
 totalOrder: { type: Number, required: true },
 images: { type: Array, default: [],  require: false, },
