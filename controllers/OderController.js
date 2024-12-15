@@ -266,6 +266,7 @@ const updateOrder = async (id, status) => {
 
     // Cập nhật trạng thái
     order.status = status;
+    order.updatedAt = new Date();
     console.log(`Trạng thái đơn hàng đã được cập nhật thành: ${status}`);
 
     let result = await order.save();
