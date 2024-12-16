@@ -239,6 +239,23 @@ const updateProduct = async (
     if (!udtcPreserve) {
       throw new Error("Loại hàng không tồn tại");
     }
+
+    if (quantity <= 0) {
+      throw new Error("Số lượng không được nhập dưới 1");
+    }
+
+
+    if (price < 0) {
+      throw new Error("Giá tiền không được âm");
+    }
+
+    if (discount < 0) {
+      throw new Error("Giá giảm không được âm");
+    }
+
+    if(discount > price){
+      throw new Error("Giá giảm không được lớn hơn giá gốc");
+    }
     udtProduct.preserve = {
       preserve_id: udtcPreserve._id,
       preserve_name: udtcPreserve.name,
