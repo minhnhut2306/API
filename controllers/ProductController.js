@@ -133,6 +133,14 @@ const addProduct = async (
       throw new Error("Giá tiền không được âm");
     }
 
+    if (discount < 0) {
+      throw new Error("Giá giảm không được âm");
+    }
+
+    if(discount > price){
+      throw new Error("Giá giảm không được lớn hơn giá gốc");
+    }
+
     
 
 
