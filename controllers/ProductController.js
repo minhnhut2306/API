@@ -630,6 +630,47 @@ const updateQuantity = async (id, quantityChange) => {
     };
   }
 };
+const deleteProductDB = async (productId) => {
+  try {
+    // Kiểm tra ID sản phẩm hợp lệ
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      throw new Error("ID sản phẩm không hợp lệ.");
+    }
+
+    // Kiểm tra xem sản phẩm có trong đơn hàng nào không
+    const productInOrder = await CartModel.aggregate([
+      { $match: { "products._id": new mongoose.Types.ObjectId(productId) } }, // Tìm sản phẩm trong giỏ hàng
+      {
+        $lookup: {
+          from: "products",
+          localField: "products._id",
+          foreignField: "_id",
+          as: "productDetails"
+        }
+      },
+      { $unwind: "$products" },
+      { $unwind: "$productDetails" },
+      {
+        $match: { "products._id": new mongoose.Types.ObjectId(productId) }
+      }
+    ]);
+
+    if (productInOrder.length > 0) {
+      throw new Error("Không thể xóa sản phẩm vì sản phẩm đang có trong giỏ hàng.");
+    }
+
+    // Tiến hành xóa sản phẩm
+    const result = await ProductModel.findByIdAndDelete(productId);
+    if (!result) {
+      throw new Error("Sản phẩm không tồn tại hoặc đã bị xóa.");
+    }
+
+    return { status: true, message: "Xóa sản phẩm thành công." };
+  } catch (error) {
+    console.error("Lỗi khi xóa sản phẩm:", error);
+    return { status: false, message: error.message };
+  }
+};
 
 // quản lí hàng hóa
 
@@ -646,5 +687,6 @@ module.exports = {
   getTop10PW,
   updateQuantity,
   ThongKeDoanhSo,
-  getOutOfStockProducts
+  getOutOfStockProducts,
+  deleteProductDB
 };

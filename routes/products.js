@@ -300,5 +300,19 @@ router.put("/:id/update-quantity/:quantity", async (req, res) => {
 // preserve,
 // Uses,
 // discount
+router.get('/getcartbyCart/:productId', async (req, res) => {
+  const { productId } = req.params; // Lấy từ URL
+  console.log("Product ID:", productId);
+  
+  try {
+    
+    const productbd = await ProductController.deleteProductDB(productId); 
+    console.log('Cart:', productbd);
 
+    res.status(200).json(productbd);
+  } catch (error) {
+    console.error('Lỗi khi lấy giỏ hàng:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+});
 module.exports = router;
