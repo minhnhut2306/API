@@ -31,6 +31,22 @@ const getProductDetailById_App = async (id) => {
     throw new Error("Lấy danh sách sản phẩm lỗi");
   }
 };
+const getOutOfStockProducts = async () => {
+  try {
+   
+    const query = { quantity: { $lte: 0 } };
+    const products = await ProductModel.find(query)
+      .select("name quantity") 
+      .sort({ createAt: -1 }); 
+
+    return products;
+  } catch (error) {
+    console.log("getOutOfStockProducts error: ", error.message);
+    throw new Error("Lấy danh sách sản phẩm hết hàng lỗi");
+  }
+};
+
+
 
 // Thống kê top 10 sp bán chạy nhiều nhất
 const getTopProductSell_Web = async () => {
@@ -629,5 +645,6 @@ module.exports = {
   commentProduct,
   getTop10PW,
   updateQuantity,
-  ThongKeDoanhSo
+  ThongKeDoanhSo,
+  getOutOfStockProducts
 };

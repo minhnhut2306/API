@@ -14,7 +14,14 @@ router.get("/getProducts", async (req, res) => {
   }
 });
 // =================================================================================================================
-
+router.get("/getOutOfStocksProducts", async (req, res) => {
+  try {
+    const products = await ProductController.getOutOfStockProducts();
+    return res.status(200).json({ status: true, data: products });
+  } catch (error) {
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 // lấy sp chi tiết theo id
 router.get("/getProductDetailById_App/:id", async (req, res, next) => {
   try {
