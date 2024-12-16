@@ -141,12 +141,12 @@ const register = async (email, password, name, phone) => {
 
 // login
 
-const login = async (email, password) => {
+const login = async (phone, password) => {
   try {
     // lấy user trong Database
-    const user = await userModel.findOne({ email: email });
+    const user = await userModel.findOne({ phone: phone });
     if (!user) {
-      throw new Error("Email không tồn tại");
+      throw new Error("phone không tồn tại");
     } else {
       // kiểm tra password
       // const check = user.password.toString() === password.toString();
