@@ -105,15 +105,15 @@ router.post("/register", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
   try {
-    const { phone, password } = req.body;
-    const result = await userController.login(phone, password);
+    const { email, password } = req.body;
+    const result = await userController.login(email, password);
 
     if (result) {
       return res.status(200).json({ status: true, data: result });
     } else {
       return res
         .status(400)
-        .json({ status: false, data: "phone hoặc mật khẩu không đúng" });
+        .json({ status: false, data: "Email hoặc mật khẩu không đúng" });
     }
   } catch (error) {
     console.log("Login error:", error.message);
