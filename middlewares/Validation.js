@@ -14,8 +14,11 @@ const validateProduct = async (req, res, next) => {
       origin,
       preserve,
       uses,
-      discount
+      discount,
     } = req.body;
+
+    // Danh sách các giá trị OUM hợp lệ
+    const validOUMs = ["kg", "chai", "bó", "gm"];
 
     // Kiểm tra tên sản phẩm
     if (!name || !name.trim() || !isNaN(name)) {
@@ -43,16 +46,20 @@ const validateProduct = async (req, res, next) => {
     }
 
     // Kiểm tra UOM
-    if (!oum || typeof oum !== "string" || !oum.trim()) {
-      throw new Error("OUM is invalid");
+    if (
+      !oum ||
+      typeof oum !== "string" ||
+      !/^\s*(\d*\s*(kg|chai|bó|gram|lít|thùng|con|ml))$/i.test(oum.trim())
+    ) {
+      throw new Error(
+        "OUM is invalid. Only allowed values are: kg, chai, bó, gram, lít, thùng, con, ml."
+      );
     }
 
     // Kiểm tra preserve (bảo quản)
     if (!preserve) {
       throw new Error("Preserve information is invalid");
     }
-
-   
 
     // Nếu mọi thứ ok thì chuyển sang middleware tiếp theo
     next();

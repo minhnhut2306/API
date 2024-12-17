@@ -31,6 +31,22 @@ const getProductDetailById_App = async (id) => {
     throw new Error("Lấy danh sách sản phẩm lỗi");
   }
 };
+const getOutOfStockProducts = async () => {
+  try {
+   
+    const query = { quantity: { $lte: 0 } };
+    const products = await ProductModel.find(query)
+      .select("name quantity") 
+      .sort({ createAt: -1 }); 
+
+    return products;
+  } catch (error) {
+    console.log("getOutOfStockProducts error: ", error.message);
+    throw new Error("Lấy danh sách sản phẩm hết hàng lỗi");
+  }
+};
+
+
 
 // Thống kê top 10 sp bán chạy nhiều nhất
 const getTopProductSell_Web = async () => {
@@ -133,6 +149,16 @@ const addProduct = async (
       throw new Error("Giá tiền không được âm");
     }
 
+    if (discount < 0) {
+      throw new Error("Giá giảm không được âm");
+    }
+
+    if(discount > price){
+      throw new Error("Giá giảm không được lớn hơn giá gốc");
+    }
+
+    
+
 
 
     const categoryInDB = await CategoryModel.findById(category);
@@ -228,6 +254,23 @@ const updateProduct = async (
     const udtcPreserve = await PreserveModel.findById(preserve);
     if (!udtcPreserve) {
       throw new Error("Loại hàng không tồn tại");
+    }
+
+    if (quantity <= 0) {
+      throw new Error("Số lượng không được nhập dưới 1");
+    }
+
+
+    if (price < 0) {
+      throw new Error("Giá tiền không được âm");
+    }
+
+    if (discount < 0) {
+      throw new Error("Giá giảm không được âm");
+    }
+
+    if(discount > price){
+      throw new Error("Giá giảm không được lớn hơn giá gốc");
     }
     udtProduct.preserve = {
       preserve_id: udtcPreserve._id,
@@ -457,6 +500,178 @@ const getTop10PW = async (inputDate) => {
   }
 };
 
+const ThongKeDoanhSo = async (inputDate) => {
+  const getStartOfWeekFromDate = (date) => {
+    const dayOfWeek = date.getDay(); // Chủ nhật = 0
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - dayOfWeek);
+    startOfWeek.setHours(0, 0, 0, 0);
+    return startOfWeek;
+  };
+
+  const getEndOfWeekFromDate = (startOfWeek) => {
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+    return endOfWeek;
+  };
+
+  try {
+    const currentDate = inputDate ? new Date(inputDate) : new Date();
+    const startOfWeek = getStartOfWeekFromDate(currentDate);
+    const endOfWeek = getEndOfWeekFromDate(startOfWeek);
+
+    console.log("Start of Week:", startOfWeek);
+    console.log("End of Week:", endOfWeek);
+
+    // Tìm các đơn hàng trong khoảng thời gian của tuần
+    const orders = await OrderModel.find({
+      date: { $gte: startOfWeek, $lte: endOfWeek },
+    }).select("cart");
+
+    if (!orders || orders.length === 0) {
+      console.log("No orders found for the week.");
+      return [];
+    }
+
+    // Thống kê tổng doanh thu cho từng sản phẩm
+    const productRevenue = {};
+    for (let order of orders) {
+      if (!order.cart || !order.cart[0]?.products) continue;
+
+      for (let product of order.cart[0].products) {
+        const productId = product._id;
+        const quantitySold = product.quantity || 0;
+        const productPrice = product.price || 0; // Assume each product has a price field
+        const revenue = quantitySold * productPrice;
+
+        productRevenue[productId] = (productRevenue[productId] || 0) + revenue;
+      }
+    }
+
+    const productIds = Object.keys(productRevenue);
+    if (productIds.length === 0) {
+      console.log("No products sold during the week.");
+      return [];
+    }
+
+    // Lấy thông tin sản phẩm và ghép với doanh thu đã bán
+    const products = await ProductModel.find({
+      _id: { $in: productIds },
+    }).select("name");
+
+    const revenueReport = products.map((product) => ({
+      productId: product._id,
+      name: product.name,
+      totalRevenue: productRevenue[product._id] || 0,
+    }));
+
+    // Sắp xếp theo tổng doanh thu giảm dần
+    revenueReport.sort((a, b) => b.totalRevenue - a.totalRevenue);
+
+    console.log("Weekly Revenue Report:", revenueReport);
+    return revenueReport;
+  } catch (error) {
+    console.error("Error in getWeeklyRevenueReport:", error.message);
+    throw new Error(error.message);
+  }
+};
+
+
+const updateQuantity = async (id, quantityChange) => {
+  try {
+    // Kiểm tra ID sản phẩm có hợp lệ không
+    if (!id || typeof id !== 'string') {
+      throw new Error("ID sản phẩm không hợp lệ");
+    }
+
+    // Tìm sản phẩm theo ID
+    const product = await ProductModel.findById(id);
+    if (!product) {
+      throw new Error(`Không tìm thấy sản phẩm với ID: ${id}`);
+    }
+
+    // Kiểm tra giá trị thay đổi số lượng
+    if (quantityChange === undefined || typeof quantityChange !== "number") {
+      throw new Error("Số lượng thay đổi không hợp lệ");
+    }
+
+    // Kiểm tra số lượng thay đổi có phải là số nguyên không
+    if (!Number.isInteger(quantityChange)) {
+      throw new Error("Số lượng thay đổi phải là số nguyên");
+    }
+
+    // Đảm bảo không giảm số lượng vượt quá tồn kho
+    if (quantityChange < 0 && product.quantity + quantityChange < 0) {
+      throw new Error("Số lượng thay đổi vượt quá tồn kho hiện có");
+    }
+
+    // Cập nhật số lượng sản phẩm
+    product.quantity += quantityChange;
+
+    // Cập nhật thời gian sửa đổi
+    product.updatedAt = new Date();
+
+    // Lưu lại sản phẩm đã cập nhật vào cơ sở dữ liệu
+    await product.save();
+
+    return {
+      success: true,
+      message: "Cập nhật số lượng thành công",
+      data: product,
+    };
+  } catch (error) {
+    console.error("updateQuantity error: ", error.message);
+
+    // Trả về thông báo lỗi
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+const deleteProductDB = async (productId) => {
+  try {
+    // Kiểm tra ID sản phẩm hợp lệ
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      throw new Error("ID sản phẩm không hợp lệ.");
+    }
+
+    // Kiểm tra xem sản phẩm có trong đơn hàng nào không
+    const productInOrder = await CartModel.aggregate([
+      { $match: { "products._id": new mongoose.Types.ObjectId(productId) } }, // Tìm sản phẩm trong giỏ hàng
+      {
+        $lookup: {
+          from: "products",
+          localField: "products._id",
+          foreignField: "_id",
+          as: "productDetails"
+        }
+      },
+      { $unwind: "$products" },
+      { $unwind: "$productDetails" },
+      {
+        $match: { "products._id": new mongoose.Types.ObjectId(productId) }
+      }
+    ]);
+
+    if (productInOrder.length > 0) {
+      throw new Error("Không thể xóa sản phẩm vì sản phẩm đang có trong giỏ hàng.");
+    }
+
+    // Tiến hành xóa sản phẩm
+    const result = await ProductModel.findByIdAndDelete(productId);
+    if (!result) {
+      throw new Error("Sản phẩm không tồn tại hoặc đã bị xóa.");
+    }
+
+    return { status: true, message: "Xóa sản phẩm thành công." };
+  } catch (error) {
+    console.error("Lỗi khi xóa sản phẩm:", error);
+    return { status: false, message: error.message };
+  }
+};
+
 // quản lí hàng hóa
 
 module.exports = {
@@ -470,4 +685,8 @@ module.exports = {
   getProductsByCategory,
   commentProduct,
   getTop10PW,
+  updateQuantity,
+  ThongKeDoanhSo,
+  getOutOfStockProducts,
+  deleteProductDB
 };

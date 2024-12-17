@@ -14,7 +14,14 @@ router.get("/getProducts", async (req, res) => {
   }
 });
 // =================================================================================================================
-
+router.get("/getOutOfStocksProducts", async (req, res) => {
+  try {
+    const products = await ProductController.getOutOfStockProducts();
+    return res.status(200).json({ status: true, data: products });
+  } catch (error) {
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 // lấy sp chi tiết theo id
 router.get("/getProductDetailById_App/:id", async (req, res, next) => {
   try {
@@ -55,6 +62,22 @@ router.get("/getTop10PW", async (req, res) => {
     return res.status(500).json({ status: false, data: error.message });
   }
 });
+router.get("/thongkedoanhso", async (req, res) => {
+  try {
+    const { date } = req.query;
+    const parsedDate = date ? new Date(date) : null;
+
+    if (parsedDate && isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ status: false, data: "Invalid date format" });
+    }
+
+    const products = await ProductController.ThongKeDoanhSo(parsedDate);
+    return res.status(200).json({ status: true, data: products });
+  } catch (error) {
+    console.error("Error in /getTop10PW:", error.message);
+    return res.status(500).json({ status: false, data: error.message });
+  }
+});
 
 router.get("/getTopProductSell", async (req, res, next) => {
   try {
@@ -80,6 +103,7 @@ router.get("/search", async (req, res, next) => {
     console.log("Tìm kiếm sản phẩm thất bại");
     return res.status(500).json({ status: false, data: error.message });
   }
+
 });
 // =================================================================================================================
 // thêm sản phẩm
@@ -198,6 +222,36 @@ router.put(
   }
 );
 
+
+// API để cập nhật số lượng sản phẩm
+router.put("/:id/update-quantity/:quantity", async (req, res) => {
+  try {
+    const { id, quantity } = req.params;
+
+    if (quantity === undefined || isNaN(quantity)) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Số lượng thay đổi không hợp lệ" });
+    }
+
+    const result = await ProductController.updateQuantity(
+      id,
+      parseInt(quantity)
+    );
+
+    if (!result.success) {
+      return res.status(400).json({ status: false, message: result.message });
+    }
+
+    return res.status(200).json({ status: true, data: result.data });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật số lượng ", error.message);
+    return res.status(500).json({ status: false, message: error.message });
+  }
+});
+
+
+
 // router.post("/:productId/commentProduct", async (req, res, next) => {
 //   try {
 //     const { productId } = req.params;
@@ -246,5 +300,19 @@ router.put(
 // preserve,
 // Uses,
 // discount
+router.get('/getcartbyCart/:productId', async (req, res) => {
+  const { productId } = req.params; // Lấy từ URL
+  console.log("Product ID:", productId);
+  
+  try {
+    
+    const productbd = await ProductController.deleteProductDB(productId); 
+    console.log('Cart:', productbd);
 
+    res.status(200).json(productbd);
+  } catch (error) {
+    console.error('Lỗi khi lấy giỏ hàng:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+});
 module.exports = router;
