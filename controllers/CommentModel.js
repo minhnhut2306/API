@@ -4,20 +4,18 @@ const Schema = mongoose.Schema;
 const CommentSchema = new Schema(
   {
     user: {
-
       type: Object,
       default: {},
-      required: true, 
+      required: true,
     },
     productId: {
-      type: mongoose.Schema.Types.ObjectId, 
+      type: mongoose.Schema.Types.ObjectId,
       ref: "product",
-      required: true, 
+      required: true,
     },
     rating: {
       type: Number,
-      required: true, 
-
+      required: true,
       min: 1,
       max: 5,
     },
@@ -37,18 +35,13 @@ const CommentSchema = new Schema(
         trim: true,
       },
     ],
-    displayName: {
-
-      type: Boolean, 
-
-      default: true,
-    },
   },
   {
-
     timestamps: true, 
   }
 );
+
+
 
 
 const CommentModel = mongoose.model("Comment", CommentSchema);
